@@ -1,0 +1,23 @@
+{
+  "name": "hola-web",
+  "version": "0.0.1",
+  "description": "vue web components using with hola-server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hery-node/hola-web.git"
+  },
+  "keywords": [
+    "vue",
+    "vuetify"
+  ],
+  "author": "hery1979 <hery1979@qq.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hery-node/hola-web/issues"
+  },
+  "homepage": "https://github.com/hery-node/hola-web#readme"
+}
