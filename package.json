@@ -1,17 +1,21 @@
 {
   "name": "hola-web",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.0.2",
+  "description": "vue components using with hola-server",
+  "main": "./dist/hola-web.common.js",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "build-bundle": "vue-cli-service build --target lib --name hola-web ./src/components/index.js"
   },
-  "dependencies": {
-    "core-js": "^3.6.5",
-    "vue": "^2.6.11"
-  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {},
   "devDependencies": {
+    "core-js": "^3.6.5",
+    "vue": "^2.6.11",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
@@ -20,6 +24,22 @@
     "eslint-plugin-vue": "^6.2.2",
     "vue-template-compiler": "^2.6.11"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hery-node/hola-web.git"
+  },
+  "keywords": [
+    "meta",
+    "nodejs",
+    "vue",
+    "vuetify"
+  ],
+  "author": "hery1979 <hery1979@qq.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hery-node/hola-web/issues"
+  },
+  "homepage": "https://github.com/hery-node/hola-web#readme",
   "eslintConfig": {
     "root": true,
     "env": {
