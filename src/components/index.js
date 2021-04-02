@@ -1,12 +1,11 @@
 import Vue from 'vue';
+import { init_axios } from '../plugins/axios'
+
 import HelloWorld from './HelloWorld.vue';
 
-const components = {
-    HelloWorld
-};
+function setup_components() {
+    Vue.component('h-hello', HelloWorld);
 
-Object.keys(components).forEach(name => {
-    Vue.component(name, components[name]);
-});
+}
 
-export default components;
+export { setup_components, init_axios }
