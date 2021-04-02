@@ -5,11 +5,28 @@ import axios from "axios";
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
+const SUCCESS = 1;
 let _axios;
 
 const default_handler = {
     handle_response: (code, data) => { console.log(code); console.log(data) },
 };
+
+const cache_memory = {};
+
+function set_cache(key, value) {
+    cache_memory[key] = value;
+}
+
+function has_cache(key) {
+    return cache_memory[key];
+}
+
+function get_cache(key) {
+    return new Promise(function (resolve) {
+        resolve(cache_memory[key]);
+    });
+}
 
 const init_axios = (config, handler) => {
     const default_config = {
@@ -56,6 +73,21 @@ Plugin.install = function (Vue) {
     Vue.prototype.$get = function (url, params) {
         const _axios = get_axios();
         return _axios.get(url, { params: params });
+    };
+
+    Vue.prototype.$read = function (url, params) {
+        if (has_cache(url)) {
+            return get_cache(url);
+        } else {
+            const _axios = get_axios();
+            return _axios.get(url, { params: params }).then(res => {
+                const data = res.data;
+                const code = res.data.code;
+                if (code == SUCCESS) {
+                    set_cache(url, data);
+                }
+            });
+        }
     };
 
     Vue.prototype.$upload = function (url, file) {
