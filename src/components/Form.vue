@@ -1,8 +1,8 @@
 <template>
   <v-card v-bind="$attrs">
     <v-form ref="form" @submit.prevent="save">
-      <v-card-title v-if="!no_title">
-        <span class="title">{{ form_title }}</span>
+      <v-card-title v-if="title">
+        <span class="title">{{ title }}</span>
       </v-card-title>
       <v-card-text>
         <v-row dense>
@@ -49,14 +49,14 @@
           </v-col>
         </v-row>
       </v-card-text>
-      <v-alert v-model="alert" :type="alert_type" dismissible><span v-html="alert_info"></span></v-alert>
+      <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
       <v-card-actions>
         <v-row align="center" justify="center" class="my-0 py-0">
-          <v-col cols="6" v-if="cancellable" align="center" justify="center">
-            <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="cancel">{{ cancel_text ? cancel_text : $t("common.cancel") }}</v-btn>
+          <v-col cols="6" v-if="cancel_label" align="center" justify="center">
+            <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="cancel">{{ cancel_label }}</v-btn>
           </v-col>
-          <v-col :cols="cancellable ? 6 : 12" align="center" justify="center">
-            <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ submit_text ? submit_text : $t("common.save") }}</v-btn>
+          <v-col :cols="cancel_label ? 6 : 12" align="center" justify="center">
+            <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ submit_label }}</v-btn>
           </v-col>
         </v-row>
       </v-card-actions>
@@ -66,86 +66,73 @@
 
 <script>
 import { TiptapVuetify, Heading, Image, Bold, Italic, Strike, Underline, Code, Paragraph, BulletList, OrderedList, ListItem, Link, Blockquote, HardBreak, HorizontalRule, History } from "tiptap-vuetify";
+import { SUCCESS, CREATE, UPDATE, FIELDS } from "./constant";
 
 export default {
   inheritAttrs: false,
 
   props: {
-    action: { type: String, required: true },
-    label: { type: String },
+    entity: { type: String, required: true },
+    //label for submit button
+    submit_label: { type: String, required: true },
+    //form title
     title: { type: String },
-    cancel_text: { type: String },
-    submit_text: { type: String },
-    cancellable: { type: Boolean, default: true },
-    resettable: { type: Boolean, default: true },
-    load_fields: { type: Boolean, default: true },
-    no_title: { type: Boolean, default: false },
-    success: { type: String },
+    //label for cancel button
+    cancel_label: { type: String },
+    //reset value after posting
+    reset_post: { type: Boolean, default: true },
+    //success hint to shown
+    success_hint: { type: String },
+    //fail hint to shown
+    fail_hint: { type: String },
+    //the fields of the entity
     fields: { type: Array, default: () => [] },
-    form_obj: {
+    //set the initial value if it is edit
+    initial_value: {
       type: Object,
       default: function() {
         return undefined;
-      }
-    }
+      },
+    },
   },
 
   components: { TiptapVuetify },
 
   mounted() {
-    if (this.form_obj) {
-      this.set_form(this.form_obj);
+    if (this.initial_value) {
+      this.set_form(this.initial_value);
     }
   },
 
   data() {
     return {
-      showPassword: false,
-      menu: false,
-      alert: false,
-      alert_type: "warning",
-      alert_info: "",
-      is_edit: false,
       form: {},
-      form_has_file: false,
-      extensions: [History, Blockquote, Link, Image, Underline, Strike, Italic, ListItem, BulletList, OrderedList, [Heading, { options: { levels: [1, 2, 3] } }], Bold, Code, HorizontalRule, Paragraph, HardBreak]
+      is_edit: false,
+      alert: {
+        shown: false,
+        type: "warning",
+        msg: "",
+      },
+      extensions: [History, Blockquote, Link, Image, Underline, Strike, Italic, ListItem, BulletList, OrderedList, [Heading, { options: { levels: [1, 2, 3] } }], Bold, Code, HorizontalRule, Paragraph, HardBreak],
     };
-  },
-
-  computed: {
-    form_title() {
-      if (this.title) {
-        return this.title;
-      }
-
-      if (this.is_edit) {
-        return this.$t("common.update_title", { obj: this.label });
-      } else {
-        return this.$t("common.add_title", { obj: this.label });
-      }
-    }
   },
 
   asyncComputed: {
     async form_fields() {
-      if (this.load_fields === false) {
-        return this.fields;
-      }
+      const url = this.entity + FIELDS;
+      const result = await this.$read(url);
 
-      const msg_required = this.$t("common.required");
-
-      const url = this.action + "/fields";
-      const result = await this.$get(url);
-      if (result.code === 0) {
+      if (result.code === SUCCESS) {
         const server_fields = result.data;
+        server_fields.forEach((field) => {});
 
         for (let i = 0; i < this.fields.length; i++) {
           const field = this.fields[i];
-          const [server_field] = server_fields.filter(f => f.name === field.value);
+          const [server_field] = server_fields.filter((f) => f.name === field.value);
           if (server_field) {
             if (server_field.required === true) {
               const rules = [];
-              rules.push(value => !!value || value === false || msg_required);
+              rules.push((value) => !!value || value === false || msg_required);
               field.rules = rules;
             }
             if (server_field.ref) {
@@ -195,64 +182,41 @@ export default {
         }
       }
       return this.fields;
-    }
+    },
   },
 
   methods: {
-    show_error(msg) {
-      this.show_alter("error", msg, false);
-    },
-
-    show_alter(type, msg, auto_hide) {
-      this.alert = true;
-      this.alert_type = type;
-      this.alert_info = msg;
-      if (auto_hide) {
-        setTimeout(() => (this.alert = false), 5000);
-      }
-    },
-
-    url(str) {
-      const image = this.form[str + "_preview"];
-      if (image) {
-        return this.$url(`${this.action}/image/${image}`);
-      } else {
-        return "";
-      }
-    },
-
-    show_form() {
-      if (this.$refs.form) {
-        this.$refs.form.reset();
-      }
-      //clear editor and image
-      for (let i = 0; i < this.fields.length; i++) {
-        const field = this.fields[i];
-        if (field.type === "editor") {
-          this.form[field.value] = "";
-        } else if (field.type === "file") {
-          this.form[field.value + "_preview"] = "";
-        }
-      }
-      this.is_edit = false;
-    },
-
     set_form(data) {
       this.form = data;
-      for (let i = 0; i < this.fields.length; i++) {
-        const field = this.fields[i];
-        const value = this.form[field.value];
-        if (field.type === "file" && value) {
-          this.form[field.value + "_preview"] = value;
-          delete this.form[field.value];
-        }
-      }
       this.is_edit = true;
     },
 
+    show_error(msg) {
+      this.show_alert("error", msg, false);
+    },
+
+    show_success(msg) {
+      this.show_alert("success", msg, false);
+    },
+
+    show_alert(type, msg, auto_hide) {
+      this.alert.shown = true;
+      this.alert.type = type;
+      this.alert.msg = msg;
+      if (auto_hide) {
+        setTimeout(() => (this.alert.shown = false), 5000);
+      }
+    },
+
+    reset_form() {
+      if (this.$refs.form) {
+        this.$refs.form.reset();
+      }
+    },
+
     cancel() {
-      this.$refs.form.reset();
-      this.$emit("cancelled");
+      this.reset_form();
+      this.$emit("cancel");
     },
 
     save() {
@@ -260,19 +224,24 @@ export default {
         return;
       }
 
-      const url = this.is_edit ? this.action + "/update" : this.action + "/add";
-      this.$post(url, this.form, this.form_has_file, this.show_error).then(result => {
-        if (result.code === 0) {
-          if (this.resettable === true) {
-            this.$refs.form.reset();
+      const url = this.is_edit ? this.entity + UPDATE : this.entity + CREATE;
+      this.$post(url, this.form).then((result) => {
+        if (result.code === SUCCESS) {
+          if (this.reset_post === true) {
+            this.reset_form();
           }
-          if (this.success) {
-            this.show_alter("success", this.success);
+          if (this.success_hint) {
+            this.show_success(this.success_hint);
           }
-          this.$emit("saved");
+          this.$emit("success");
+        } else {
+          if (this.fail_hint) {
+            this.show_error(this.fail_hint);
+          }
+          this.$emit("fail");
         }
       });
-    }
-  }
+    },
+  },
 };
 </script>
