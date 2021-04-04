@@ -1,0 +1,12 @@
+Form field:
+
+name: field name
+label: if not set, will use <entity>.<field.name>
+
+rules: define validation rules
+
+input_type: you can define this to override the mapping
+
+multiple: multiple value or not, if not defined, then array is multiple
+
+cols  //field col span

@@ -1,0 +1,13 @@
+{
+  "form": {
+    "create_title": "Create {entity}",
+    "update_title": "Update {entity}",
+    "cancel_label": "Cancel",
+    "submit_label": "Submit",
+    "required": "{field} is required.",
+    "create_success_hint": "Create {entity} Successful",
+    "create_fail_hint": "Create {entity} Failed",
+    "update_success_hint": "Update {entity} Successful",
+    "update_fail_hint": "Update {entity} Failed"
+  }
+}
