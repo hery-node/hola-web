@@ -1,10 +1,10 @@
 import Vue from 'vue';
 import { init_axios } from '../plugins/axios'
 
-import HelloWorld from './HelloWorld.vue';
+import Form from './Form.vue';
 
 function setup_components() {
-    Vue.component('h-hello', HelloWorld);
+    Vue.component('h-form', Form);
 
 }
 
