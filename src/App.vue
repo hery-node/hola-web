@@ -16,7 +16,7 @@
     </v-app-bar>
 
     <v-main>
-      <h-form entity="user"></h-form>
+      <h-form entity="user" :fields="fields"></h-form>
     </v-main>
   </v-app>
 </template>
@@ -28,7 +28,7 @@ export default {
   components: {},
 
   data: () => ({
-    //
+    fields: [{ name: "name" }, { name: "age" }],
   }),
 };
 </script>

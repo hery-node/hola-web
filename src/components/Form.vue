@@ -57,7 +57,7 @@
 <script>
 import { TiptapVuetify, Heading, Image, Bold, Italic, Strike, Underline, Code, Paragraph, BulletList, OrderedList, ListItem, Link, Blockquote, HardBreak, HorizontalRule, History } from "tiptap-vuetify";
 import { get_form_type_mapping } from "./type";
-import { SUCCESS } from "../plugins/constant";
+import { SUCCESS, INVALID_PARAMS, DUPLICATE_KEY } from "../plugins/constant";
 
 export default {
   inheritAttrs: false,
@@ -105,6 +105,8 @@ export default {
       edit_mode: false,
       show_date_picker: false,
       show_password: false,
+      //used to keep fields propterties
+      all_fields: [],
       alert: {
         shown: false,
         type: "warning",
@@ -143,13 +145,15 @@ export default {
       const all_fields = this.fields.length > 0 ? this.fields : server_fields;
 
       for (let i = 0; i < all_fields.length; i++) {
-        const field = all_fields[i];
+        let field = all_fields[i];
         if (!field.name) {
           throw new Error("field name is required. entity:" + this.entity + ",field index:" + i);
         }
 
         const label = this.$t(this.entity + "." + field.name);
+        field.label = label;
         const [server_field] = server_fields.filter((f) => f.name === field.name);
+        field = { ...field, ...server_field };
         const rules = field.rules ? field.rules : [];
 
         if (server_field) {
@@ -176,6 +180,7 @@ export default {
           field.items = await this.$get_ref_labels(this.entity);
         }
       }
+      this.all_fields = all_fields;
       return all_fields;
     },
   },
@@ -187,11 +192,11 @@ export default {
     },
 
     show_error(msg) {
-      this.show_alert("error", msg, false);
+      this.show_alert("error", msg, true);
     },
 
     show_success(msg) {
-      this.show_alert("success", msg, false);
+      this.show_alert("success", msg, true);
     },
 
     show_alert(type, msg, auto_hide) {
@@ -230,6 +235,21 @@ export default {
           }
 
           this.$emit("success");
+        } else if (result.code === INVALID_PARAMS) {
+          const fields = result.err;
+          if (fields && fields.length == 1) {
+            const [field] = fields;
+            const [label_field] = this.all_fields.filter((f) => f.name == field);
+            const error_info = this.$t("form.err_invalid_value", { field: label_field.label });
+            if (this.show_hint) {
+              this.show_error(error_info);
+            }
+          }
+        } else if (result.code === DUPLICATE_KEY) {
+          const error_info = this.$t("form.err_duplicate", { entity: this.entity_label });
+          if (this.show_hint) {
+            this.show_error(error_info);
+          }
         } else {
           const error_info = this.fail_hint ? this.fail_hint : this.edit_mode ? this.$t("form.update_fail_hint", { entity: this.entity_label }) : this.$t("form.create_fail_hint", { entity: this.entity_label });
           if (this.show_hint) {

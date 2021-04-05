@@ -8,7 +8,9 @@
     "create_success_hint": "Create {entity} Successful",
     "create_fail_hint": "Create {entity} Failed",
     "update_success_hint": "Update {entity} Successful",
-    "update_fail_hint": "Update {entity} Failed"
+    "update_fail_hint": "Update {entity} Failed",
+    "err_invalid_value": "The value of {field} is invalid, please correct it.",
+    "err_duplicate": "The {entity} already exist."
   },
   "user": {
     "_label": "User",
