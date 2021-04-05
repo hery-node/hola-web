@@ -10,10 +10,10 @@
             <template v-if="field.input_type === 'chip'">
               <v-combobox v-model="form[field.value]" :autofocus="index == 0" :label="field.label" :multiple="field.multiple" chips deletable-chips dense outlined></v-combobox>
             </template>
-            <template v-else-if="field.type === 'password'">
+            <template v-else-if="field.input_type === 'password'">
               <v-text-field v-model="form[field.value]" :autofocus="index == 0" :label="field.label" :rules="field.rules ? field.rules : []" dense outlined clearable :type="show_password ? 'text' : 'password'" :append-icon="show_password ? 'visibility' : 'visibility_off'" @click:append="show_password = !show_password" />
             </template>
-            <template v-else-if="field.type === 'date'">
+            <template v-else-if="field.input_type === 'date'">
               <v-menu v-model="show_date_picker" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y max-width="290px" min-width="290px">
                 <template v-slot:activator="{ on }">
                   <v-text-field :label="field.label" v-model="form[field.value]" readonly dense outlined clearable v-on="on"></v-text-field>
@@ -21,7 +21,7 @@
                 <v-date-picker :first-day-of-week="0" v-model="form[field.value]" no-title scrollable @input="show_date_picker = false"></v-date-picker>
               </v-menu>
             </template>
-            <template v-else-if="field.type === 'editor'">
+            <template v-else-if="field.input_type === 'editor'">
               <tiptap-vuetify v-model="form[field.value]" :extensions="extensions"></tiptap-vuetify>
             </template>
             <template v-else-if="field.ref">
@@ -30,11 +30,11 @@
             <template v-else-if="field.items">
               <v-autocomplete :items="field.items" :autofocus="index == 0" v-model="form[field.value]" :label="field.label" :rules="field.rules ? field.rules : []" :multiple="field.multiple" chips dense outlined clearable></v-autocomplete>
             </template>
-            <template v-else-if="field.type === 'boolean'">
+            <template v-else-if="field.input_type === 'boolean'">
               <v-switch align="center" justify="center" v-model="form[field.value]" :label="field.label" :rules="field.rules ? field.rules : []" dense outlined></v-switch>
             </template>
             <template v-else>
-              <v-text-field v-model="form[field.value]" :autofocus="index == 0" :type="field.type ? field.type : 'text'" :label="field.label" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-text-field>
+              <v-text-field v-model="form[field.value]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-text-field>
             </template>
           </v-col>
         </v-row>
@@ -222,11 +222,16 @@ export default {
             this.reset_form();
           }
           const success_info = this.success_hint ? this.success_hint : this.edit_mode ? this.$t("form.update_success_hint", { entity: this.entity_label }) : this.$t("form.create_success_hint", { entity: this.entity_label });
-          this.show_success(success_info);
+          if (this.show_hint) {
+            this.show_success(success_info);
+          }
+
           this.$emit("success");
         } else {
           const error_info = this.fail_hint ? this.fail_hint : this.edit_mode ? this.$t("form.update_fail_hint", { entity: this.entity_label }) : this.$t("form.create_fail_hint", { entity: this.entity_label });
-          this.show_error(error_info);
+          if (this.show_hint) {
+            this.show_error(error_info);
+          }
           this.$emit("fail");
         }
       });
