@@ -9,5 +9,11 @@
     "create_fail_hint": "Create {entity} Failed",
     "update_success_hint": "Update {entity} Successful",
     "update_fail_hint": "Update {entity} Failed"
+  },
+  "user": {
+    "_label": "User",
+    "name": "Name",
+    "email": "Email",
+    "age": "Age"
   }
 }

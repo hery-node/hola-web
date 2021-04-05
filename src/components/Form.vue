@@ -8,33 +8,33 @@
         <v-row dense>
           <v-col v-for="(field, index) in form_fields" v-bind:key="index" cols="12" sm="12" xs="12" :md="field.cols ? field.cols : 12" :lg="field.cols ? field.cols : 12">
             <template v-if="field.input_type === 'chip'">
-              <v-combobox v-model="form[field.value]" :autofocus="index == 0" :label="field.label" :multiple="field.multiple" chips deletable-chips dense outlined></v-combobox>
+              <v-combobox v-model="form[field.name]" :autofocus="index == 0" :label="field.label" :multiple="field.multiple" chips deletable-chips dense outlined></v-combobox>
             </template>
             <template v-else-if="field.input_type === 'password'">
-              <v-text-field v-model="form[field.value]" :autofocus="index == 0" :label="field.label" :rules="field.rules ? field.rules : []" dense outlined clearable :type="show_password ? 'text' : 'password'" :append-icon="show_password ? 'visibility' : 'visibility_off'" @click:append="show_password = !show_password" />
+              <v-text-field v-model="form[field.name]" :autofocus="index == 0" :label="field.label" :rules="field.rules ? field.rules : []" dense outlined clearable :type="show_password ? 'text' : 'password'" :append-icon="show_password ? 'visibility' : 'visibility_off'" @click:append="show_password = !show_password" />
             </template>
             <template v-else-if="field.input_type === 'date'">
               <v-menu v-model="show_date_picker" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y max-width="290px" min-width="290px">
                 <template v-slot:activator="{ on }">
-                  <v-text-field :label="field.label" v-model="form[field.value]" readonly dense outlined clearable v-on="on"></v-text-field>
+                  <v-text-field :label="field.label" v-model="form[field.name]" readonly dense outlined clearable v-on="on"></v-text-field>
                 </template>
-                <v-date-picker :first-day-of-week="0" v-model="form[field.value]" no-title scrollable @input="show_date_picker = false"></v-date-picker>
+                <v-date-picker :first-day-of-week="0" v-model="form[field.name]" no-title scrollable @input="show_date_picker = false"></v-date-picker>
               </v-menu>
             </template>
             <template v-else-if="field.input_type === 'editor'">
-              <tiptap-vuetify v-model="form[field.value]" :extensions="extensions"></tiptap-vuetify>
+              <tiptap-vuetify v-model="form[field.name]" :extensions="extensions"></tiptap-vuetify>
             </template>
             <template v-else-if="field.ref">
-              <v-autocomplete :items="field.items" :autofocus="index == 0" v-model="form[field.value]" :label="field.label" :rules="field.rules ? field.rules : []" :multiple="field.multiple" chips dense outlined clearable></v-autocomplete>
+              <v-autocomplete :items="field.items" :autofocus="index == 0" v-model="form[field.name]" :label="field.label" :rules="field.rules ? field.rules : []" :multiple="field.multiple" chips dense outlined clearable></v-autocomplete>
             </template>
             <template v-else-if="field.items">
-              <v-autocomplete :items="field.items" :autofocus="index == 0" v-model="form[field.value]" :label="field.label" :rules="field.rules ? field.rules : []" :multiple="field.multiple" chips dense outlined clearable></v-autocomplete>
+              <v-autocomplete :items="field.items" :autofocus="index == 0" v-model="form[field.name]" :label="field.label" :rules="field.rules ? field.rules : []" :multiple="field.multiple" chips dense outlined clearable></v-autocomplete>
             </template>
             <template v-else-if="field.input_type === 'boolean'">
-              <v-switch align="center" justify="center" v-model="form[field.value]" :label="field.label" :rules="field.rules ? field.rules : []" dense outlined></v-switch>
+              <v-switch align="center" justify="center" v-model="form[field.name]" :label="field.label" :rules="field.rules ? field.rules : []" dense outlined></v-switch>
             </template>
             <template v-else>
-              <v-text-field v-model="form[field.value]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-text-field>
+              <v-text-field v-model="form[field.name]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-text-field>
             </template>
           </v-col>
         </v-row>
@@ -57,6 +57,7 @@
 <script>
 import { TiptapVuetify, Heading, Image, Bold, Italic, Strike, Underline, Code, Paragraph, BulletList, OrderedList, ListItem, Link, Blockquote, HardBreak, HorizontalRule, History } from "tiptap-vuetify";
 import { get_form_type_mapping } from "./type";
+import { SUCCESS } from "../plugins/constant";
 
 export default {
   inheritAttrs: false,
@@ -113,6 +114,28 @@ export default {
     };
   },
 
+  computed: {
+    entity_label() {
+      return this.$t(this.entity + "._label");
+    },
+
+    form_title() {
+      if (!this.show_title) {
+        return "";
+      }
+
+      if (this.title) {
+        return this.title;
+      }
+
+      if (this.edit_mode) {
+        return this.$t("form.update_title", { entity: this.entity_label });
+      } else {
+        return this.$t("form.create_title", { entity: this.entity_label });
+      }
+    },
+  },
+
   asyncComputed: {
     async form_fields() {
       const mapping = get_form_type_mapping();
@@ -158,26 +181,6 @@ export default {
   },
 
   methods: {
-    entity_label() {
-      return this.$t(this.entity + "._label");
-    },
-
-    form_title() {
-      if (!this.show_title) {
-        return "";
-      }
-
-      if (this.title) {
-        return this.title;
-      }
-
-      if (this.edit_mode) {
-        return this.$t("form.update_title", { entity: this.entity_label });
-      } else {
-        return this.$t("form.create_title", { entity: this.entity_label });
-      }
-    },
-
     set_form(data) {
       this.form = data;
       this.edit_mode = true;

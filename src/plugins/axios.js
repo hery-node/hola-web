@@ -85,10 +85,8 @@ Plugin.install = function (Vue) {
             return get_cache(url);
         } else {
             const _axios = get_axios();
-            return _axios.get(url, { params: params }).then(res => {
-                const data = res.data;
-                const code = res.data.code;
-                if (code == SUCCESS) {
+            return _axios.get(url, { params: params }).then(data => {
+                if (data.code == SUCCESS) {
                     set_cache(url, data);
                 }
                 return data;
