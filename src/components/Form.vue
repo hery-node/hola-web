@@ -56,7 +56,6 @@
 
 <script>
 import { TiptapVuetify, Heading, Image, Bold, Italic, Strike, Underline, Code, Paragraph, BulletList, OrderedList, ListItem, Link, Blockquote, HardBreak, HorizontalRule, History } from "tiptap-vuetify";
-import { SUCCESS, CREATE, UPDATE, FIELDS, REF } from "./constant";
 import { get_form_type_mapping } from "./type";
 
 export default {
@@ -64,10 +63,10 @@ export default {
 
   props: {
     entity: { type: String, required: true },
-    //label for entity
-    entity_label: { type: String, required: true },
+    //colspan for the field
     cols: { type: Number, default: 0 },
     show_title: { type: Boolean, default: true },
+    show_hint: { type: Boolean, default: true },
     show_cancel_button: { type: Boolean, default: true },
     //form title
     title: { type: String },
@@ -102,73 +101,67 @@ export default {
   data() {
     return {
       form: {},
-      is_edit: false,
+      edit_mode: false,
+      show_date_picker: false,
+      show_password: false,
       alert: {
         shown: false,
         type: "warning",
         msg: "",
       },
-      show_date_picker: false,
-      show_password: false,
       extensions: [History, Blockquote, Link, Image, Underline, Strike, Italic, ListItem, BulletList, OrderedList, [Heading, { options: { levels: [1, 2, 3] } }], Bold, Code, HorizontalRule, Paragraph, HardBreak],
     };
   },
 
   asyncComputed: {
     async form_fields() {
-      const url = this.entity + FIELDS;
-      const result = await this.$read(url);
+      const mapping = get_form_type_mapping();
+      const server_fields = await this.$get_fields(this.entity);
+      const all_fields = this.fields.length > 0 ? this.fields : server_fields;
 
-      if (result.code === SUCCESS) {
-        const server_fields = result.data;
-        const all_fields = this.fields.length > 0 ? this.fields : server_fields;
-        const mapping = get_form_type_mapping();
+      for (let i = 0; i < all_fields.length; i++) {
+        const field = all_fields[i];
+        if (!field.name) {
+          throw new Error("field name is required. entity:" + this.entity + ",field index:" + i);
+        }
 
-        for (let i = 0; i < all_fields.length; i++) {
-          const field = all_fields[i];
-          if (!field.name) {
-            throw new Error("field name is required. entity:" + this.entity + ",field index:" + i);
-          }
+        const label = this.$t(this.entity + "." + field.name);
+        const [server_field] = server_fields.filter((f) => f.name === field.name);
+        const rules = field.rules ? field.rules : [];
 
-          const label = field.label ? field.label : this.$t(this.entity + "." + field.name);
-          const [server_field] = server_fields.filter((f) => f.name === field.name);
-          const rules = field.rules ? field.rules : [];
+        if (server_field) {
+          field.multiple = server_field.type === "array";
 
-          if (server_field) {
-            field.multiple = field.multiple ? field.multiple : server_field.type === "array";
-
-            if (server_field.required === true) {
-              const msg_required = this.$t("form.required", { field: label });
-              rules.push((value) => !!value || value === false || msg_required);
-            }
-          }
-
-          if (!field.input_type) {
-            const type = mapping[field.type];
-            if (!type) {
-              throw new Error("no type mapping for [" + field.type + "] in field:" + field.name + " of entity:" + this.entity);
-            }
-            field.input_type = type;
-          }
-
-          field.rules = rules;
-          field.cols = field.cols ? field.cols : this.cols;
-
-          if (field.ref) {
-            const ref_result = await this.$get(field.ref + REF, {});
-            if (ref_result.code === SUCCESS) {
-              field.items = ref_result.data;
-            } else {
-              field.items = [];
-            }
+          if (server_field.required === true) {
+            const msg_required = this.$t("form.required", { field: label });
+            rules.push((value) => !!value || value === false || msg_required);
           }
         }
+
+        if (!field.input_type) {
+          const type = mapping[field.type];
+          if (!type) {
+            throw new Error("no type mapping for [" + field.type + "] in field:" + field.name + " of entity:" + this.entity);
+          }
+          field.input_type = type;
+        }
+
+        field.rules = rules;
+        field.cols = field.cols ? field.cols : this.cols;
+
+        if (field.ref) {
+          field.items = await this.$get_ref_labels(this.entity);
+        }
       }
-      return this.fields;
+      return all_fields;
     },
   },
 
   methods: {
+    entity_label() {
+      return this.$t(this.entity + "._label");
+    },
+
     form_title() {
       if (!this.show_title) {
         return "";
@@ -178,7 +171,7 @@ export default {
         return this.title;
       }
 
-      if (this.is_edit) {
+      if (this.edit_mode) {
         return this.$t("form.update_title", { entity: this.entity_label });
       } else {
         return this.$t("form.create_title", { entity: this.entity_label });
@@ -187,7 +180,7 @@ export default {
 
     set_form(data) {
       this.form = data;
-      this.is_edit = true;
+      this.edit_mode = true;
     },
 
     show_error(msg) {
@@ -223,17 +216,16 @@ export default {
         return;
       }
 
-      const url = this.is_edit ? this.entity + UPDATE : this.entity + CREATE;
-      this.$post(url, this.form).then((result) => {
+      this.$save(this.entity, this.form, this.edit_mode).then((result) => {
         if (result.code === SUCCESS) {
           if (this.reset_post === true) {
             this.reset_form();
           }
-          const success_info = this.success_hint ? this.success_hint : this.is_edit ? this.$t("form.update_success_hint", { entity: this.entity_label }) : this.$t("form.create_success_hint", { entity: this.entity_label });
+          const success_info = this.success_hint ? this.success_hint : this.edit_mode ? this.$t("form.update_success_hint", { entity: this.entity_label }) : this.$t("form.create_success_hint", { entity: this.entity_label });
           this.show_success(success_info);
           this.$emit("success");
         } else {
-          const error_info = this.fail_hint ? this.fail_hint : this.is_edit ? this.$t("form.update_fail_hint", { entity: this.entity_label }) : this.$t("form.create_fail_hint", { entity: this.entity_label });
+          const error_info = this.fail_hint ? this.fail_hint : this.edit_mode ? this.$t("form.update_fail_hint", { entity: this.entity_label }) : this.$t("form.create_fail_hint", { entity: this.entity_label });
           this.show_error(error_info);
           this.$emit("fail");
         }

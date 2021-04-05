@@ -1,11 +1,16 @@
 import Vue from 'vue';
 import axios from "axios";
+import { SUCCESS } from "./constant";
 
 // Full config:  https://github.com/axios/axios#request-config
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
-const SUCCESS = 1;
+const FIELDS = "/fields";
+const CREATE = "/create";
+const UPDATE = "/update";
+const REF = "/ref";
+
 let _axios;
 
 const default_handler = {
@@ -86,6 +91,7 @@ Plugin.install = function (Vue) {
                 if (code == SUCCESS) {
                     set_cache(url, data);
                 }
+                return data;
             });
         }
     };
@@ -116,6 +122,33 @@ Plugin.install = function (Vue) {
                     window.URL.revokeObjectURL(link.href);
                 }
             });
+    };
+
+    Vue.prototype.$get_fields = function (entity) {
+        const url = "/" + entity + FIELDS;
+        return this.$read(url).then(result => {
+            if (result.code === SUCCESS) {
+                return result.data;
+            } else {
+                return [];
+            }
+        });
+    };
+
+    Vue.prototype.$get_ref_labels = function (entity) {
+        const url = "/" + entity + REF;
+        return this.$get(url).then(result => {
+            if (result.code === SUCCESS) {
+                return result.data;
+            } else {
+                return [];
+            }
+        });
+    };
+
+    Vue.prototype.$save = function (entity, form, edit_mode) {
+        const url = edit_mode ? "/" + entity + UPDATE : "/" + entity + CREATE;
+        return this.$post(url, form);
     };
 };
 
