@@ -8,7 +8,7 @@ let form_type_mapping = {
     "string": "text",
     "password": "password",
     "file": "file",
-    "array": "chip"
+    "array": "array"
 }
 
 const set_form_type_mapping = (mapping) => {

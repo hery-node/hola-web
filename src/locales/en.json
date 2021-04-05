@@ -16,6 +16,12 @@
     "_label": "User",
     "name": "Name",
     "email": "Email",
-    "age": "Age"
+    "age": "Age",
+    "role": "Role"
+  },
+  "role": {
+    "_label": "Role",
+    "name": "Name",
+    "desc": "Desc"
   }
 }

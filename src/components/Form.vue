@@ -24,9 +24,6 @@
             <template v-else-if="field.input_type === 'editor'">
               <tiptap-vuetify v-model="form[field.name]" :extensions="extensions"></tiptap-vuetify>
             </template>
-            <template v-else-if="field.ref">
-              <v-autocomplete :items="field.items" :autofocus="index == 0" v-model="form[field.name]" :label="field.label" :rules="field.rules ? field.rules : []" :multiple="field.multiple" chips dense outlined clearable></v-autocomplete>
-            </template>
             <template v-else-if="field.items">
               <v-autocomplete :items="field.items" :autofocus="index == 0" v-model="form[field.name]" :label="field.label" :rules="field.rules ? field.rules : []" :multiple="field.multiple" chips dense outlined clearable></v-autocomplete>
             </template>
@@ -154,6 +151,7 @@ export default {
         field.label = label;
         const [server_field] = server_fields.filter((f) => f.name === field.name);
         field = { ...field, ...server_field };
+        all_fields[i] = field;
         const rules = field.rules ? field.rules : [];
 
         if (server_field) {
@@ -177,7 +175,7 @@ export default {
         field.cols = field.cols ? field.cols : this.cols;
 
         if (field.ref) {
-          field.items = await this.$get_ref_labels(this.entity);
+          field.items = await this.$get_ref_labels(field.ref);
         }
       }
       this.all_fields = all_fields;
