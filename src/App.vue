@@ -16,7 +16,7 @@
     </v-app-bar>
 
     <v-main>
-      <h-form entity="user"></h-form>
+      <h-search entity="user"></h-search>
     </v-main>
   </v-app>
 </template>

@@ -27,7 +27,7 @@
             <template v-else-if="field.items">
               <v-autocomplete :items="field.items" :autofocus="index == 0" v-model="form[field.name]" :label="field.label" :rules="field.rules ? field.rules : []" :multiple="field.multiple" chips dense outlined clearable></v-autocomplete>
             </template>
-            <template v-else-if="field.input_type === 'boolean'">
+            <template v-else-if="field.input_type === 'switch'">
               <v-switch align="center" justify="center" v-model="form[field.name]" :label="field.label" :rules="field.rules ? field.rules : []" dense outlined></v-switch>
             </template>
             <template v-else-if="field.input_type === 'textarea'">

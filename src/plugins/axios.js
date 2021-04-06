@@ -9,6 +9,7 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 const FIELDS = "/fields";
 const CREATE = "/create";
 const UPDATE = "/update";
+const SEARCH = "/search_fields";
 const REF = "/ref";
 
 let _axios;
@@ -124,6 +125,17 @@ Plugin.install = function (Vue) {
 
     Vue.prototype.$get_fields = function (entity) {
         const url = "/" + entity + FIELDS;
+        return this.$read(url).then(result => {
+            if (result.code === SUCCESS) {
+                return result.data;
+            } else {
+                return [];
+            }
+        });
+    };
+
+    Vue.prototype.$get_search_fields = function (entity) {
+        const url = "/" + entity + SEARCH;
         return this.$read(url).then(result => {
             if (result.code === SUCCESS) {
                 return result.data;
