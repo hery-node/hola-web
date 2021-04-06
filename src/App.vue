@@ -16,7 +16,7 @@
     </v-app-bar>
 
     <v-main>
-      <h-table entity="user" :headers="headers" :sort_key="sort_key" :sort_desc="sort_desc"></h-table>
+      <h-table entity="user" :headers="headers" :sort_key="sort_key" :sort_desc="sort_desc" :search_fields="search_fields" :search_cols="6"></h-table>
     </v-main>
   </v-app>
 </template>
@@ -30,7 +30,8 @@ export default {
   data: () => ({
     sort_key: ["name"],
     sort_desc: [false],
-    headers: [{ name: "name" }, { name: "email" }, { name: "age" }, { name: "gender" }, { name: "birthday" }, { name: "status" }],
+    search_fields: [{ name: "name" }, { name: "role" }, { name: "gender" }],
+    headers: [{ name: "name" }, { name: "email" }, { name: "age" }, { name: "role" }, { name: "gender" }, { name: "birthday" }, { name: "status" }],
   }),
 };
 </script>

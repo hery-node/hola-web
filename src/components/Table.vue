@@ -1,26 +1,30 @@
 <template>
-  <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :loading="loading" multi-sort :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0">
-    <template v-slot:top>
-      <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
-    </template>
+  <div>
+    <h-search :entity="entity" v-if="has_search" @clear="clear_search" @search="do_search" :cols="search_cols" :title="search_title" :clear_label="search_clear_label" :search_label="search_search_label" :fields="search_fields"></h-search>
+    <v-divider class="mt-5"></v-divider>
+    <v-data-table v-bind="$attrs" v-on="$listeners" :mobile-breakpoint="turn_off_mobile ? 10 : 600" :headers="table_headers" :items="items" :loading="loading" multi-sort v-model="selected" :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0" :hide-default-footer="!pagination">
+      <template v-slot:top>
+        <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
+      </template>
 
-    <!-- <template v-if="!pagination" v-slot:[`item.${intersect}`]="{ item }">
-      <v-row justify="center" align="center">
-        <template v-if="item._last === true">
-          <span class="ma-1" v-intersect="infinite_scroll">
+      <template v-if="!pagination" v-slot:[`item.${intersect}`]="{ item }">
+        <v-row justify="center" align="center">
+          <template v-if="item._last === true">
+            <span class="ma-1" v-intersect="infinite_scroll">
+              {{ item[intersect] }}
+            </span>
+          </template>
+          <template v-else>
             {{ item[intersect] }}
-          </span>
-        </template>
-        <template v-else>
-          {{ item[intersect] }}
-        </template>
-      </v-row>
-    </template> -->
+          </template>
+        </v-row>
+      </template>
 
-    <template v-slot:no-data>
-      <span>{{ $t("table.no_data") }}</span>
-    </template>
-  </v-data-table>
+      <template v-slot:no-data>
+        <span>{{ $t("table.no_data") }}</span>
+      </template>
+    </v-data-table>
+  </div>
 </template>
 
 <script>
@@ -37,12 +41,25 @@ export default {
     sort_desc: { type: Array, required: true },
     sort_key: { type: Array, required: true },
     //end
-    searchable: { type: Boolean, default: true },
-    list_mode: { type: Boolean, default: false },
+    //has search form or not
+    has_search: { type: Boolean, default: true },
+    //turn off table in mobile list mode
+    turn_off_mobile: { type: Boolean, default: true },
     interval: { type: Number, default: -1 },
     header_width: { type: String, default: "120px" },
     header_align: { type: String, default: "center" },
     intersect: { type: String },
+
+    //attributes for search form
+    //colspan for the field
+    search_cols: { type: Number, default: 4 },
+    //form title
+    search_title: { type: String },
+    //label for clear and search button
+    search_clear_label: { type: String },
+    search_search_label: { type: String },
+    //the fields of the entity
+    search_fields: { type: Array, default: () => [] },
   },
 
   data() {
@@ -53,6 +70,7 @@ export default {
       next_page: 1,
       items: [],
       selected: [],
+      search_form: {},
       options: {},
       alert: {
         shown: false,
@@ -148,7 +166,14 @@ export default {
     },
 
     clear_search() {
-      this.search = "";
+      this.search_form = {};
+      this.items = [];
+      this.load_data();
+    },
+
+    do_search(form) {
+      this.search_form = form;
+      this.items = [];
       this.load_data();
     },
 
@@ -200,7 +225,7 @@ export default {
           params.page = this.next_page;
         }
 
-        this.$read(this.entity, {}, params).then((result) => {
+        this.$read(this.entity, this.search_form, params).then((result) => {
           this.loading = false;
           if (result.code === SUCCESS) {
             const { total, data } = result;
@@ -218,7 +243,6 @@ export default {
                 }
               }
               this.items.push(...data);
-              console.log(this.items);
               this.next_page++;
             }
           }

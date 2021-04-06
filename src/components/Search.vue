@@ -1,5 +1,5 @@
 <template>
-  <v-expansion-panels>
+  <v-expansion-panels flat>
     <v-expansion-panel v-bind="$attrs">
       <v-expansion-panel-header>
         <span class="title">{{ form_title }}</span>
