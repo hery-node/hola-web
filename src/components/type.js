@@ -83,7 +83,7 @@ const age_type = {
     input_type: "number",
     rule: function (vue, field_name) {
         const err = vue.$t("type.age", { field: field_name });
-        return (value) => (is_int(value) && parseInt(value) >= 0 && parseInt(value) < 200) || err;
+        return (value) => !value || (is_int(value) && parseInt(value) > 0 && parseInt(value) < 200) || err;
     }
 }
 

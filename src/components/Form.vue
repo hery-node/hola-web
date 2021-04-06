@@ -24,14 +24,14 @@
             <template v-else-if="field.input_type === 'editor'">
               <tiptap-vuetify v-model="form[field.name]" :extensions="extensions"></tiptap-vuetify>
             </template>
-            <template v-else-if="field.input_type === 'autocomplete'">
+            <template v-else-if="field.items">
               <v-autocomplete :items="field.items" :autofocus="index == 0" v-model="form[field.name]" :label="field.label" :rules="field.rules ? field.rules : []" :multiple="field.multiple" chips dense outlined clearable></v-autocomplete>
             </template>
             <template v-else-if="field.input_type === 'boolean'">
               <v-switch align="center" justify="center" v-model="form[field.name]" :label="field.label" :rules="field.rules ? field.rules : []" dense outlined></v-switch>
             </template>
             <template v-else-if="field.input_type === 'textarea'">
-              <v-text-area v-model="form[field.name]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-text-field>
+              <v-textarea v-model="form[field.name]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-textarea>
             </template>
             <template v-else>
               <v-text-field v-model="form[field.name]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-text-field>

@@ -26,8 +26,12 @@
   "user": {
     "_label": "User",
     "name": "Name",
-    "email": "Email",
     "age": "Age",
+    "gender": "Gender",
+    "birthday": "Birthday",
+    "summary": "Summary",
+    "introduction": "Introduction",
+    "email": "Email",
     "role": "Role"
   },
   "role": {
