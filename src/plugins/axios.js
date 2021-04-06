@@ -8,6 +8,7 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
 const FIELDS = "/fields";
 const CREATE = "/create";
+const READ = "/read";
 const UPDATE = "/update";
 const SEARCH = "/search_fields";
 const VISIBLE = "/visible_fields";
@@ -82,7 +83,7 @@ Plugin.install = function (Vue) {
         return _axios.get(url, { params: params });
     };
 
-    Vue.prototype.$read = function (url, params) {
+    Vue.prototype.$cached_get = function (url, params) {
         if (has_cache(url)) {
             return get_cache(url);
         } else {
@@ -126,7 +127,7 @@ Plugin.install = function (Vue) {
 
     Vue.prototype.$get_fields = function (entity) {
         const url = "/" + entity + FIELDS;
-        return this.$read(url).then(result => {
+        return this.$cached_get(url).then(result => {
             if (result.code === SUCCESS) {
                 return result.data;
             } else {
@@ -137,7 +138,7 @@ Plugin.install = function (Vue) {
 
     Vue.prototype.$get_search_fields = function (entity) {
         const url = "/" + entity + SEARCH;
-        return this.$read(url).then(result => {
+        return this.$cached_get(url).then(result => {
             if (result.code === SUCCESS) {
                 return result.data;
             } else {
@@ -148,7 +149,7 @@ Plugin.install = function (Vue) {
 
     Vue.prototype.$get_visible_fields = function (entity) {
         const url = "/" + entity + VISIBLE;
-        return this.$read(url).then(result => {
+        return this.$cached_get(url).then(result => {
             if (result.code === SUCCESS) {
                 return result;
             } else {
@@ -166,6 +167,12 @@ Plugin.install = function (Vue) {
                 return [];
             }
         });
+    };
+
+    Vue.prototype.$read = function (entity, form, params) {
+        const url = "/" + entity + READ;
+        form["_query"] = params;
+        return this.$post(url, form);
     };
 
     Vue.prototype.$save = function (entity, form, edit_mode) {

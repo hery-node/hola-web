@@ -7,6 +7,8 @@
     "ufloat": "{field} is invalid unsigned float value",
     "number": "{field} is invalid number value",
     "age": "{field} is invalid age value",
+    "boolean_true": "Yes",
+    "boolean_false": "False",
     "gender_male": "Male",
     "gender_female": "Female"
   },
@@ -25,6 +27,9 @@
     "update_fail_hint": "Update {entity} Failed",
     "err_invalid_value": "The value of {field} is invalid, please correct it.",
     "err_duplicate": "The {entity} already exist."
+  },
+  "table": {
+    "no_data": "No Data"
   },
   "user": {
     "_label": "User",

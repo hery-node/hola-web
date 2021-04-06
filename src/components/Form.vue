@@ -146,7 +146,7 @@ export default {
       for (let i = 0; i < all_fields.length; i++) {
         const [server_field] = server_fields.filter((f) => f.name === all_fields[i].name);
         if (!server_field) {
-          throw new Error("entity:" + this.entity + ",field index:" + i + " and field name" + all_fields[i].name + " not found matched server field");
+          throw new Error("entity:" + this.entity + ",field index:" + i + " and field name:" + all_fields[i].name + " no matched server field");
         }
 
         const field = { ...all_fields[i], ...server_field };

@@ -47,6 +47,9 @@ const boolean_type = {
     rule: function (vue, field_name) {
         const err = vue.$t("type.boolean", { field: field_name });
         return (value) => value === true || value === "true" || value === false || value === "false" || err;
+    },
+    format: function (vue, value) {
+        return value == true ? vue.$t("type.boolean_true") : vue.$t("type.boolean_false");
     }
 }
 
@@ -99,6 +102,9 @@ const float_type = {
     rule: function (vue, field_name) {
         const err = vue.$t("type.float", { field: field_name });
         return (value) => is_float(value) || err;
+    },
+    format: function (vue, value) {
+        return value.toFixed(2);
     }
 }
 
@@ -135,7 +141,10 @@ register_type(string_type);
 
 const password_type = {
     name: "password",
-    input_type: "password"
+    input_type: "password",
+    format: function () {
+        return "***";
+    }
 }
 
 register_type(password_type);
@@ -177,6 +186,9 @@ const gender_type = {
         genders.push({ value: 0, text: vue.$t("type.gender_male") });
         genders.push({ value: 1, text: vue.$t("type.gender_female") });
         return genders;
+    },
+    format: function (vue, value) {
+        return value == 1 ? vue.$t("type.gender_female") : vue.$t("type.gender_male");
     }
 }
 
