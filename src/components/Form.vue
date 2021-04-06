@@ -24,11 +24,14 @@
             <template v-else-if="field.input_type === 'editor'">
               <tiptap-vuetify v-model="form[field.name]" :extensions="extensions"></tiptap-vuetify>
             </template>
-            <template v-else-if="field.items">
+            <template v-else-if="field.input_type === 'autocomplete'">
               <v-autocomplete :items="field.items" :autofocus="index == 0" v-model="form[field.name]" :label="field.label" :rules="field.rules ? field.rules : []" :multiple="field.multiple" chips dense outlined clearable></v-autocomplete>
             </template>
             <template v-else-if="field.input_type === 'boolean'">
               <v-switch align="center" justify="center" v-model="form[field.name]" :label="field.label" :rules="field.rules ? field.rules : []" dense outlined></v-switch>
+            </template>
+            <template v-else-if="field.input_type === 'textarea'">
+              <v-text-area v-model="form[field.name]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-text-field>
             </template>
             <template v-else>
               <v-text-field v-model="form[field.name]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-text-field>
@@ -53,7 +56,7 @@
 
 <script>
 import { TiptapVuetify, Heading, Image, Bold, Italic, Strike, Underline, Code, Paragraph, BulletList, OrderedList, ListItem, Link, Blockquote, HardBreak, HorizontalRule, History } from "tiptap-vuetify";
-import { get_form_type_mapping } from "./type";
+import { get_type } from "./type";
 import { SUCCESS, INVALID_PARAMS, DUPLICATE_KEY } from "../plugins/constant";
 
 export default {
@@ -137,42 +140,48 @@ export default {
 
   asyncComputed: {
     async form_fields() {
-      const mapping = get_form_type_mapping();
       const server_fields = await this.$get_fields(this.entity);
       const all_fields = this.fields.length > 0 ? this.fields : server_fields;
 
       for (let i = 0; i < all_fields.length; i++) {
-        let field = all_fields[i];
-        if (!field.name) {
-          throw new Error("field name is required. entity:" + this.entity + ",field index:" + i);
+        const [server_field] = server_fields.filter((f) => f.name === all_fields[i].name);
+        if (!server_field) {
+          throw new Error("entity:" + this.entity + ",field index:" + i + " and field name" + all_fields[i].name + " not found matched server field");
         }
+
+        const field = { ...all_fields[i], ...server_field };
+        field.cols = field.cols ? field.cols : this.cols;
+        all_fields[i] = field;
 
         const label = this.$t(this.entity + "." + field.name);
         field.label = label;
-        const [server_field] = server_fields.filter((f) => f.name === field.name);
-        field = { ...field, ...server_field };
-        all_fields[i] = field;
-        const rules = field.rules ? field.rules : [];
 
-        if (server_field) {
-          field.multiple = server_field.type === "array";
-
-          if (server_field.required === true) {
-            const msg_required = this.$t("form.required", { field: label });
-            rules.push((value) => !!value || value === false || msg_required);
-          }
-        }
-
-        if (!field.input_type) {
-          const type = mapping[field.type];
-          if (!type) {
-            throw new Error("no type mapping for [" + field.type + "] in field:" + field.name + " of entity:" + this.entity);
-          }
-          field.input_type = type;
-        }
-
+        const rules = [];
         field.rules = rules;
-        field.cols = field.cols ? field.cols : this.cols;
+        if (server_field.required === true) {
+          const msg_required = this.$t("form.required", { field: label });
+          rules.push((value) => !!value || value === false || msg_required);
+        }
+
+        const type = get_type(field.type);
+        if (!type) {
+          throw new Error("no type found for [" + field.type + "] in field:" + field.name + " of entity:" + this.entity);
+        }
+
+        if (!type.input_type) {
+          throw new Error("no input_type defined for [" + field.type + "] in field:" + field.name + " of entity:" + this.entity);
+        }
+
+        field.input_type = type.input_type;
+        if (type.rule) {
+          rules.push(type.rule(this, field.name));
+        }
+        if (type.multiple) {
+          field.multiple = type.multiple;
+        }
+        if (type.items) {
+          field.items = type.items(this);
+        }
 
         if (field.ref) {
           field.items = await this.$get_ref_labels(field.ref);

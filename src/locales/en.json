@@ -1,4 +1,15 @@
 {
+  "type": {
+    "boolean": "{field} is not boolean",
+    "int": "{field} is invalid integer value",
+    "uint": "{field} is invalid unsigned integer value",
+    "float": "{field} is invalid float value",
+    "ufloat": "{field} is invalid unsigned float value",
+    "number": "{field} is invalid number value",
+    "age": "{field} is invalid age value",
+    "gender_male": "Male",
+    "gender_female": "Female"
+  },
   "form": {
     "create_title": "Create {entity}",
     "update_title": "Update {entity}",

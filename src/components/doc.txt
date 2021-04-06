@@ -1,9 +1,4 @@
 Form field:
 
 name: field name
-
-rules: define validation rules
-
-input_type: you can define this to override the mapping
-
 cols  //field col span

@@ -28,7 +28,7 @@ export default {
   components: {},
 
   data: () => ({
-    fields: [{ name: "name" }, { name: "age", cols: 6 }, { name: "email", cols: 6 }, { name: "role" }],
+    fields: [{ name: "name" }, { name: "age", cols: 6 }, { name: "email", input_type: "editor" }, { name: "role" }],
   }),
 };
 </script>
