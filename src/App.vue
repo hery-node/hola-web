@@ -30,7 +30,7 @@ export default {
   data: () => ({
     sort_key: ["name"],
     sort_desc: [false],
-    search_fields: [{ name: "name" }, { name: "role" }, { name: "gender" }],
+    search_fields: [{ name: "name" }, { name: "role" }, { name: "gender" }, { name: "age" }],
     headers: [{ name: "name" }, { name: "email" }, { name: "age" }, { name: "role" }, { name: "gender" }, { name: "birthday" }, { name: "status" }],
   }),
 };

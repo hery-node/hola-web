@@ -26,7 +26,7 @@
                 <v-switch align="center" justify="center" v-model="form[field.name]" :label="field.label" dense outlined></v-switch>
               </template>
               <template v-else>
-                <v-text-field v-model="form[field.name]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-text-field>
+                <v-text-field v-model="form[field.name]" :autofocus="index == 0" type="text" :label="field.label" dense outlined clearable></v-text-field>
               </template>
             </v-col>
           </v-row>
