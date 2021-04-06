@@ -1,44 +1,44 @@
 <template>
-  <v-card v-bind="$attrs">
-    <v-form @submit.prevent="search">
-      <v-card-title v-if="show_title">
+  <v-expansion-panels>
+    <v-expansion-panel v-bind="$attrs">
+      <v-expansion-panel-header>
         <span class="title">{{ form_title }}</span>
-      </v-card-title>
-      <v-card-text>
-        <v-row dense>
-          <v-col v-for="(field, index) in form_fields" v-bind:key="index" cols="12" sm="12" xs="12" :md="field.cols ? field.cols : 12" :lg="field.cols ? field.cols : 12">
-            <template v-if="field.input_type === 'chip'">
-              <v-combobox v-model="form[field.name]" :autofocus="index == 0" :label="field.label" :multiple="field.multiple" chips deletable-chips dense outlined></v-combobox>
-            </template>
-            <template v-else-if="field.input_type === 'date'">
-              <v-menu v-model="show_date_picker" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y max-width="290px" min-width="290px">
-                <template v-slot:activator="{ on }">
-                  <v-text-field :label="field.label" v-model="form[field.name]" readonly dense outlined clearable v-on="on"></v-text-field>
-                </template>
-                <v-date-picker :first-day-of-week="0" v-model="form[field.name]" no-title scrollable @input="show_date_picker = false"></v-date-picker>
-              </v-menu>
-            </template>
-            <template v-else-if="field.items">
-              <v-autocomplete :items="field.items" :autofocus="index == 0" v-model="form[field.name]" :label="field.label" :multiple="field.multiple" chips dense outlined clearable></v-autocomplete>
-            </template>
-            <template v-else-if="field.input_type === 'switch'">
-              <v-switch align="center" justify="center" v-model="form[field.name]" :label="field.label" dense outlined></v-switch>
-            </template>
-            <template v-else>
-              <v-text-field v-model="form[field.name]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-text-field>
-            </template>
-          </v-col>
-        </v-row>
-      </v-card-text>
-      <v-card-actions>
-        <v-row align="center" justify="center" class="my-0 py-0">
-          <v-col :cols="6" align="center" justify="center">
-            <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ search_label ? search_label : $t("form.search_label") }}</v-btn>
-          </v-col>
-        </v-row>
-      </v-card-actions>
-    </v-form>
-  </v-card>
+      </v-expansion-panel-header>
+      <v-expansion-panel-content>
+        <v-form @submit.prevent="search">
+          <v-row dense>
+            <v-col v-for="(field, index) in form_fields" v-bind:key="index" cols="12" sm="12" xs="12" :md="field.cols ? field.cols : 12" :lg="field.cols ? field.cols : 12">
+              <template v-if="field.input_type === 'chip'">
+                <v-combobox v-model="form[field.name]" :autofocus="index == 0" :label="field.label" :multiple="field.multiple" chips deletable-chips dense outlined></v-combobox>
+              </template>
+              <template v-else-if="field.input_type === 'date'">
+                <v-menu v-model="show_date_picker" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y max-width="290px" min-width="290px">
+                  <template v-slot:activator="{ on }">
+                    <v-text-field :label="field.label" v-model="form[field.name]" readonly dense outlined clearable v-on="on"></v-text-field>
+                  </template>
+                  <v-date-picker :first-day-of-week="0" v-model="form[field.name]" no-title scrollable @input="show_date_picker = false"></v-date-picker>
+                </v-menu>
+              </template>
+              <template v-else-if="field.items">
+                <v-autocomplete :items="field.items" :autofocus="index == 0" v-model="form[field.name]" :label="field.label" :multiple="field.multiple" chips dense outlined clearable></v-autocomplete>
+              </template>
+              <template v-else-if="field.input_type === 'switch'">
+                <v-switch align="center" justify="center" v-model="form[field.name]" :label="field.label" dense outlined></v-switch>
+              </template>
+              <template v-else>
+                <v-text-field v-model="form[field.name]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-text-field>
+              </template>
+            </v-col>
+          </v-row>
+          <v-row align="center" justify="center" class="my-0 py-0">
+            <v-col :cols="6" align="center" justify="center">
+              <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ search_label ? search_label : $t("form.search_label") }}</v-btn>
+            </v-col>
+          </v-row>
+        </v-form>
+      </v-expansion-panel-content>
+    </v-expansion-panel>
+  </v-expansion-panels>
 </template>
 
 <script>
@@ -49,9 +49,8 @@ export default {
 
   props: {
     entity: { type: String, required: true },
-    show_title: { type: Boolean, default: true },
     //colspan for the field
-    cols: { type: Number, default: 0 },
+    cols: { type: Number, default: 4 },
     //form title
     title: { type: String },
     //label for search button
@@ -75,10 +74,6 @@ export default {
     },
 
     form_title() {
-      if (!this.show_title) {
-        return "";
-      }
-
       if (this.title) {
         return this.title;
       }
