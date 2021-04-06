@@ -16,6 +16,7 @@
     "update_title": "Update {entity}",
     "cancel_label": "Cancel",
     "submit_label": "Submit",
+    "clear_label": "Clear",
     "search_label": "Search",
     "required": "{field} is required.",
     "create_success_hint": "Create {entity} Successful",

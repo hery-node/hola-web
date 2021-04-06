@@ -5,7 +5,7 @@
         <span class="title">{{ form_title }}</span>
       </v-expansion-panel-header>
       <v-expansion-panel-content>
-        <v-form @submit.prevent="search">
+        <v-form ref="search_form" @submit.prevent="search">
           <v-row dense>
             <v-col v-for="(field, index) in form_fields" v-bind:key="index" cols="12" sm="12" xs="12" :md="field.cols ? field.cols : 12" :lg="field.cols ? field.cols : 12">
               <template v-if="field.input_type === 'chip'">
@@ -31,6 +31,9 @@
             </v-col>
           </v-row>
           <v-row align="center" justify="center" class="my-0 py-0">
+            <v-col cols="6" align="center" justify="center">
+              <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="clear">{{ clear_label ? clear_label : $t("form.clear_label") }}</v-btn>
+            </v-col>
             <v-col :cols="6" align="center" justify="center">
               <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ search_label ? search_label : $t("form.search_label") }}</v-btn>
             </v-col>
@@ -53,7 +56,8 @@ export default {
     cols: { type: Number, default: 4 },
     //form title
     title: { type: String },
-    //label for search button
+    //label for clear and search button
+    clear_label: { type: String },
     search_label: { type: String },
     //the fields of the entity
     fields: { type: Array, default: () => [] },
@@ -127,8 +131,13 @@ export default {
   },
 
   methods: {
+    clear() {
+      if (this.$refs.search_form) {
+        this.$refs.search_form.reset();
+      }
+      this.$emit("clear");
+    },
     search() {
-      console.log(this.form);
       this.$emit("search", this.form);
     },
   },

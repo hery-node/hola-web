@@ -10,6 +10,7 @@ const FIELDS = "/fields";
 const CREATE = "/create";
 const UPDATE = "/update";
 const SEARCH = "/search_fields";
+const VISIBLE = "/visible_fields";
 const REF = "/ref";
 
 let _axios;
@@ -141,6 +142,17 @@ Plugin.install = function (Vue) {
                 return result.data;
             } else {
                 return [];
+            }
+        });
+    };
+
+    Vue.prototype.$get_visible_fields = function (entity) {
+        const url = "/" + entity + VISIBLE;
+        return this.$read(url).then(result => {
+            if (result.code === SUCCESS) {
+                return result;
+            } else {
+                return {};
             }
         });
     };
