@@ -15,8 +15,10 @@
       </v-tooltip>
       <slot name="toolbar" />
 
-      <v-dialog v-show="oper.edit" v-model="dialog" :max-width="dialog_width">
-        <h-form v-model="form" :entity="entity" :edit_mode="edit_mode" v-bind="$attrs" @cancelled="close_dialog" @saved="entity_saved"> </h-form>
+      <v-dialog v-if="oper.edit" v-model="dialog" :max-width="dialog_width">
+        <div style="overflow-x: hidden;">
+          <h-form v-model="form" :entity="entity" :edit_mode="edit_mode" v-bind="$attrs" @cancelled="close_dialog" @saved="entity_saved"> </h-form>
+        </div>
       </v-dialog>
     </template>
   </h-table>
