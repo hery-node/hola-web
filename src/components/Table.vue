@@ -81,7 +81,7 @@ export default {
     //control the toolbar
     hide_toolbar: { type: Boolean, default: false },
     hide_table_title: { type: Boolean, default: false },
-    title: { type: String },
+    table_title: { type: String },
     //turn off table in mobile list mode
     mobile: { type: Boolean, default: false },
     interval: { type: Number, default: -1 },
@@ -176,8 +176,8 @@ export default {
       if (this.hide_table_title) {
         return "";
       }
-      if (this.title) {
-        return this.title;
+      if (this.table_title) {
+        return this.table_title;
       }
       return this.$t("table.title", { entity: this.$t(this.entity + "._label") });
     },

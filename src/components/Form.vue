@@ -1,8 +1,8 @@
 <template>
   <v-card v-bind="$attrs">
     <v-form ref="form" @submit.prevent="save">
-      <v-card-title v-if="!hide_title">
-        <span class="title">{{ form_title }}</span>
+      <v-card-title v-if="!hide_form_title">
+        <span class="title">{{ form_header_title }}</span>
       </v-card-title>
       <v-card-text>
         <v-row dense>
@@ -70,13 +70,13 @@ export default {
     entity: { type: String, required: true },
     //colspan for the field
     cols: { type: Number, default: 0 },
-    hide_title: { type: Boolean, default: false },
+    hide_form_title: { type: Boolean, default: false },
     hide_hint: { type: Boolean, default: false },
     hide_cancel: { type: Boolean, default: false },
     //is edit or not
     edit_mode: { type: Boolean, default: false },
     //form title
-    title: { type: String },
+    form_title: { type: String },
     //label for cancel and submit button
     cancel_label: { type: String },
     submit_label: { type: String },
@@ -120,13 +120,13 @@ export default {
       return this.$t(this.entity + "._label");
     },
 
-    form_title() {
-      if (!this.show_title) {
+    form_header_title() {
+      if (this.hide_form_title) {
         return "";
       }
 
-      if (this.title) {
-        return this.title;
+      if (this.form_title) {
+        return this.form_title;
       }
 
       if (this.edit_mode) {
