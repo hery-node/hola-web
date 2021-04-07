@@ -49,6 +49,9 @@ const boolean_type = {
         return (value) => value === true || value === "true" || value === false || value === "false" || err;
     },
     format: function (value, vue) {
+        if (!has_value(value)) {
+            return "";
+        }
         return value == true ? vue.$t("type.boolean_true") : vue.$t("type.boolean_false");
     }
 }
@@ -115,6 +118,9 @@ const percentage_type = {
         return (value) => is_float(value) || err;
     },
     format: function (value) {
+        if (!has_value(value)) {
+            return "";
+        }
         return value ? value + "%" : "0%";
     }
 }
@@ -199,6 +205,9 @@ const gender_type = {
         return genders;
     },
     format: function (value, vue) {
+        if (!has_value(value)) {
+            return "";
+        }
         return value == 1 ? vue.$t("type.gender_female") : vue.$t("type.gender_male");
     }
 }

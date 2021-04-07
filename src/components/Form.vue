@@ -1,7 +1,7 @@
 <template>
   <v-card v-bind="$attrs">
     <v-form ref="form" @submit.prevent="save">
-      <v-card-title v-if="show_title">
+      <v-card-title v-if="!hide_title">
         <span class="title">{{ form_title }}</span>
       </v-card-title>
       <v-card-text>
@@ -42,10 +42,10 @@
       <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
       <v-card-actions>
         <v-row align="center" justify="center" class="my-0 py-0">
-          <v-col cols="6" v-if="show_cancel_button" align="center" justify="center">
+          <v-col cols="6" v-if="!hide_cancel" align="center" justify="center">
             <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="cancel">{{ cancel_label ? cancel_label : $t("form.cancel_label") }}</v-btn>
           </v-col>
-          <v-col :cols="show_cancel_button ? 6 : 12" align="center" justify="center">
+          <v-col :cols="hide_cancel ? 12 : 6" align="center" justify="center">
             <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ submit_label ? submit_label : $t("form.submit_label") }}</v-btn>
           </v-col>
         </v-row>
@@ -66,9 +66,9 @@ export default {
     entity: { type: String, required: true },
     //colspan for the field
     cols: { type: Number, default: 0 },
-    show_title: { type: Boolean, default: true },
-    show_hint: { type: Boolean, default: true },
-    show_cancel_button: { type: Boolean, default: true },
+    hide_title: { type: Boolean, default: false },
+    hide_hint: { type: Boolean, default: false },
+    hide_cancel: { type: Boolean, default: false },
     //form title
     title: { type: String },
     //label for cancel and submit button
@@ -237,7 +237,7 @@ export default {
             this.reset_form();
           }
           const success_info = this.success_hint ? this.success_hint : this.edit_mode ? this.$t("form.update_success_hint", { entity: this.entity_label }) : this.$t("form.create_success_hint", { entity: this.entity_label });
-          if (this.show_hint) {
+          if (!this.hide_hint) {
             this.show_success(success_info);
           }
 
@@ -248,18 +248,18 @@ export default {
             const [field] = fields;
             const [label_field] = this.all_fields.filter((f) => f.name == field);
             const error_info = this.$t("form.err_invalid_value", { field: label_field.label });
-            if (this.show_hint) {
+            if (!this.hide_hint) {
               this.show_error(error_info);
             }
           }
         } else if (result.code === DUPLICATE_KEY) {
           const error_info = this.$t("form.err_duplicate", { entity: this.entity_label });
-          if (this.show_hint) {
+          if (!this.hide_hint) {
             this.show_error(error_info);
           }
         } else {
           const error_info = this.fail_hint ? this.fail_hint : this.edit_mode ? this.$t("form.update_fail_hint", { entity: this.entity_label }) : this.$t("form.create_fail_hint", { entity: this.entity_label });
-          if (this.show_hint) {
+          if (!this.hide_hint) {
             this.show_error(error_info);
           }
           this.$emit("fail");
