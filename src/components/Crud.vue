@@ -17,7 +17,7 @@
 
       <v-dialog v-if="oper.edit" v-model="dialog" :max-width="dialog_width">
         <div style="overflow-x: hidden;">
-          <h-form v-model="form" :entity="entity" :edit_mode="edit_mode" v-bind="$attrs" @cancelled="close_dialog" @saved="entity_saved"> </h-form>
+          <h-form v-model="form" hide_hint :entity="entity" :edit_mode="edit_mode" v-bind="$attrs" @cancelled="close_dialog" @saved="entity_saved"> </h-form>
         </div>
       </v-dialog>
     </template>
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { SUCCESS } from "../plugins/constant";
+import { SUCCESS, HAS_REF } from "../plugins/constant";
 
 export default {
   inheritAttrs: false,
@@ -141,14 +141,20 @@ export default {
     },
 
     delete_entities(items) {
-      console.log("items %j", items);
       const ids = items.map((item) => item["_id"]);
       return this.confirm_delete(items, ids).then((res) => {
         if (res) {
           this.$delete_entity(this.entity, ids).then((result) => {
-            const { code } = result;
+            const { code, err } = result;
             if (code == SUCCESS) {
               this.refresh();
+            } else if (code == HAS_REF) {
+              const labels = items
+                .filter((item) => err.includes(item._id + ""))
+                .map((item) => item[this.label_key])
+                .join(",");
+              const msg = this.$t("table.has_ref", { entity: labels });
+              this.$refs.table.show_error(msg);
             }
           });
         }
