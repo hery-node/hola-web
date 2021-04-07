@@ -4,6 +4,7 @@
     "int": "{field} is invalid integer value",
     "uint": "{field} is invalid unsigned integer value",
     "float": "{field} is invalid float value",
+    "percentage": "{field} is invalid percentage value",
     "ufloat": "{field} is invalid unsigned float value",
     "number": "{field} is invalid number value",
     "age": "{field} is invalid age value",

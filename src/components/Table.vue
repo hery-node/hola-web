@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h-search :entity="entity" v-if="has_search" @clear="clear_search" @search="do_search" :cols="search_cols" :title="search_title" :clear_label="search_clear_label" :search_label="search_search_label" :fields="search_fields"></h-search>
+    <h-search :entity="entity" v-if="searchable" @clear="clear_search" @search="do_search" :cols="search_cols" :title="search_title" :clear_label="clear_label" :search_label="search_label" :fields="search_fields"></h-search>
     <v-divider class="mt-5"></v-divider>
     <v-data-table v-bind="$attrs" v-on="$listeners" :mobile-breakpoint="turn_off_mobile ? 10 : 600" :headers="table_headers" :items="items" :loading="loading" multi-sort v-model="selected" :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0" :hide-default-footer="!pagination">
       <template v-slot:top>
@@ -42,7 +42,7 @@ export default {
     sort_key: { type: Array, required: true },
     //end
     //has search form or not
-    has_search: { type: Boolean, default: true },
+    searchable: { type: Boolean, default: true },
     //turn off table in mobile list mode
     turn_off_mobile: { type: Boolean, default: true },
     interval: { type: Number, default: -1 },
@@ -56,8 +56,8 @@ export default {
     //form title
     search_title: { type: String },
     //label for clear and search button
-    search_clear_label: { type: String },
-    search_search_label: { type: String },
+    clear_label: { type: String },
+    search_label: { type: String },
     //the fields of the entity
     search_fields: { type: Array, default: () => [] },
   },
@@ -225,7 +225,7 @@ export default {
           params.page = this.next_page;
         }
 
-        this.$read(this.entity, this.search_form, params).then((result) => {
+        this.$list(this.entity, this.search_form, params).then((result) => {
           this.loading = false;
           if (result.code === SUCCESS) {
             const { total, data } = result;
@@ -238,7 +238,7 @@ export default {
                 for (let j = 0; j < fields.length; j++) {
                   const field = fields[j];
                   if (field.format) {
-                    obj[field.name] = field.format(this, obj[field.name]);
+                    obj[field.name] = field.format(obj[field.name], this);
                   }
                 }
               }

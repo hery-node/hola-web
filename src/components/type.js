@@ -48,7 +48,7 @@ const boolean_type = {
         const err = vue.$t("type.boolean", { field: field_name });
         return (value) => value === true || value === "true" || value === false || value === "false" || err;
     },
-    format: function (vue, value) {
+    format: function (value, vue) {
         return value == true ? vue.$t("type.boolean_true") : vue.$t("type.boolean_false");
     }
 }
@@ -102,13 +102,24 @@ const float_type = {
     rule: function (vue, field_name) {
         const err = vue.$t("type.float", { field: field_name });
         return (value) => is_float(value) || err;
-    },
-    format: function (vue, value) {
-        return value.toFixed(2);
     }
 }
 
 register_type(float_type);
+
+const percentage_type = {
+    name: "percentage",
+    input_type: "number",
+    rule: function (vue, field_name) {
+        const err = vue.$t("type.percentage", { field: field_name });
+        return (value) => is_float(value) || err;
+    },
+    format: function (value) {
+        return value ? value + "%" : "0%";
+    }
+}
+
+register_type(percentage_type);
 
 const ufloat_type = {
     name: "ufloat",
@@ -187,7 +198,7 @@ const gender_type = {
         genders.push({ value: 1, text: vue.$t("type.gender_female") });
         return genders;
     },
-    format: function (vue, value) {
+    format: function (value, vue) {
         return value == 1 ? vue.$t("type.gender_female") : vue.$t("type.gender_male");
     }
 }

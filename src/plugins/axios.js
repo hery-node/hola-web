@@ -9,6 +9,7 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 const FIELDS = "/fields";
 const CREATE = "/create";
 const READ = "/read";
+const LIST = "/list";
 const UPDATE = "/update";
 const SEARCH = "/search_fields";
 const VISIBLE = "/visible_fields";
@@ -169,8 +170,13 @@ Plugin.install = function (Vue) {
         });
     };
 
-    Vue.prototype.$read = function (entity, form, params) {
+    Vue.prototype.$read = function (entity, params) {
         const url = "/" + entity + READ;
+        return this.$post(url, params);
+    };
+
+    Vue.prototype.$list = function (entity, form, params) {
+        const url = "/" + entity + LIST;
         form["_query"] = params;
         return this.$post(url, form);
     };
