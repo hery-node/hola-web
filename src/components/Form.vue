@@ -115,6 +115,12 @@ export default {
     };
   },
 
+  updated() {
+    if (this.$refs.form) {
+      this.$refs.form.resetValidation();
+    }
+  },
+
   computed: {
     entity_label() {
       return this.$t(this.entity + "._label");

@@ -139,13 +139,14 @@ export default {
     },
 
     delete_entities(items) {
+      console.log("items %j", items);
       const ids = items.map((item) => item["_id"]);
       return this.confirm_delete(items, ids).then((res) => {
         if (res) {
-          this.$delete(this.entity).then((result) => {
+          this.$delete(this.entity, ids).then((result) => {
             const { code } = result;
             if (code == SUCCESS) {
-              console.log("success");
+              this.refresh();
             }
           });
         }
