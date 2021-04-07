@@ -108,7 +108,7 @@ export default {
   methods: {
     edit_entity(item) {
       this.edit_mode = true;
-      this.$read(this.entity, item).then((entity) => {
+      this.$read_entity(this.entity, item).then((entity) => {
         this.form = entity;
         this.dialog = true;
       });
@@ -143,7 +143,7 @@ export default {
       const ids = items.map((item) => item["_id"]);
       return this.confirm_delete(items, ids).then((res) => {
         if (res) {
-          this.$delete(this.entity, ids).then((result) => {
+          this.$delete_entity(this.entity, ids).then((result) => {
             const { code } = result;
             if (code == SUCCESS) {
               this.refresh();

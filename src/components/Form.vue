@@ -231,7 +231,7 @@ export default {
         return;
       }
 
-      this.$save(this.entity, this.form, this.edit_mode).then((result) => {
+      this.$save_entity(this.entity, this.form, this.edit_mode).then((result) => {
         if (result.code === SUCCESS) {
           if (this.reset_post === true) {
             this.reset_form();

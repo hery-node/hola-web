@@ -68,24 +68,24 @@ const get_axios = () => {
 
 Plugin.install = function (Vue) {
 
-    Vue.prototype.$post = function (url, data) {
+    Vue.prototype.$axios_post = function (url, data) {
         const _axios = get_axios();
         return _axios.post(url, data);
     };
 
-    Vue.prototype.$post_file_form = function (url, data) {
+    Vue.prototype.$axios_post_file_form = function (url, data) {
         const _axios = get_axios();
         const form_data = new FormData();
         Object.keys(data).forEach(key => form_data.append(key, data[key]));
         return _axios.post(url, form_data, { headers: { 'Content-Type': 'multipart/form-data' } });
     };
 
-    Vue.prototype.$get = function (url, params) {
+    Vue.prototype.$axios_get = function (url, params) {
         const _axios = get_axios();
         return _axios.get(url, { params: params });
     };
 
-    Vue.prototype.$cached_get = function (url, params) {
+    Vue.prototype.$cached_axios_get = function (url, params) {
         if (has_cache(url)) {
             return get_cache(url);
         } else {
@@ -99,14 +99,14 @@ Plugin.install = function (Vue) {
         }
     };
 
-    Vue.prototype.$upload = function (url, file) {
+    Vue.prototype.$axios_upload = function (url, file) {
         const _axios = get_axios();
         const formData = new FormData();
         formData.append("file", file);
         return _axios.post(url, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
     };
 
-    Vue.prototype.$download = function (url, file_name, params) {
+    Vue.prototype.$axios_download = function (url, file_name, params) {
         const _axios = get_axios();
         _axios({ url: url, method: 'get', params: params, responseType: 'blob' })
             .then(res => {
@@ -129,7 +129,7 @@ Plugin.install = function (Vue) {
 
     Vue.prototype.$get_fields = function (entity) {
         const url = "/" + entity + FIELDS;
-        return this.$cached_get(url).then(result => {
+        return this.$cached_axios_get(url).then(result => {
             if (result.code === SUCCESS) {
                 return result.data;
             } else {
@@ -140,7 +140,7 @@ Plugin.install = function (Vue) {
 
     Vue.prototype.$get_search_fields = function (entity) {
         const url = "/" + entity + SEARCH;
-        return this.$cached_get(url).then(result => {
+        return this.$cached_axios_get(url).then(result => {
             if (result.code === SUCCESS) {
                 return result.data;
             } else {
@@ -151,7 +151,7 @@ Plugin.install = function (Vue) {
 
     Vue.prototype.$get_visible_fields = function (entity) {
         const url = "/" + entity + VISIBLE;
-        return this.$cached_get(url).then(result => {
+        return this.$cached_axios_get(url).then(result => {
             if (result.code === SUCCESS) {
                 return result.data;
             } else {
@@ -162,7 +162,7 @@ Plugin.install = function (Vue) {
 
     Vue.prototype.$get_ref_labels = function (entity) {
         const url = "/" + entity + REF;
-        return this.$get(url).then(result => {
+        return this.$axios_get(url).then(result => {
             if (result.code === SUCCESS) {
                 return result.data;
             } else {
@@ -171,9 +171,9 @@ Plugin.install = function (Vue) {
         });
     };
 
-    Vue.prototype.$read = function (entity, params) {
+    Vue.prototype.$read_entity = function (entity, params) {
         const url = "/" + entity + READ;
-        return this.$post(url, params).then(result => {
+        return this.$axios_post(url, params).then(result => {
             if (result.code === SUCCESS) {
                 return result.data;
             } else {
@@ -182,20 +182,20 @@ Plugin.install = function (Vue) {
         });
     };
 
-    Vue.prototype.$list = function (entity, form, params) {
+    Vue.prototype.$list_entity = function (entity, form, params) {
         const url = "/" + entity + LIST;
         form["_query"] = params;
-        return this.$post(url, form);
+        return this.$axios_post(url, form);
     };
 
-    Vue.prototype.$save = function (entity, form, edit_mode) {
+    Vue.prototype.$save_entity = function (entity, form, edit_mode) {
         const url = edit_mode ? "/" + entity + UPDATE : "/" + entity + CREATE;
-        return this.$post(url, form);
+        return this.$axios_post(url, form);
     };
 
-    Vue.prototype.$delete = function (entity, ids) {
+    Vue.prototype.$delete_entity = function (entity, ids) {
         const url = "/" + entity + DELETE;
-        return this.$post(url, { "ids": ids.join(",") });
+        return this.$axios_post(url, { "ids": ids.join(",") });
     };
 };
 

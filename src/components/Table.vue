@@ -308,7 +308,7 @@ export default {
           params.limit = this.item_per_page;
         }
 
-        this.$list(this.entity, this.search_form, params).then((result) => {
+        this.$list_entity(this.entity, this.search_form, params).then((result) => {
           this.loading = false;
           if (result.code === SUCCESS) {
             const { total, data } = result;
