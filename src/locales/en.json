@@ -30,6 +30,7 @@
     "err_duplicate": "The {entity} already exist."
   },
   "table": {
+    "title": "{entity} List",
     "no_data": "No Data"
   },
   "user": {

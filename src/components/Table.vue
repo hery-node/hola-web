@@ -1,10 +1,17 @@
 <template>
   <div>
-    <h-search :entity="entity" v-if="searchable" @clear="clear_search" @search="do_search" :cols="search_cols" :title="search_title" :clear_label="clear_label" :search_label="search_label" :fields="search_fields"></h-search>
-    <v-divider class="mt-5"></v-divider>
+    <div v-if="searchable">
+      <h-search :entity="entity" @clear="clear_search" @search="do_search" :cols="search_cols" :title="search_title" :clear_label="clear_label" :search_label="search_label" :fields="search_fields"></h-search>
+      <v-divider class="mt-5"></v-divider>
+    </div>
     <v-data-table v-bind="$attrs" v-on="$listeners" :mobile-breakpoint="mobile ? 600 : 10" :headers="table_headers" :items="items" :loading="loading" multi-sort v-model="selected" :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0" :hide-default-footer="!pagination">
       <template v-slot:top>
         <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
+        <v-toolbar flat v-if="!hide_toolbar">
+          <v-toolbar-title v-if="!hide_title">{{ toolbar_title }}</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <slot name="toolbar" />
+        </v-toolbar>
       </template>
 
       <template v-if="!pagination" v-slot:[`item._id`]="{ item }">
@@ -60,6 +67,10 @@ export default {
     //end
     //has search form or not
     searchable: { type: Boolean, default: false },
+    //control the toolbar
+    hide_toolbar: { type: Boolean, default: false },
+    hide_title: { type: Boolean, default: false },
+    title: { type: String },
     //turn off table in mobile list mode
     mobile: { type: Boolean, default: false },
     interval: { type: Number, default: -1 },
@@ -68,6 +79,7 @@ export default {
     header_align: { type: String, default: "start" },
     //infinite scroll or not
     infinite: { type: Boolean, default: false },
+    //this is to control the page size for infinite scroll mode
     item_per_page: { type: Number, default: 30 },
 
     //attributes for search form
@@ -147,12 +159,14 @@ export default {
       return this.headers;
     },
 
-    toolbar_class() {
-      if (this.searchable) {
-        return "mr-6 d-none d-md-flex d-lg-flex";
-      } else {
-        return "mr-6";
+    toolbar_title() {
+      if (this.hide_title) {
+        return "";
       }
+      if (this.title) {
+        return this.title;
+      }
+      return this.$t("table.title", { entity: this.$t(this.entity + "._label") });
     },
   },
 
