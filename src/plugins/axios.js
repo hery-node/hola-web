@@ -11,6 +11,7 @@ const CREATE = "/create";
 const READ = "/read";
 const LIST = "/list";
 const UPDATE = "/update";
+const DELETE = "/delete";
 const SEARCH = "/search_fields";
 const VISIBLE = "/visible_fields";
 const REF = "/ref";
@@ -152,7 +153,7 @@ Plugin.install = function (Vue) {
         const url = "/" + entity + VISIBLE;
         return this.$cached_get(url).then(result => {
             if (result.code === SUCCESS) {
-                return result;
+                return result.data;
             } else {
                 return {};
             }
@@ -172,7 +173,13 @@ Plugin.install = function (Vue) {
 
     Vue.prototype.$read = function (entity, params) {
         const url = "/" + entity + READ;
-        return this.$post(url, params);
+        return this.$post(url, params).then(result => {
+            if (result.code === SUCCESS) {
+                return result.data;
+            } else {
+                return {};
+            }
+        });
     };
 
     Vue.prototype.$list = function (entity, form, params) {
@@ -184,6 +191,11 @@ Plugin.install = function (Vue) {
     Vue.prototype.$save = function (entity, form, edit_mode) {
         const url = edit_mode ? "/" + entity + UPDATE : "/" + entity + CREATE;
         return this.$post(url, form);
+    };
+
+    Vue.prototype.$delete = function (entity, ids) {
+        const url = "/" + entity + DELETE;
+        return this.$post(url, { "ids": ids.join(",") });
     };
 };
 

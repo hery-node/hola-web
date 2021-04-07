@@ -217,7 +217,7 @@ export default {
 
     cancel() {
       this.reset_form();
-      this.$emit("cancel");
+      this.$emit("cancelled");
     },
 
     save() {
@@ -235,7 +235,7 @@ export default {
             this.show_success(success_info);
           }
 
-          this.$emit("success");
+          this.$emit("saved");
         } else if (result.code === INVALID_PARAMS) {
           const fields = result.err;
           if (fields && fields.length == 1) {
@@ -256,7 +256,6 @@ export default {
           if (!this.hide_hint) {
             this.show_error(error_info);
           }
-          this.$emit("fail");
         }
       });
     },

@@ -35,7 +35,11 @@
     "update_title": "Update {entity}",
     "delete_title": "Delete {entity}",
     "batch_delete_title": "Batch delete {entity}",
-    "no_data": "No Data"
+    "no_data": "No Data",
+    "delete_confirm": "Are you sure to delete {entity}?",
+    "no_selected": "Please select the table items first.",
+    "confirm_yes": "Yes",
+    "confirm_no": "No"
   },
   "user": {
     "_label": "User",

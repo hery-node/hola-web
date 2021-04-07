@@ -8,7 +8,7 @@
       <template v-slot:top>
         <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
         <v-toolbar flat v-if="!hide_toolbar">
-          <v-toolbar-title v-if="!hide_title">{{ toolbar_title }}</v-toolbar-title>
+          <v-toolbar-title v-if="!hide_table_title">{{ toolbar_title }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <slot name="toolbar" />
         </v-toolbar>
@@ -80,7 +80,7 @@ export default {
     searchable: { type: Boolean, default: false },
     //control the toolbar
     hide_toolbar: { type: Boolean, default: false },
-    hide_title: { type: Boolean, default: false },
+    hide_table_title: { type: Boolean, default: false },
     title: { type: String },
     //turn off table in mobile list mode
     mobile: { type: Boolean, default: false },
@@ -173,7 +173,7 @@ export default {
     },
 
     toolbar_title() {
-      if (this.hide_title) {
+      if (this.hide_table_title) {
         return "";
       }
       if (this.title) {
@@ -245,8 +245,7 @@ export default {
         });
       }
 
-      return this.$get_visible_fields(this.entity).then((result) => {
-        const server_fields = result.data;
+      return this.$get_visible_fields(this.entity).then((server_fields) => {
         const all_fields = this.headers.length > 0 ? this.headers : server_fields;
 
         for (let i = 0; i < all_fields.length; i++) {

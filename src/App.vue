@@ -16,8 +16,9 @@
     </v-app-bar>
 
     <v-main>
-      <h-form entity="user" hide_title></h-form>
-      <h-table infinite searchable hide_title entity="user" :headers="headers" :sort_key="sort_key" :sort_desc="sort_desc" :search_fields="search_fields" :search_cols="6"></h-table>
+      <!-- <h-form entity="user" hide_title></h-form> -->
+      <!-- <h-table infinite searchable hide_title entity="user" :headers="headers" :sort_key="sort_key" :sort_desc="sort_desc" :search_fields="search_fields" :search_cols="6"></h-table> -->
+      <h-crud searchable show-select :cols="4" :fields="search_fields" entity="user" label_key="name" :headers="headers" :sort_key="sort_key" :sort_desc="sort_desc" :search_fields="search_fields" :search_cols="6"></h-crud>
     </v-main>
   </v-app>
 </template>

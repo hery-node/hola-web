@@ -1,28 +1,30 @@
 <template>
-  <m-table ref="table" :entity="entity" :headers="headers" :sort_desc="sort_desc" :sort_key="sort_key" :item_actions="item_actions" v-bind="$attrs" v-on="$listeners">
+  <h-table ref="table" :entity="entity" :headers="headers" :sort_desc="sort_desc" :sort_key="sort_key" :item_actions="item_actions" v-bind="$attrs" v-on="$listeners">
     <template slot="toolbar" v-if="!$vuetify.breakpoint.xsOnly">
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
-          <v-btn v-if="addable" icon @click="show_form" v-on="on"><v-icon color="edit">mdi-plus-circle</v-icon></v-btn>
+          <v-btn v-show="oper.create" icon @click="show_create_dialog" v-on="on"><v-icon color="create">mdi-plus-circle</v-icon></v-btn>
         </template>
-        <span>{{ add_title }}</span>
+        <span>{{ create_title }}</span>
       </v-tooltip>
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
-          <v-btn v-if="deleteable" icon @click="remove_selected" v-on="on"><v-icon color="delete">mdi-delete-circle</v-icon></v-btn>
+          <v-btn v-show="oper.delete" icon @click="batch_delete" v-on="on"><v-icon color="delete">mdi-delete-circle</v-icon></v-btn>
         </template>
-        <span>{{ remove_title }}</span>
+        <span>{{ batch_delete_title }}</span>
       </v-tooltip>
       <slot name="toolbar" />
 
-      <v-dialog v-if="addable || updatable" v-model="dialog" :max-width="add_width">
-        <m-form ref="form" :entity="entity" v-bind="$attrs" @cancelled="close" @saved="form_saved"> </m-form>
+      <v-dialog v-show="oper.edit" v-model="dialog" :max-width="dialog_width">
+        <h-form v-model="form" :entity="entity" v-bind="$attrs" @cancelled="close_dialog" @saved="entity_saved"> </h-form>
       </v-dialog>
     </template>
-  </m-table>
+  </h-table>
 </template>
 
 <script>
+import { SUCCESS } from "../plugins/constant";
+
 export default {
   inheritAttrs: false,
 
@@ -32,24 +34,37 @@ export default {
     headers: { type: Array, required: true },
     sort_desc: { type: Array, required: true },
     sort_key: { type: Array, required: true },
+    //show delete name in batch delete dialog
+    label_key: { type: String, required: true },
     //end
     //add more actions to item actions
     actions: { type: Array, default: () => [] },
+    //dialog setting
+    dialog_width: { type: String, default: "800px" },
   },
 
   data() {
     return {
       form: {},
       dialog: false,
-      import_dialog: false,
-      file: null,
-      file_rules: [(v) => !!v || this.$t("common.required")],
+      oper: {
+        create: true,
+        update: true,
+        delete: true,
+        import: true,
+        export: true,
+        edit: true,
+      },
     };
   },
 
   computed: {
     entity_label() {
       return this.$t(this.entity + "._label");
+    },
+
+    no_selected() {
+      return this.$t("table.no_selected");
     },
 
     create_title() {
@@ -72,10 +87,10 @@ export default {
     item_actions() {
       const array = [];
       if (this.updatable) {
-        array.push({ color: "edit", icon: "mdi-square-edit-outline", tooltip: this.edit_title, handle: this.edit });
+        array.push({ color: "edit", icon: "mdi-square-edit-outline", tooltip: this.edit_title, handle: this.edit_entity });
       }
       if (this.deleteable) {
-        array.push({ color: "delete", icon: "mdi-delete-circle", tooltip: this.delete_title, handle: this.remove });
+        array.push({ color: "delete", icon: "mdi-delete-circle", tooltip: this.delete_title, handle: this.delete_entity });
       }
       array.push(...this.actions);
       if (array.length > 0) {
@@ -87,63 +102,49 @@ export default {
   },
 
   methods: {
-    remove_items(items, callback) {
-      const keys = items.map((item) => item[this.item_key]).join(",");
-      const ids = items.map((item) => item["_id"]).join(",");
-      const title = this.delete_title;
-      const msg = this.$t("common.delete_confirm", { obj: keys });
-      const url = this.action + "/delete";
-      const query = { ids: ids };
-
-      this.$confirm(msg, { icon: "mdi-delete-circle", title: title, buttonTrueText: this.$t("common.yes"), buttonFalseText: this.$t("common.no") }).then((res) => {
-        if (res) {
-          this.$post(url, query, this.$refs.table.show_error).then((result) => {
-            if (result.code === 0) {
-              if (result.has_ref === true) {
-                const obj = result.ref_array.map((ref) => this.$t(`${ref}.label`)).join(",");
-                const msg = this.$t("common.delete_ref", { obj: obj });
-                this.$refs.table.show_alter("error", msg, false);
-              }
-
-              this.refresh();
-              if (callback) {
-                callback();
-              }
-            }
-          });
-        }
+    edit_entity(item) {
+      this.$read(this.entity, item).then((entity) => {
+        this.form = entity;
+        this.dialog = true;
       });
     },
 
-    edit(item) {
-      this.dialog = true;
-      const that = this;
-      this.$get(this.action + "/load", { id: item._id }, this.$refs.table.show_error).then((result) => {
-        if (result.code === 0) {
-          this.form = result.data;
-          setTimeout(function() {
-            const form = that.$refs.add_form;
-            if (form) {
-              form.set_form(result.data);
-            }
-          }, 500);
-        }
-      });
+    delete_entity(item) {
+      this.delete_entities([item]);
     },
 
-    remove(item) {
-      this.remove_items([item]);
-    },
-
-    remove_selected() {
-      if (this.$refs.table.selected.length == 0) {
-        this.$refs.table.show_alter("warning", this.no_select, true);
+    batch_delete() {
+      const table = this.$refs.table;
+      if (table.selected.length == 0) {
+        table.show_error(this.no_selected);
         return;
       }
 
-      const that = this;
-      this.remove_items(this.$refs.table.selected, function() {
-        that.$refs.table.selected = [];
+      this.delete_entities(table.selected).then(() => {
+        table.selected = [];
+      });
+    },
+
+    confirm_delete(items) {
+      const labels = items.map((item) => item[this.label_key]).join(",");
+      const title = items.length > 1 ? this.batch_delete_title : this.delete_title;
+      const options = { icon: "mdi-delete-circle", title: title, buttonTrueText: this.$t("table.confirm_yes"), buttonFalseText: this.$t("table.confirm_no") };
+      const msg = this.$t("table.delete_confirm", { entity: labels });
+      return this.$confirm(msg, options);
+    },
+
+    delete_entities(items) {
+      const ids = items.map((item) => item["_id"]);
+      return this.confirm_delete(items, ids).then((res) => {
+        if (res) {
+          this.$delete(this.entity).then((result) => {
+            const { code } = result;
+            if (code == SUCCESS) {
+              console.log("success");
+            }
+          });
+        }
+        return res;
       });
     },
 
@@ -151,80 +152,18 @@ export default {
       this.$refs.table.load_data();
     },
 
-    show_form() {
+    show_create_dialog() {
       this.dialog = true;
-      const that = this;
-      setTimeout(function() {
-        const form = that.$refs.add_form;
-        if (form) {
-          form.show_form();
-        }
-      }, 500);
+      this.form = {};
     },
 
-    close() {
+    close_dialog() {
       this.dialog = false;
     },
 
-    form_saved() {
-      this.close();
+    entity_saved() {
+      this.dialog = false;
       this.refresh();
-    },
-
-    show_import() {
-      this.import_dialog = true;
-    },
-
-    close_import() {
-      this.import_dialog = false;
-      this.file = null;
-      this.$refs.import_form.reset();
-    },
-
-    export_to_excel() {
-      const { sortBy, sortDesc } = this.$refs.table.options;
-      const sort_by = sortBy && sortBy.length > 0 ? sortBy.join(",") : this.item_key;
-      const desc = sortDesc && sortDesc.length > 0 ? sortDesc.join(",") : "false";
-
-      const ids = this.$refs.table.selected.length > 0 ? this.$refs.table.selected.map((item) => item["_id"]).join(",") : "";
-      const url = this.action + "/export";
-      this.$download(url, this.label + ".xlsx", { ids: ids, sort_by: sort_by, desc: desc, search: this.$refs.table.search }, this.$refs.table.show_error);
-    },
-
-    import_excel() {
-      if (!this.$refs.import_form.validate()) {
-        return;
-      }
-
-      const url = this.action + "/import";
-      this.$upload(url, this.file, this.$refs.table.show_error).then((result) => {
-        if (result.code === 0) {
-          this.file = null;
-          this.$refs.import_form.reset();
-          this.import_dialog = false;
-          const errors = result.errors;
-          if (errors.length == 0) {
-            const msg = this.$t("common.upload_success", { success: result.success, obj: this.label });
-            this.$refs.table.show_alter("info", msg, false);
-          } else {
-            const error_msg = [];
-            errors.forEach((error) => {
-              if (error.code === IMPORT_EMPTY_KEY) {
-                error_msg.push(this.$t("common.wrong_line_empty_key", error));
-              } else if (error.code === IMPORT_WRONG_FIELDS) {
-                error_msg.push(this.$t("common.wrong_line_wrong_key", error));
-              } else if (error.code === IMPORT_DUPLICATE_KEY) {
-                error_msg.push(this.$t("common.wrong_line_duplicate_key", error));
-              } else if (error.code === IMPORT_NO_FOUND_REF) {
-                error_msg.push(this.$t("common.wrong_line_no_ref", error));
-              }
-            });
-            const msg = this.$t("common.upload_wrong", { success: result.success, obj: this.label, error: "<br>" + error_msg.join("<br>") });
-            this.$refs.table.show_alter("error", msg, false);
-          }
-          this.refresh();
-        }
-      });
     },
   },
 };
