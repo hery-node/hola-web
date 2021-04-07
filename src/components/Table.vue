@@ -7,15 +7,15 @@
         <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
       </template>
 
-      <template v-if="!pagination" v-slot:[`item.${intersect}`]="{ item }">
+      <template v-if="!pagination" v-slot:[`item._id`]="{ item }">
         <v-row justify="center" align="center">
           <template v-if="item._last === true">
             <span class="ma-1" v-intersect="infinite_scroll">
-              {{ item[intersect] }}
+              {{ item["_id"] }}
             </span>
           </template>
           <template v-else>
-            {{ item[intersect] }}
+            {{ item["_id"] }}
           </template>
         </v-row>
       </template>
@@ -66,7 +66,9 @@ export default {
     header_width: { type: String, default: "120px" },
     //Available options are start, center, end, baseline and stretch.
     header_align: { type: String, default: "start" },
-    intersect: { type: String },
+    //infinite scroll or not
+    infinite: { type: Boolean, default: false },
+    item_per_page: { type: Number, default: 30 },
 
     //attributes for search form
     //colspan for the field
@@ -126,7 +128,7 @@ export default {
 
   computed: {
     pagination() {
-      return !this.intersect;
+      return !this.infinite;
     },
 
     table_headers() {
@@ -255,11 +257,13 @@ export default {
         const sort_by = sortBy && sortBy.length > 0 ? sortBy.join(",") : this.sort_key.join(",");
         const desc = sortDesc && sortDesc.length > 0 ? sortDesc.join(",") : this.sort_desc.join(",");
         const attr_names = fields.map((h) => h.name).join(",");
-        const params = { attr_names: attr_names, limit: itemsPerPage, sort_by: sort_by, desc: desc };
+        const params = { attr_names: attr_names, sort_by: sort_by, desc: desc };
         if (this.pagination) {
           params.page = page;
+          params.limit = itemsPerPage;
         } else {
           params.page = this.next_page;
+          params.limit = this.item_per_page;
         }
 
         this.$list(this.entity, this.search_form, params).then((result) => {
@@ -281,7 +285,6 @@ export default {
               }
               this.items.push(...data);
               this.next_page++;
-              console.log(this.next_page);
             }
           }
         });
