@@ -44,8 +44,8 @@
         </v-row>
       </template>
 
-      <template v-for="(action, index) in item_actions" v-slot:[`item.${action}`]="{ item }">
-        <v-tooltip bottom v-bind:key="index">
+      <template v-slot:[`item._action`]="{ item }">
+        <v-tooltip v-for="(action, index) in item_actions" bottom v-bind:key="index">
           <template v-slot:activator="{ on }">
             <v-btn icon @click.stop="action.handle(item)" v-on="on">
               <v-icon :color="action.color">{{ action.icon }}</v-icon>
@@ -81,6 +81,8 @@ export default {
     //control the toolbar
     hide_toolbar: { type: Boolean, default: false },
     hide_table_title: { type: Boolean, default: false },
+    //has action header to add update and delete button for item
+    has_action_header: { type: Boolean, default: false },
     table_title: { type: String },
     //turn off table in mobile list mode
     mobile: { type: Boolean, default: false },
@@ -169,7 +171,16 @@ export default {
         header.text = label;
         header.value = header.name;
       }
-      return this.headers;
+      if (this.has_action_header) {
+        const headers = [...this.headers];
+        const action = { text: this.$t("table.action_header"), value: "_action", sortable: false };
+        action.width = this.header_width;
+        action.align = this.header_align;
+        headers.push(action);
+        return headers;
+      } else {
+        return this.headers;
+      }
     },
 
     toolbar_title() {
@@ -219,6 +230,11 @@ export default {
 
     clear_search() {
       this.search_form = {};
+      this.reset_values();
+      this.load_data();
+    },
+
+    refresh() {
       this.reset_values();
       this.load_data();
     },

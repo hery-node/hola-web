@@ -31,6 +31,7 @@
   },
   "table": {
     "title": "{entity} List",
+    "action_header": "Action",
     "create_title": "Create {entity}",
     "update_title": "Update {entity}",
     "delete_title": "Delete {entity}",

@@ -1,5 +1,5 @@
 <template>
-  <h-table ref="table" :entity="entity" :headers="headers" :sort_desc="sort_desc" :sort_key="sort_key" :item_actions="item_actions" v-bind="$attrs" v-on="$listeners">
+  <h-table ref="table" :entity="entity" :headers="headers" :sort_desc="sort_desc" :sort_key="sort_key" :has_action_header="has_action_header" :item_actions="item_actions" v-bind="$attrs" v-on="$listeners">
     <template slot="toolbar" v-if="!$vuetify.breakpoint.xsOnly">
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
@@ -16,7 +16,7 @@
       <slot name="toolbar" />
 
       <v-dialog v-show="oper.edit" v-model="dialog" :max-width="dialog_width">
-        <h-form v-model="form" :entity="entity" v-bind="$attrs" @cancelled="close_dialog" @saved="entity_saved"> </h-form>
+        <h-form v-model="form" :entity="entity" :edit_mode="edit_mode" v-bind="$attrs" @cancelled="close_dialog" @saved="entity_saved"> </h-form>
       </v-dialog>
     </template>
   </h-table>
@@ -45,6 +45,7 @@ export default {
 
   data() {
     return {
+      edit_mode: false,
       form: {},
       dialog: false,
       oper: {
@@ -59,6 +60,9 @@ export default {
   },
 
   computed: {
+    has_action_header() {
+      return this.oper.edit || this.oper.delete;
+    },
     entity_label() {
       return this.$t(this.entity + "._label");
     },
@@ -86,10 +90,10 @@ export default {
     //actions for item operation
     item_actions() {
       const array = [];
-      if (this.updatable) {
+      if (this.oper.update) {
         array.push({ color: "edit", icon: "mdi-square-edit-outline", tooltip: this.edit_title, handle: this.edit_entity });
       }
-      if (this.deleteable) {
+      if (this.oper.delete) {
         array.push({ color: "delete", icon: "mdi-delete-circle", tooltip: this.delete_title, handle: this.delete_entity });
       }
       array.push(...this.actions);
@@ -103,6 +107,7 @@ export default {
 
   methods: {
     edit_entity(item) {
+      this.edit_mode = true;
       this.$read(this.entity, item).then((entity) => {
         this.form = entity;
         this.dialog = true;
@@ -149,11 +154,12 @@ export default {
     },
 
     refresh() {
-      this.$refs.table.load_data();
+      this.$refs.table.refresh();
     },
 
     show_create_dialog() {
       this.dialog = true;
+      this.edit_mode = false;
       this.form = {};
     },
 
