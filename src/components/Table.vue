@@ -105,9 +105,7 @@ export default {
   watch: {
     options: {
       handler() {
-        this.loading = true;
-        this.items = [];
-        this.next_page = 1;
+        this.reset_values();
         this.load_data();
       },
       deep: true,
@@ -185,15 +183,20 @@ export default {
       }
     },
 
+    reset_values() {
+      this.items = [];
+      this.next_page = 1;
+    },
+
     clear_search() {
       this.search_form = {};
-      this.items = [];
+      this.reset_values();
       this.load_data();
     },
 
     do_search(form) {
       this.search_form = form;
-      this.items = [];
+      this.reset_values();
       this.load_data();
     },
 
@@ -253,7 +256,6 @@ export default {
         const desc = sortDesc && sortDesc.length > 0 ? sortDesc.join(",") : this.sort_desc.join(",");
         const attr_names = fields.map((h) => h.name).join(",");
         const params = { attr_names: attr_names, limit: itemsPerPage, sort_by: sort_by, desc: desc };
-
         if (this.pagination) {
           params.page = page;
         } else {
@@ -279,6 +281,7 @@ export default {
               }
               this.items.push(...data);
               this.next_page++;
+              console.log(this.next_page);
             }
           }
         });

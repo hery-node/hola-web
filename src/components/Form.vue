@@ -7,7 +7,7 @@
       <v-card-text>
         <v-row dense>
           <v-col v-for="(field, index) in form_fields" v-bind:key="index" cols="12" sm="12" xs="12" :md="field.cols ? field.cols : 12" :lg="field.cols ? field.cols : 12">
-            <template v-if="field.input_type === 'chip'">
+            <template v-if="field.input_type === 'combobox'">
               <v-combobox v-model="form[field.name]" :autofocus="index == 0" :label="field.label" :multiple="field.multiple" chips deletable-chips dense outlined></v-combobox>
             </template>
             <template v-else-if="field.input_type === 'password'">

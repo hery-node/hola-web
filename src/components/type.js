@@ -5,17 +5,17 @@ const type_manager = {};
  * @param {value to check} value 
  * @returns 
  */
-const has_value = function (value) {
+const no_value = function (value) {
     if (value === undefined || value === null) {
-        return false
+        return true
     }
     if (typeof value == 'undefined') {
-        return false;
+        return true;
     }
     if (typeof value === 'string' && value.trim().length === 0) {
-        return false;
+        return true;
     }
-    return true;
+    return false;
 };
 
 
@@ -46,10 +46,10 @@ const boolean_type = {
     input_type: "switch",
     rule: function (vue, field_name) {
         const err = vue.$t("type.boolean", { field: field_name });
-        return (value) => value === true || value === "true" || value === false || value === "false" || err;
+        return (value) => no_value(value) || value === true || value === "true" || value === false || value === "false" || err;
     },
     format: function (value, vue) {
-        if (!has_value(value)) {
+        if (no_value(value)) {
             return "";
         }
         return value == true ? vue.$t("type.boolean_true") : vue.$t("type.boolean_false");
@@ -67,7 +67,7 @@ const int_type = {
     input_type: "number",
     rule: function (vue, field_name) {
         const err = vue.$t("type.int", { field: field_name });
-        return (value) => is_int(value) || err;
+        return (value) => no_value(value) || is_int(value) || err;
     }
 }
 
@@ -78,7 +78,7 @@ const uint_type = {
     input_type: "number",
     rule: function (vue, field_name) {
         const err = vue.$t("type.uint", { field: field_name });
-        return (value) => (is_int(value) && parseInt(value) >= 0) || err;
+        return (value) => no_value(value) || (is_int(value) && parseInt(value) >= 0) || err;
     }
 }
 
@@ -89,7 +89,7 @@ const age_type = {
     input_type: "number",
     rule: function (vue, field_name) {
         const err = vue.$t("type.age", { field: field_name });
-        return (value) => !value || (is_int(value) && parseInt(value) > 0 && parseInt(value) < 200) || err;
+        return (value) => no_value(value) || (is_int(value) && parseInt(value) > 0 && parseInt(value) < 200) || err;
     }
 }
 
@@ -104,7 +104,7 @@ const float_type = {
     input_type: "number",
     rule: function (vue, field_name) {
         const err = vue.$t("type.float", { field: field_name });
-        return (value) => is_float(value) || err;
+        return (value) => no_value(value) || is_float(value) || err;
     }
 }
 
@@ -115,10 +115,10 @@ const percentage_type = {
     input_type: "number",
     rule: function (vue, field_name) {
         const err = vue.$t("type.percentage", { field: field_name });
-        return (value) => is_float(value) || err;
+        return (value) => no_value(value) || is_float(value) || err;
     },
     format: function (value) {
-        if (!has_value(value)) {
+        if (no_value(value)) {
             return "";
         }
         return value ? value + "%" : "0%";
@@ -132,7 +132,7 @@ const ufloat_type = {
     input_type: "number",
     rule: function (vue, field_name) {
         const err = vue.$t("type.ufloat", { field: field_name });
-        return (value) => (is_float(value) && parseFloat(value) >= 0) || err;
+        return (value) => no_value(value) || (is_float(value) && parseFloat(value) >= 0) || err;
     }
 }
 
@@ -143,7 +143,7 @@ const number_type = {
     input_type: "number",
     rule: function (vue, field_name) {
         const err = vue.$t("type.number", { field: field_name });
-        return (value) => !isNaN(Number(value)) || err;
+        return (value) => no_value(value) || !isNaN(Number(value)) || err;
     }
 }
 
@@ -205,7 +205,7 @@ const gender_type = {
         return genders;
     },
     format: function (value, vue) {
-        if (!has_value(value)) {
+        if (no_value(value)) {
             return "";
         }
         return value == 1 ? vue.$t("type.gender_female") : vue.$t("type.gender_male");
@@ -214,5 +214,4 @@ const gender_type = {
 
 register_type(gender_type);
 
-export { register_type, get_type, has_value }
-
+export { register_type, get_type, no_value }

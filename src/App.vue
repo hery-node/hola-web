@@ -16,7 +16,7 @@
     </v-app-bar>
 
     <v-main>
-      <h-form entity="user" hide_title hide_cancel hide_hint></h-form>
+      <!-- <h-form entity="user" hide_title></h-form> -->
       <h-table searchable mobile entity="user" :headers="headers" :sort_key="sort_key" :sort_desc="sort_desc" :search_fields="search_fields" :search_cols="6"></h-table>
     </v-main>
   </v-app>
