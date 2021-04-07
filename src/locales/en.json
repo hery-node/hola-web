@@ -42,7 +42,8 @@
     "introduction": "Introduction",
     "email": "Email",
     "role": "Role",
-    "status": "Status"
+    "status": "Status",
+    "rate": "Rate"
   },
   "role": {
     "_label": "Role",

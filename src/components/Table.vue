@@ -2,7 +2,7 @@
   <div>
     <h-search :entity="entity" v-if="searchable" @clear="clear_search" @search="do_search" :cols="search_cols" :title="search_title" :clear_label="clear_label" :search_label="search_label" :fields="search_fields"></h-search>
     <v-divider class="mt-5"></v-divider>
-    <v-data-table v-bind="$attrs" v-on="$listeners" :mobile-breakpoint="turn_off_mobile ? 10 : 600" :headers="table_headers" :items="items" :loading="loading" multi-sort v-model="selected" :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0" :hide-default-footer="!pagination">
+    <v-data-table v-bind="$attrs" v-on="$listeners" :mobile-breakpoint="mobile ? 600 : 10" :headers="table_headers" :items="items" :loading="loading" multi-sort v-model="selected" :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0" :hide-default-footer="!pagination">
       <template v-slot:top>
         <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
       </template>
@@ -42,9 +42,9 @@ export default {
     sort_key: { type: Array, required: true },
     //end
     //has search form or not
-    searchable: { type: Boolean, default: true },
+    searchable: { type: Boolean, default: false },
     //turn off table in mobile list mode
-    turn_off_mobile: { type: Boolean, default: true },
+    mobile: { type: Boolean, default: false },
     interval: { type: Number, default: -1 },
     header_width: { type: String, default: "120px" },
     header_align: { type: String, default: "center" },
