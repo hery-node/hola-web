@@ -31,7 +31,26 @@ export default {
     sort_key: ["name"],
     sort_desc: [false],
     search_fields: [{ name: "name" }, { name: "role" }, { name: "gender" }, { name: "age" }],
-    headers: [{ name: "name" }, { name: "email" }, { name: "age" }, { name: "role" }, { name: "gender" }, { name: "birthday" }, { name: "status" }, { name: "rate" }],
+    headers: [
+      { name: "name" },
+      { name: "email" },
+      {
+        name: "age",
+        // chip: true,
+        style: (value) => {
+          if (value > 15) {
+            return "red--text";
+          } else {
+            return "green--text";
+          }
+        },
+      },
+      { name: "role" },
+      { name: "gender" },
+      { name: "birthday" },
+      { name: "status" },
+      { name: "rate" },
+    ],
   }),
 };
 </script>

@@ -20,6 +20,23 @@
         </v-row>
       </template>
 
+      <template v-for="(chip, index) in chips" v-slot:[`item.${chip}`]="{ item }">
+        <v-row class="d-flex flex-nowrap" :justify="header_align" :align="header_align" v-bind:key="index">
+          <template v-if="Array.isArray(item[chip])">
+            <v-chip dark v-for="tag in item[chip]" :key="tag" :class="get_item_style(chip, item[chip], 'chip ma-1')"> {{ tag }} </v-chip>
+          </template>
+          <template v-else-if="item[chip]">
+            <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
+          </template>
+        </v-row>
+      </template>
+
+      <template v-for="(style, index) in styles" v-slot:[`item.${style}`]="{ item }">
+        <v-row :justify="header_align" :align="header_align" v-bind:key="index">
+          <span :class="get_item_style(style, item[style], '')">{{ item[style] }}</span>
+        </v-row>
+      </template>
+
       <template v-slot:no-data>
         <span>{{ $t("table.no_data") }}</span>
       </template>
@@ -47,7 +64,8 @@ export default {
     mobile: { type: Boolean, default: false },
     interval: { type: Number, default: -1 },
     header_width: { type: String, default: "120px" },
-    header_align: { type: String, default: "center" },
+    //Available options are start, center, end, baseline and stretch.
+    header_align: { type: String, default: "start" },
     intersect: { type: String },
 
     //attributes for search form
@@ -70,6 +88,8 @@ export default {
       next_page: 1,
       items: [],
       selected: [],
+      chips: [],
+      styles: [],
       search_form: {},
       options: {},
       alert: {
@@ -118,7 +138,7 @@ export default {
           header.width = this.header_width;
         }
         if (!header.align) {
-          header.align = this.align;
+          header.align = this.header_align;
         }
         const label = this.$t(this.entity + "." + header.name);
         header.text = label;
@@ -177,6 +197,15 @@ export default {
       this.load_data();
     },
 
+    get_item_style(field_name, field_value, default_value) {
+      const [field] = this.cached_fields.filter((f) => f.name === field_name);
+      if (field && field.style) {
+        return field.style(field_value);
+      } else {
+        return default_value;
+      }
+    },
+
     load_fields() {
       if (this.cached_fields.length > 0) {
         return new Promise((resolve) => {
@@ -203,6 +232,12 @@ export default {
           }
           if (type.format) {
             field.format = type.format;
+          }
+
+          if (field.chip == true) {
+            this.chips.push(field.name);
+          } else if (field.style) {
+            this.styles.push(field.name);
           }
         }
         this.cached_fields = all_fields;
