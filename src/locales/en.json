@@ -31,6 +31,10 @@
   },
   "table": {
     "title": "{entity} List",
+    "create_title": "Create {entity}",
+    "update_title": "Update {entity}",
+    "delete_title": "Delete {entity}",
+    "batch_delete_title": "Batch delete {entity}",
     "no_data": "No Data"
   },
   "user": {

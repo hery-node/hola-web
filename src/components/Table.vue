@@ -44,6 +44,17 @@
         </v-row>
       </template>
 
+      <template v-for="(action, index) in item_actions" v-slot:[`item.${action}`]="{ item }">
+        <v-tooltip bottom v-bind:key="index">
+          <template v-slot:activator="{ on }">
+            <v-btn icon @click.stop="action.handle(item)" v-on="on">
+              <v-icon :color="action.color">{{ action.icon }}</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ action.tooltip }}</span>
+        </v-tooltip>
+      </template>
+
       <template v-slot:no-data>
         <span>{{ $t("table.no_data") }}</span>
       </template>
@@ -92,6 +103,8 @@ export default {
     search_label: { type: String },
     //the fields of the entity
     search_fields: { type: Array, default: () => [] },
+    //action for the item, such as delete item or edit item
+    item_actions: { type: Array, default: () => [] },
   },
 
   data() {

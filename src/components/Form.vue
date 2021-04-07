@@ -62,6 +62,10 @@ import { SUCCESS, INVALID_PARAMS, DUPLICATE_KEY } from "../plugins/constant";
 export default {
   inheritAttrs: false,
 
+  model: {
+    prop: "form",
+  },
+
   props: {
     entity: { type: String, required: true },
     //colspan for the field
@@ -69,6 +73,8 @@ export default {
     hide_title: { type: Boolean, default: false },
     hide_hint: { type: Boolean, default: false },
     hide_cancel: { type: Boolean, default: false },
+    //is edit or not
+    edit_mode: { type: Boolean, default: false },
     //form title
     title: { type: String },
     //label for cancel and submit button
@@ -82,27 +88,20 @@ export default {
     fail_hint: { type: String },
     //the fields of the entity
     fields: { type: Array, default: () => [] },
-    //set the initial value if it is edit
-    initial_value: {
+
+    //this is used as v-model property
+    form: {
       type: Object,
       default: function() {
-        return undefined;
+        return {};
       },
     },
   },
 
   components: { TiptapVuetify },
 
-  mounted() {
-    if (this.initial_value) {
-      this.set_form(this.initial_value);
-    }
-  },
-
   data() {
     return {
-      form: {},
-      edit_mode: false,
       show_date_picker: false,
       show_password: false,
       //used to keep fields propterties
@@ -193,11 +192,6 @@ export default {
   },
 
   methods: {
-    set_form(data) {
-      this.form = data;
-      this.edit_mode = true;
-    },
-
     show_error(msg) {
       this.show_alert("error", msg, true);
     },
