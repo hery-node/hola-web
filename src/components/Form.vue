@@ -56,7 +56,7 @@
 
 <script>
 import { TiptapVuetify, Heading, Image, Bold, Italic, Strike, Underline, Code, Paragraph, BulletList, OrderedList, ListItem, Link, Blockquote, HardBreak, HorizontalRule, History } from "tiptap-vuetify";
-import { get_type } from "./type";
+import { get_type } from "../plugins/type";
 import { SUCCESS, INVALID_PARAMS, DUPLICATE_KEY } from "../plugins/constant";
 
 export default {

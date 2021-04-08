@@ -1,24 +1,9 @@
+Plugin.install = (Vue) => {
+    Vue.AXIOS_SUCCESS = 1;
+    Vue.AXIOS_ERROR = 0;
+    Vue.AXIOS_INVALID_PARAMS = 204;
+    Vue.AXIOS_DUPLICATE_KEY = 300;
+    Vue.AXIOS_HAS_REF = 207;
+};
 
-//    ERROR: 0,
-//     SUCCESS: 1,
-//     IMPORT_EMPTY_KEY: 100,
-//     IMPORT_WRONG_FIELDS: 101,
-//     IMPORT_DUPLICATE_KEY: 102,
-//     IMPORT_NO_FOUND_REF: 103,
-//     NO_SESSION: 200,
-//     NO_RIGHTS: 201,
-//     NO_PARAMS: 202,
-//     NOT_FOUND: 203,
-//     INVALID_PARAMS: 204,
-//     REF_NOT_FOUND: 205,
-//     REF_NOT_UNIQUE: 206,
-//     HAS_REF: 207,
-//     DUPLICATE_KEY: 300,
-//     NO_RESOURCE: 404,
-const SUCCESS = 1;
-const ERROR = 0;
-const INVALID_PARAMS = 204;
-const DUPLICATE_KEY = 300;
-const HAS_REF = 207;
-
-export { SUCCESS, ERROR, INVALID_PARAMS, DUPLICATE_KEY, HAS_REF }
+export default Plugin;

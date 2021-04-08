@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { get_type } from "./type";
+import { get_type } from "../plugins/type";
 
 export default {
   inheritAttrs: false,

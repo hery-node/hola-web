@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import { get_type } from "./type";
+import { get_type } from "../plugins/type";
 import { SUCCESS } from "../plugins/constant";
 
 export default {

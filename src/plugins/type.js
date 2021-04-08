@@ -5,7 +5,7 @@ const type_manager = {};
  * @param {value to check} value 
  * @returns 
  */
-const no_value = function (value) {
+const no_value = (value) => {
     if (value === undefined || value === null) {
         return true
     }
@@ -44,11 +44,13 @@ const get_type = name => {
 const boolean_type = {
     name: "boolean",
     input_type: "switch",
-    rule: function (vue, field_name) {
+
+    rule: (vue, field_name) => {
         const err = vue.$t("type.boolean", { field: field_name });
         return (value) => no_value(value) || value === true || value === "true" || value === false || value === "false" || err;
     },
-    format: function (value, vue) {
+
+    format: (value, vue) => {
         if (no_value(value)) {
             return "";
         }
@@ -65,7 +67,8 @@ const is_int = (value) => {
 const int_type = {
     name: "int",
     input_type: "number",
-    rule: function (vue, field_name) {
+
+    rule: (vue, field_name) => {
         const err = vue.$t("type.int", { field: field_name });
         return (value) => no_value(value) || is_int(value) || err;
     }
@@ -76,7 +79,8 @@ register_type(int_type);
 const uint_type = {
     name: "uint",
     input_type: "number",
-    rule: function (vue, field_name) {
+
+    rule: (vue, field_name) => {
         const err = vue.$t("type.uint", { field: field_name });
         return (value) => no_value(value) || (is_int(value) && parseInt(value) >= 0) || err;
     }
@@ -87,7 +91,8 @@ register_type(uint_type);
 const age_type = {
     name: "age",
     input_type: "number",
-    rule: function (vue, field_name) {
+
+    rule: (vue, field_name) => {
         const err = vue.$t("type.age", { field: field_name });
         return (value) => no_value(value) || (is_int(value) && parseInt(value) > 0 && parseInt(value) < 200) || err;
     }
@@ -102,7 +107,8 @@ const is_float = (value) => {
 const float_type = {
     name: "float",
     input_type: "number",
-    rule: function (vue, field_name) {
+
+    rule: (vue, field_name) => {
         const err = vue.$t("type.float", { field: field_name });
         return (value) => no_value(value) || is_float(value) || err;
     }
@@ -113,11 +119,13 @@ register_type(float_type);
 const percentage_type = {
     name: "percentage",
     input_type: "number",
-    rule: function (vue, field_name) {
+
+    rule: (vue, field_name) => {
         const err = vue.$t("type.percentage", { field: field_name });
         return (value) => no_value(value) || is_float(value) || err;
     },
-    format: function (value) {
+
+    format: (value) => {
         if (no_value(value)) {
             return "";
         }
@@ -130,7 +138,8 @@ register_type(percentage_type);
 const ufloat_type = {
     name: "ufloat",
     input_type: "number",
-    rule: function (vue, field_name) {
+
+    rule: (vue, field_name) => {
         const err = vue.$t("type.ufloat", { field: field_name });
         return (value) => no_value(value) || (is_float(value) && parseFloat(value) >= 0) || err;
     }
@@ -141,7 +150,8 @@ register_type(ufloat_type);
 const number_type = {
     name: "number",
     input_type: "number",
-    rule: function (vue, field_name) {
+
+    rule: (vue, field_name) => {
         const err = vue.$t("type.number", { field: field_name });
         return (value) => no_value(value) || !isNaN(Number(value)) || err;
     }
@@ -198,13 +208,15 @@ register_type(date_type);
 const gender_type = {
     name: "gender",
     input_type: "autocomplete",
-    items: function (vue) {
+
+    items: (vue) => {
         const genders = [];
         genders.push({ value: 0, text: vue.$t("type.gender_male") });
         genders.push({ value: 1, text: vue.$t("type.gender_female") });
         return genders;
     },
-    format: function (value, vue) {
+
+    format: (value, vue) => {
         if (no_value(value)) {
             return "";
         }
@@ -214,4 +226,11 @@ const gender_type = {
 
 register_type(gender_type);
 
-export { register_type, get_type, no_value }
+Plugin.install = (Vue) => {
+    Vue.get_entity_field_type = get_type;
+    Vue.entity_field_no_value = no_value;
+};
+
+Vue.use(Plugin);
+
+export { register_type }
