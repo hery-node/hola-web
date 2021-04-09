@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="searchable">
-      <h-search v-bind="$attrs" :entity="entity" @clear="clear_search" @search="do_search"></h-search>
+      <h-search v-bind="$attrs" v-model="search_form" :entity="entity" @clear="clear_search" @search="do_search"></h-search>
       <v-divider class="mt-5"></v-divider>
     </div>
     <v-data-table v-bind="$attrs" v-on="$listeners" :mobile-breakpoint="mobile ? 600 : 10" :headers="table_headers" :items="items" :loading="loading" multi-sort v-model="selected" :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0" :hide-default-footer="!pagination">
@@ -134,6 +134,7 @@ export default {
     }
 
     this.table_headers = table_headers;
+    this.load_data();
   },
 
   watch: {
@@ -202,8 +203,7 @@ export default {
       this.load_data();
     },
 
-    do_search(form) {
-      this.search_form = form;
+    do_search() {
       this.reset_values();
       this.load_data();
     },

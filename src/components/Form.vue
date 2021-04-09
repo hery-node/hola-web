@@ -160,7 +160,7 @@ export default {
 
     async submit_form() {
       if (this.searchMode) {
-        this.$emit("search", this.form);
+        this.$emit("search");
         return;
       }
 
