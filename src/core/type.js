@@ -23,7 +23,7 @@ const no_value = (value) => {
  * register your use type
  * @param {type object to do validation and type conversion} type 
  */
-const register_type = type => {
+const register_type = (type) => {
     type_manager[type.name] = type;
 }
 
@@ -32,12 +32,12 @@ const register_type = type => {
  * @param {type name} name 
  * @returns 
  */
-const get_type = name => {
+const get_type = (name) => {
     const type = type_manager[name];
     if (type) {
         return type;
     } else {
-        throw new Error('no type registered for name [' + name + ']');
+        return null;
     }
 }
 
@@ -67,6 +67,7 @@ const is_int = (value) => {
 const int_type = {
     name: "int",
     input_type: "number",
+    search_input_type: "text",
 
     rule: (vue, field_name) => {
         const err = vue.$t("type.int", { field: field_name });
@@ -79,6 +80,7 @@ register_type(int_type);
 const uint_type = {
     name: "uint",
     input_type: "number",
+    search_input_type: "text",
 
     rule: (vue, field_name) => {
         const err = vue.$t("type.uint", { field: field_name });
@@ -91,6 +93,7 @@ register_type(uint_type);
 const age_type = {
     name: "age",
     input_type: "number",
+    search_input_type: "text",
 
     rule: (vue, field_name) => {
         const err = vue.$t("type.age", { field: field_name });
@@ -107,6 +110,7 @@ const is_float = (value) => {
 const float_type = {
     name: "float",
     input_type: "number",
+    search_input_type: "text",
 
     rule: (vue, field_name) => {
         const err = vue.$t("type.float", { field: field_name });
@@ -119,6 +123,7 @@ register_type(float_type);
 const percentage_type = {
     name: "percentage",
     input_type: "number",
+    search_input_type: "text",
 
     rule: (vue, field_name) => {
         const err = vue.$t("type.percentage", { field: field_name });
@@ -138,6 +143,7 @@ register_type(percentage_type);
 const ufloat_type = {
     name: "ufloat",
     input_type: "number",
+    search_input_type: "text",
 
     rule: (vue, field_name) => {
         const err = vue.$t("type.ufloat", { field: field_name });
@@ -150,6 +156,7 @@ register_type(ufloat_type);
 const number_type = {
     name: "number",
     input_type: "number",
+    search_input_type: "text",
 
     rule: (vue, field_name) => {
         const err = vue.$t("type.number", { field: field_name });
@@ -169,6 +176,7 @@ register_type(string_type);
 const password_type = {
     name: "password",
     input_type: "password",
+
     format: function () {
         return "***";
     }
@@ -186,14 +194,16 @@ register_type(array_type);
 
 const lstr_type = {
     name: "lstr",
-    input_type: "textarea"
+    input_type: "textarea",
+    search_input_type: "text",
 }
 
 register_type(lstr_type);
 
 const text_type = {
     name: "text",
-    input_type: "editor"
+    input_type: "editor",
+    search_input_type: "text",
 }
 
 register_type(text_type);
@@ -226,11 +236,4 @@ const gender_type = {
 
 register_type(gender_type);
 
-Plugin.install = (Vue) => {
-    Vue.get_entity_field_type = get_type;
-    Vue.entity_field_no_value = no_value;
-};
-
-Vue.use(Plugin);
-
-export { register_type }
+export { register_type, get_type, no_value }

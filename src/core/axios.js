@@ -1,4 +1,3 @@
-import Vue from 'vue';
 import axios from "axios";
 
 // Full config:  https://github.com/axios/axios#request-config
@@ -12,6 +11,25 @@ const LIST = "/list";
 const UPDATE = "/update";
 const DELETE = "/delete";
 const REF = "/ref";
+
+const CODE = {
+    ERROR: 0,
+    SUCCESS: 1,
+    IMPORT_EMPTY_KEY: 100,
+    IMPORT_WRONG_FIELDS: 101,
+    IMPORT_DUPLICATE_KEY: 102,
+    IMPORT_NO_FOUND_REF: 103,
+    NO_SESSION: 200,
+    NO_RIGHTS: 201,
+    NO_PARAMS: 202,
+    NOT_FOUND: 203,
+    INVALID_PARAMS: 204,
+    REF_NOT_FOUND: 205,
+    REF_NOT_UNIQUE: 206,
+    HAS_REF: 207,
+    DUPLICATE_KEY: 300,
+    NO_RESOURCE: 404,
+};
 
 let _axios;
 
@@ -80,13 +98,33 @@ const axios_get = (url, params) => {
     return _axios.get(url, { params: params });
 };
 
+const is_success_response = (code) => {
+    return code == CODE.SUCCESS;
+}
+
+const is_error_response = (code) => {
+    return code == CODE.ERROR;
+}
+
+const has_invalid_params = (code) => {
+    return code == CODE.INVALID_PARAMS;
+}
+
+const is_duplicated = (code) => {
+    return code == CODE.DUPLICATE_KEY;
+}
+
+const is_been_referred = (code) => {
+    return code == CODE.HAS_REF;
+}
+
 const axios_cached_get = (url, params) => {
     if (has_cache(url)) {
         return get_cache(url);
     } else {
         const _axios = get_axios();
         return _axios.get(url, { params: params }).then(data => {
-            if (data.code == AXIOS_SUCCESS) {
+            if (is_success_response(data.code)) {
                 set_cache(url, data);
             }
             return data;
@@ -122,64 +160,62 @@ const axios_download = (url, file_name, params) => {
         });
 };
 
-Plugin.install = (Vue) => {
-    Vue.axios_upload = axios_upload;
-    Vue.axios_download = axios_download;
-
-    Vue.get_entity_meta = (entity) => {
-        const url = "/" + entity + META;
-        return axios_cached_get(url).then(result => {
-            if (result.code === AXIOS_SUCCESS) {
-                return result.data;
-            } else {
-                return [];
-            }
-        });
-    };
-
-    Vue.get_ref_labels = (entity) => {
-        const url = "/" + entity + REF;
-        return axios_get(url).then(result => {
-            if (result.code === AXIOS_SUCCESS) {
-                return result.data;
-            } else {
-                return [];
-            }
-        });
-    };
-
-    Vue.read_entity = (entity, params) => {
-        const url = "/" + entity + READ;
-        return axios_post(url, params).then(result => {
-            if (result.code === AXIOS_SUCCESS) {
-                return result.data;
-            } else {
-                return {};
-            }
-        });
-    };
-
-    Vue.list_entity = (entity, form, params) => {
-        const url = "/" + entity + LIST;
-        form["_query"] = params;
-        return axios_post(url, form);
-    };
-
-    Vue.save_entity = (entity, form, edit_mode) => {
-        const url = edit_mode ? "/" + entity + UPDATE : "/" + entity + CREATE;
-        if (form._has_file) {
-            return axios_post_file_form(url, form);
+const get_entity_meta = (entity) => {
+    const url = "/" + entity + META;
+    return axios_cached_get(url).then(result => {
+        if (is_success_response(result.code)) {
+            return result.data;
         } else {
-            return axios_post(url, form);
+            return null;
         }
-    };
-
-    Vue.delete_entity = (entity, ids) => {
-        const url = "/" + entity + DELETE;
-        return axios_post(url, { "ids": ids.join(",") });
-    };
+    });
 };
 
-Vue.use(Plugin);
+const get_ref_labels = (entity) => {
+    const url = "/" + entity + REF;
+    return axios_get(url).then(result => {
+        if (is_success_response(result.code)) {
+            return result.data;
+        } else {
+            return [];
+        }
+    });
+};
 
-export { init_axios }
+const read_entity = (entity, params) => {
+    const url = "/" + entity + READ;
+    return axios_post(url, params).then(result => {
+        if (is_success_response(result.code)) {
+            return result.data;
+        } else {
+            return {};
+        }
+    });
+};
+
+const list_entity = (entity, form, params) => {
+    const url = "/" + entity + LIST;
+    form["_query"] = params;
+    return axios_post(url, form);
+};
+
+const save_entity = (entity, form, edit_mode) => {
+    const url = edit_mode ? "/" + entity + UPDATE : "/" + entity + CREATE;
+    if (form._has_file) {
+        return axios_post_file_form(url, form);
+    } else {
+        return axios_post(url, form);
+    }
+};
+
+const delete_entity = (entity, ids) => {
+    const url = "/" + entity + DELETE;
+    return axios_post(url, { "ids": ids.join(",") });
+};
+
+export {
+    init_axios,
+    axios_download, axios_upload,
+    is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params,
+    save_entity, read_entity, list_entity, delete_entity, get_ref_labels, get_entity_meta
+}

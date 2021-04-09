@@ -31,8 +31,6 @@
 </template>
 
 <script>
-import { SUCCESS } from "../plugins/constant";
-
 export default {
   inheritAttrs: false,
 
@@ -62,7 +60,7 @@ export default {
   methods: {
     exit_to_app() {
       this.$axios_post(this.exit_url).then((result) => {
-        if (result.code === SUCCESS) {
+        if (this.is_success_reponse(result.code)) {
           this.$router.push({ name: this.index });
         }
       });

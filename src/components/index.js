@@ -1,9 +1,6 @@
 import Vue from 'vue';
-import constant from '../plugins/constant'
-Vue.use(constant);
-
-import { init_axios } from '../plugins/axios'
-import { register_type } from './type'
+import { init_axios } from '../core/axios'
+import { register_type } from '../core/type'
 
 import Form from './Form.vue';
 import Search from './Search.vue';

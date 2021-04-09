@@ -1,7 +1,7 @@
 <template>
   <v-card v-bind="$attrs">
-    <v-form ref="form" @submit.prevent="save">
-      <v-card-title v-if="!hide_form_title">
+    <v-form ref="form" @submit.prevent="submit_form">
+      <v-card-title v-if="!hideFormTitle">
         <span class="title">{{ form_header_title }}</span>
       </v-card-title>
       <v-card-text>
@@ -42,12 +42,14 @@
       <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
       <v-card-actions>
         <v-row align="center" justify="center" class="my-0 py-0">
-          <v-col cols="6" v-if="!hide_cancel" align="center" justify="center">
-            <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="cancel">{{ cancel_label ? cancel_label : $t("form.cancel_label") }}</v-btn>
-          </v-col>
-          <v-col :cols="hide_cancel ? 12 : 6" align="center" justify="center">
-            <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ submit_label ? submit_label : $t("form.submit_label") }}</v-btn>
-          </v-col>
+          <slot>
+            <v-col cols="6" v-if="!hideCancel" align="center" justify="center">
+              <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="cancel">{{ cancelLabel ? cancelLabel : $t("form.cancel_label") }}</v-btn>
+            </v-col>
+            <v-col :cols="hideCancel ? 12 : 6" align="center" justify="center">
+              <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ submitLabel ? submitLabel : $t("form.submit_label") }}</v-btn>
+            </v-col>
+          </slot>
         </v-row>
       </v-card-actions>
     </v-form>
@@ -56,39 +58,38 @@
 
 <script>
 import { TiptapVuetify, Heading, Image, Bold, Italic, Strike, Underline, Code, Paragraph, BulletList, OrderedList, ListItem, Link, Blockquote, HardBreak, HorizontalRule, History } from "tiptap-vuetify";
-import { get_type } from "../plugins/type";
-import { SUCCESS, INVALID_PARAMS, DUPLICATE_KEY } from "../plugins/constant";
+import Meta from "../mixins/meta";
+import Alert from "../mixins/alert";
+import { save_entity, is_success_response, has_invalid_params, is_duplicated } from "../core/axios";
 
 export default {
   inheritAttrs: false,
+  mixins: [Alert, Meta],
 
   model: {
     prop: "form",
   },
 
   props: {
-    entity: { type: String, required: true },
     //colspan for the field
     cols: { type: Number, default: 0 },
-    hide_form_title: { type: Boolean, default: false },
-    hide_hint: { type: Boolean, default: false },
-    hide_cancel: { type: Boolean, default: false },
+    hideFormTitle: { type: Boolean, default: false },
+    hideHint: { type: Boolean, default: false },
+    hideCancel: { type: Boolean, default: false },
     //is edit or not
-    edit_mode: { type: Boolean, default: false },
+    editMode: { type: Boolean, default: false },
+    searchMode: { type: Boolean, default: false },
     //form title
-    form_title: { type: String },
+    formTitle: { type: String },
     //label for cancel and submit button
-    cancel_label: { type: String },
-    submit_label: { type: String },
+    cancelLabel: { type: String },
+    submitLabel: { type: String },
     //reset value after posting
-    reset_post: { type: Boolean, default: true },
+    resetPost: { type: Boolean, default: true },
     //success hint to shown
-    success_hint: { type: String },
+    successHint: { type: String },
     //fail hint to shown
-    fail_hint: { type: String },
-    //the fields of the entity
-    fields: { type: Array, default: () => [] },
-
+    failHint: { type: String },
     //this is used as v-model property
     form: {
       type: Object,
@@ -102,17 +103,15 @@ export default {
 
   data() {
     return {
+      form_fields: [],
       show_date_picker: false,
       show_password: false,
-      //used to keep fields propterties
-      all_fields: [],
-      alert: {
-        shown: false,
-        type: "warning",
-        msg: "",
-      },
       extensions: [History, Blockquote, Link, Image, Underline, Strike, Italic, ListItem, BulletList, OrderedList, [Heading, { options: { levels: [1, 2, 3] } }], Bold, Code, HorizontalRule, Paragraph, HardBreak],
     };
+  },
+
+  async created() {
+    this.form_fields = await this.get_form_fields(this.searchMode);
   },
 
   updated() {
@@ -122,20 +121,18 @@ export default {
   },
 
   computed: {
-    entity_label() {
-      return this.$t(this.entity + "._label");
-    },
-
     form_header_title() {
-      if (this.hide_form_title) {
+      if (this.hideFormTitle) {
         return "";
       }
 
-      if (this.form_title) {
-        return this.form_title;
+      if (this.formTitle) {
+        return this.formTitle;
       }
 
-      if (this.edit_mode) {
+      if (this.searchMode) {
+        return this.$t("form.search_title", { entity: this.entity_label });
+      } else if (this.editMode) {
         return this.$t("form.update_title", { entity: this.entity_label });
       } else {
         return this.$t("form.create_title", { entity: this.entity_label });
@@ -143,78 +140,7 @@ export default {
     },
   },
 
-  asyncComputed: {
-    async form_fields() {
-      const server_fields = await this.$get_fields(this.entity);
-      const all_fields = this.fields.length > 0 ? this.fields : server_fields;
-
-      for (let i = 0; i < all_fields.length; i++) {
-        const [server_field] = server_fields.filter((f) => f.name === all_fields[i].name);
-        if (!server_field) {
-          throw new Error("entity:" + this.entity + ",field index:" + i + " and field name:" + all_fields[i].name + " no matched server field");
-        }
-
-        const field = { ...all_fields[i], ...server_field };
-        field.cols = field.cols ? field.cols : this.cols;
-        all_fields[i] = field;
-
-        const label = this.$t(this.entity + "." + field.name);
-        field.label = label;
-
-        const rules = [];
-        field.rules = rules;
-        if (server_field.required === true) {
-          const msg_required = this.$t("form.required", { field: label });
-          rules.push((value) => !!value || value === false || msg_required);
-        }
-
-        const type = get_type(field.type);
-        if (!type) {
-          throw new Error("no type found for [" + field.type + "] in field:" + field.name + " of entity:" + this.entity);
-        }
-
-        if (!type.input_type) {
-          throw new Error("no input_type defined for [" + field.type + "] in field:" + field.name + " of entity:" + this.entity);
-        }
-
-        field.input_type = type.input_type;
-        if (type.rule) {
-          rules.push(type.rule(this, field.name));
-        }
-        if (type.multiple) {
-          field.multiple = type.multiple;
-        }
-        if (type.items) {
-          field.items = type.items(this);
-        }
-
-        if (field.ref) {
-          field.items = await this.$get_ref_labels(field.ref);
-        }
-      }
-      this.all_fields = all_fields;
-      return all_fields;
-    },
-  },
-
   methods: {
-    show_error(msg) {
-      this.show_alert("error", msg, true);
-    },
-
-    show_success(msg) {
-      this.show_alert("success", msg, true);
-    },
-
-    show_alert(type, msg, auto_hide) {
-      this.alert.shown = true;
-      this.alert.type = type;
-      this.alert.msg = msg;
-      if (auto_hide) {
-        setTimeout(() => (this.alert.shown = false), 5000);
-      }
-    },
-
     reset_form() {
       if (this.$refs.form) {
         this.$refs.form.reset();
@@ -226,44 +152,38 @@ export default {
       this.$emit("cancelled");
     },
 
-    save() {
+    async submit_form() {
+      if (this.searchMode) {
+        this.$emit("search", this.form);
+        return;
+      }
+
       if (!this.$refs.form.validate()) {
         return;
       }
 
-      this.$save_entity(this.entity, this.form, this.edit_mode).then((result) => {
-        if (result.code === SUCCESS) {
-          if (this.reset_post === true) {
-            this.reset_form();
-          }
-          const success_info = this.success_hint ? this.success_hint : this.edit_mode ? this.$t("form.update_success_hint", { entity: this.entity_label }) : this.$t("form.create_success_hint", { entity: this.entity_label });
-          if (!this.hide_hint) {
-            this.show_success(success_info);
-          }
+      const { code, err } = await save_entity(this.entity, this.form, this.editMode);
+      if (is_success_response(code)) {
+        this.resetPost && this.reset_form();
 
-          this.$emit("saved");
-        } else if (result.code === INVALID_PARAMS) {
-          const fields = result.err;
-          if (fields && fields.length == 1) {
-            const [field] = fields;
-            const [label_field] = this.all_fields.filter((f) => f.name == field);
-            const error_info = this.$t("form.err_invalid_value", { field: label_field.label });
-            if (!this.hide_hint) {
-              this.show_error(error_info);
-            }
-          }
-        } else if (result.code === DUPLICATE_KEY) {
-          const error_info = this.$t("form.err_duplicate", { entity: this.entity_label });
-          if (!this.hide_hint) {
-            this.show_error(error_info);
-          }
-        } else {
-          const error_info = this.fail_hint ? this.fail_hint : this.edit_mode ? this.$t("form.update_fail_hint", { entity: this.entity_label }) : this.$t("form.create_fail_hint", { entity: this.entity_label });
-          if (!this.hide_hint) {
-            this.show_error(error_info);
-          }
+        const success_info = this.successHint ? this.successHint : this.editMode ? this.$t("form.update_success_hint", { entity: this.entity_label }) : this.$t("form.create_success_hint", { entity: this.entity_label });
+        this.hideHint || this.show_success(success_info);
+        this.$emit("saved");
+      } else if (has_invalid_params(code)) {
+        const field_names = err;
+        if (field_names && field_names.length == 1) {
+          const [field_name] = field_names;
+          const [label_field] = this.form_fields.filter((f) => f.name == field_name);
+          const error_info = this.$t("form.err_invalid_value", { field: label_field.label });
+          this.hideHint || this.show_error(error_info);
         }
-      });
+      } else if (is_duplicated(code)) {
+        const error_info = this.$t("form.err_duplicate", { entity: this.entity_label });
+        this.hideHint || this.show_error(error_info);
+      } else {
+        const error_info = this.failHint ? this.failHint : this.editMode ? this.$t("form.update_fail_hint", { entity: this.entity_label }) : this.$t("form.create_fail_hint", { entity: this.entity_label });
+        this.hideHint || this.show_error(error_info);
+      }
     },
   },
 };
