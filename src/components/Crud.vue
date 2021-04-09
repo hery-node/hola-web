@@ -15,7 +15,7 @@
       </v-tooltip>
       <slot name="toolbar" />
 
-      <v-dialog v-if="oper.edit" v-model="dialog" :max-width="dialog_width">
+      <v-dialog v-if="is_creatable || is_updatable" v-model="dialog" :max-width="dialogWidth">
         <div style="overflow-x: hidden;">
           <h-form v-bind="$attrs" v-model="form" hide-hint :entity="entity" :fields="formFields" :edit-mode="edit_mode" @cancelled="close_dialog" @saved="entity_saved"> </h-form>
         </div>
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { read_entity, save_entity, delete_entities, is_success_reponse, is_been_referred } from "../core/axios";
+import { read_entity, delete_entity, is_success_response, is_been_referred } from "../core/axios";
 
 export default {
   inheritAttrs: false,
@@ -152,8 +152,8 @@ export default {
       const res = await this.confirm_delete(items, ids);
 
       if (res) {
-        const { code, err } = await delete_entities(this.entity, ids);
-        if (is_success_reponse(code)) {
+        const { code, err } = await delete_entity(this.entity, ids);
+        if (is_success_response(code)) {
           this.refresh();
         } else if (is_been_referred(code)) {
           const labels = items

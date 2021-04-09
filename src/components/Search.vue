@@ -5,7 +5,7 @@
         <span class="title">{{ form_title }}</span>
       </v-expansion-panel-header>
       <v-expansion-panel-content>
-        <h-form ref="search_form" hide-form-title hide-hint search-mode :reset-post="false" :fields="searchFields" :col="searchCols">
+        <h-form ref="search_form" :entity="entity" hide-form-title hide-hint search-mode :reset-post="false" :fields="searchFields" :cols="searchCols">
           <v-row align="center" justify="center" class="my-0 py-0">
             <v-col cols="6" align="center" justify="center">
               <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="clear">{{ clearLabel ? clearLabel : $t("form.clear_label") }}</v-btn>
@@ -40,7 +40,7 @@ export default {
         return this.searchTitle;
       }
 
-      return this.$t("form.search_title", { entity: this.$refs.search_form ? this.$refs.search_form.entity_label : "" });
+      return this.$t("form.search_title", { entity: this.$t(this.entity + "._label") });
     },
   },
 

@@ -1,5 +1,5 @@
 <template>
-  <v-card v-bind="$attrs">
+  <v-card v-bind="$attrs" flat>
     <v-form ref="form" @submit.prevent="submit_form">
       <v-card-title v-if="!hideFormTitle">
         <span class="title">{{ form_header_title }}</span>
@@ -111,7 +111,13 @@ export default {
   },
 
   async created() {
-    this.form_fields = await this.get_form_fields(this.searchMode);
+    const form_fields = await this.get_form_fields(this.searchMode);
+
+    for (let i = 0; i < form_fields.length; i++) {
+      const field = form_fields[i];
+      field.cols || (field.cols = this.cols);
+    }
+    this.form_fields = form_fields;
   },
 
   updated() {

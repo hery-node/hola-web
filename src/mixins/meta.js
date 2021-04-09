@@ -35,7 +35,7 @@ export default {
             }
 
             const form_fields = [];
-            const server_fields = search_mode ? meta.fields.filter(field.searchable != false) : meta.fields.filter(field => field.sys != true);
+            const server_fields = search_mode ? meta.fields.filter(field => field.searchable != false) : meta.fields.filter(field => field.sys != true);
             const meta_fields = this.fields.length > 0 ? this.fields : server_fields;
 
             for (let i = 0; i < meta_fields.length; i++) {
