@@ -18,7 +18,7 @@
     <v-main>
       <!-- <h-form entity="user" hide_title></h-form> -->
       <!-- <h-table infinite searchable hide_title entity="user" :headers="headers" :sort_key="sort_key" :sort_desc="sort_desc" :search_fields="search_fields" :search_cols="6"></h-table> -->
-      <h-crud searchable entity="user" item-label-key="name" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="4"></h-crud>
+      <h-crud searchable entity="user" header-align="end" item-label-key="name" :table-fields="headers" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="4" :cols="6"></h-crud>
     </v-main>
   </v-app>
 </template>
@@ -38,7 +38,6 @@ export default {
       { name: "email" },
       {
         name: "age",
-        // chip: true,
         style: (value) => {
           if (value > 15) {
             return "red--text";
@@ -47,7 +46,13 @@ export default {
           }
         },
       },
-      { name: "role" },
+      {
+        name: "role",
+        chip: true,
+        style: () => {
+          return "blue";
+        },
+      },
       { name: "gender" },
       { name: "birthday" },
       { name: "status" },

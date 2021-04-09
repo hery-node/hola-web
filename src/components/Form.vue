@@ -120,11 +120,11 @@ export default {
     this.form_fields = form_fields;
   },
 
-  updated() {
-    if (this.$refs.form) {
-      this.$refs.form.resetValidation();
-    }
-  },
+  // updated() {
+  //   if (this.$refs.form) {
+  //     this.$refs.form.resetValidation();
+  //   }
+  // },
 
   computed: {
     form_header_title() {

@@ -140,7 +140,7 @@ export default {
     },
 
     confirm_delete(items) {
-      const labels = items.map((item) => item[this.label_key]).join(",");
+      const labels = items.map((item) => item[this.itemLabelKey]).join(",");
       const title = items.length > 1 ? this.batch_delete_title : this.delete_title;
       const options = { icon: "mdi-delete-circle", title: title, buttonTrueText: this.$t("table.confirm_yes"), buttonFalseText: this.$t("table.confirm_no") };
       const msg = this.$t("table.delete_confirm", { entity: labels });

@@ -28,7 +28,7 @@
       </template>
 
       <template v-for="(chip, index) in chips" v-slot:[`item.${chip}`]="{ item }">
-        <v-row class="d-flex flex-nowrap" :justify="chip.align" :align="chip.align" v-bind:key="index">
+        <v-row class="d-flex flex-nowrap" :justify="get_header_align(chip)" :align="get_header_align(chip)" v-bind:key="index">
           <template v-if="Array.isArray(item[chip])">
             <v-chip dark v-for="tag in item[chip]" :key="tag" :class="get_item_style(chip, item[chip], 'chip ma-1')"> {{ tag }} </v-chip>
           </template>
@@ -39,7 +39,7 @@
       </template>
 
       <template v-for="(style, index) in styles" v-slot:[`item.${style}`]="{ item }">
-        <v-row :justify="style.align" :align="style.align" v-bind:key="index">
+        <v-row :justify="get_header_align(style)" :align="get_header_align(style)" v-bind:key="index">
           <span :class="get_item_style(style, item[style], '')">{{ item[style] }}</span>
         </v-row>
       </template>
@@ -208,8 +208,13 @@ export default {
       this.load_data();
     },
 
+    get_header_align(field_name) {
+      const [field] = this.table_headers.filter((f) => f.name === field_name);
+      return field.align;
+    },
+
     get_item_style(field_name, field_value, default_value) {
-      const [field] = this.cached_fields.filter((f) => f.name === field_name);
+      const [field] = this.table_headers.filter((f) => f.name === field_name);
       if (field && field.style) {
         return field.style(field_value);
       } else {
