@@ -115,6 +115,13 @@ const float_type = {
     rule: (vue, field_name) => {
         const err = vue.$t("type.float", { field: field_name });
         return (value) => no_value(value) || is_float(value) || err;
+    },
+
+    format: (value) => {
+        if (no_value(value)) {
+            return "";
+        }
+        return value ? value.toFixed(2) + "" : "";
     }
 }
 
@@ -134,7 +141,7 @@ const percentage_type = {
         if (no_value(value)) {
             return "";
         }
-        return value ? value + "%" : "0%";
+        return value ? value.toFixed(2) + "%" : "0%";
     }
 }
 
@@ -148,6 +155,13 @@ const ufloat_type = {
     rule: (vue, field_name) => {
         const err = vue.$t("type.ufloat", { field: field_name });
         return (value) => no_value(value) || (is_float(value) && parseFloat(value) >= 0) || err;
+    },
+
+    format: (value) => {
+        if (no_value(value)) {
+            return "";
+        }
+        return value ? value.toFixed(2) + "" : "";
     }
 }
 
@@ -161,6 +175,13 @@ const number_type = {
     rule: (vue, field_name) => {
         const err = vue.$t("type.number", { field: field_name });
         return (value) => no_value(value) || !isNaN(Number(value)) || err;
+    },
+
+    format: (value) => {
+        if (no_value(value)) {
+            return "";
+        }
+        return value ? value.toFixed(2) + "" : "";
     }
 }
 
