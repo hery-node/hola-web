@@ -35,7 +35,7 @@ export default {
     success_hint: "you have successfully registered as a new user",
     sort_key: ["name"],
     sort_desc: [false],
-    search_fields: [{ name: "name" }, { name: "role" }, { name: "gender" }, { name: "age" }],
+    search_fields: [{ name: "name" }, { name: "role" }, { name: "gender" }, { name: "age" }, { name: "currency" }, { name: "rate" }],
     headers: [
       { name: "name" },
       { name: "email" },

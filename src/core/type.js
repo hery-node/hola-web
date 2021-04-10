@@ -94,6 +94,7 @@ const age_type = {
     name: "age",
     input_type: "number",
     search_input_type: "text",
+    suffix: (vue) => { return vue.$t("type.age_unit") },
 
     rule: (vue, field_name) => {
         const err = vue.$t("type.age", { field: field_name });
@@ -131,6 +132,7 @@ const percentage_type = {
     name: "percentage",
     input_type: "number",
     search_input_type: "text",
+    suffix: "%",
 
     rule: (vue, field_name) => {
         const err = vue.$t("type.percentage", { field: field_name });
@@ -186,6 +188,41 @@ const number_type = {
 }
 
 register_type(number_type);
+
+const currency_type = {
+    name: "currency",
+    input_type: "number",
+    search_input_type: "text",
+    prefix: "$",
+
+    rule: (vue, field_name) => {
+        const err = vue.$t("type.number", { field: field_name });
+        return (value) => no_value(value) || !isNaN(Number(value)) || err;
+    },
+
+    format: (value) => {
+        if (no_value(value)) {
+            return "";
+        }
+        return value ? value.toFixed(2) + "" : "";
+    }
+}
+
+register_type(currency_type);
+
+const email_type = {
+    name: "email",
+    input_type: "text",
+    search_input_type: "text",
+
+    rule: (vue, field_name) => {
+        const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        const err = vue.$t("type.email", { field: field_name });
+        return (value) => no_value(value) || pattern.test(value) || err;
+    },
+}
+
+register_type(email_type);
 
 const string_type = {
     name: "string",

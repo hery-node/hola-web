@@ -120,7 +120,8 @@ export default {
   methods: {
     async update_entity(item) {
       this.update_mode = true;
-      const entity_obj = await read_entity(this.entity, item);
+      const attr_names = this.$refs.form.attr_names();
+      const entity_obj = await read_entity(this.entity, item["_id"], attr_names);
       this.form = entity_obj;
       this.dialog = true;
     },

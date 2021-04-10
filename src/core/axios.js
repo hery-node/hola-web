@@ -182,8 +182,10 @@ const get_ref_labels = (entity) => {
     });
 };
 
-const read_entity = (entity, params) => {
+const read_entity = (entity, id, attr_names) => {
     const url = "/" + entity + READ;
+    const params = { "_id": id, "attr_names": attr_names };
+
     return axios_post(url, params).then(result => {
         if (is_success_response(result.code)) {
             return result.data;

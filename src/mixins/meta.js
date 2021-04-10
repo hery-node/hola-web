@@ -30,6 +30,17 @@ export default {
             return this.meta;
         },
 
+        async set_field_type(field, type) {
+            type.multiple && (field.multiple = type.multiple);
+            type.items && (field.items = type.items(this));
+            field.ref && (field.items = await get_ref_labels(field.ref));
+
+            const prefix = field.prefix ? field.prefix : (type.prefix ? type.prefix : null);
+            const suffix = field.suffix ? field.suffix : (type.suffix ? type.suffix : null);
+            field.prefix = typeof prefix === 'function' ? prefix(this) : (prefix ? prefix : "");
+            field.suffix = typeof suffix === 'function' ? suffix(this) : (suffix ? suffix : "");
+        },
+
         async get_search_fields() {
             const meta = await this.get_meta();
             if (!meta) {
@@ -46,6 +57,7 @@ export default {
 
                 const type = this.get_field_type(field);
                 field.input_type = type.search_input_type ? type.search_input_type : type.input_type;
+                this.set_field_type(field, type);
 
                 type.multiple && (field.multiple = type.multiple);
                 type.items && (field.items = type.items(this));
@@ -72,15 +84,13 @@ export default {
 
                 const type = this.get_field_type(field);
                 field.input_type = type.input_type;
-
-                type.multiple && (field.multiple = type.multiple);
-                type.items && (field.items = type.items(this));
-                field.ref && (field.items = await get_ref_labels(field.ref));
+                this.set_field_type(field, type);
 
                 const rules = [];
                 field.rules = rules;
                 field.required === true && rules.push((value) => !!value || value === false || this.$t("form.required", { field: field.label }));
                 type.rule && field.rules.push(type.rule(this, field.name));
+                field.rule && field.rules.push(field.rule(this, field.name));
 
                 form_fields.push(field);
             }

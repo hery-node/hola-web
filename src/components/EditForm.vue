@@ -89,6 +89,10 @@ export default {
       }
     },
 
+    attr_names() {
+      return this.edit_fields.map((h) => h.name).join(",");
+    },
+
     is_validate() {
       return this.$refs.form ? this.$refs.form.is_validate() : false;
     },
