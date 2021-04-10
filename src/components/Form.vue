@@ -2,7 +2,7 @@
   <v-card v-bind="$attrs" flat>
     <v-form ref="form" @submit.prevent="submit_form">
       <v-card-title v-if="!hideTitle">
-        <span class="title">{{ form_header_title }}</span>
+        <span class="title">{{ form_title }}</span>
       </v-card-title>
       <v-card-text>
         <v-row dense>
@@ -55,20 +55,14 @@ export default {
   },
 
   props: {
+    //required attrs
     fields: { type: Array, required: true },
     //this is used as v-model property
-    form: {
-      type: Object,
-      default: function() {
-        return {};
-      },
-      required: true,
-    },
-    //colspan for the field
-    cols: { type: Number, default: 0 },
-    hideTitle: { type: Boolean, default: false },
+    form: { type: Object, required: true },
+    //end required
     //form title
     title: { type: String },
+    hideTitle: { type: Boolean, default: false },
   },
 
   components: { TiptapVuetify },
@@ -82,7 +76,7 @@ export default {
   },
 
   computed: {
-    form_header_title() {
+    form_title() {
       if (this.hideTitle) {
         return "";
       }
@@ -106,6 +100,10 @@ export default {
       if (this.$refs.form) {
         this.$refs.form.resetValidation();
       }
+    },
+
+    is_validate() {
+      return this.$refs.form ? this.$refs.form.validate() : false;
     },
 
     submit_form() {

@@ -1,5 +1,5 @@
 <template>
-  <h-table v-bind="$attrs" v-on="$listeners" ref="table" :entity="entity" :fields="tableFields" :search-fields="searchFields" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="is_deletable" :has-action-header="has_action_header" :item-actions="item_actions">
+  <h-table v-bind="$attrs" v-on="$listeners" ref="table" :entity="entity" :headers="headers" :search-fields="searchFields" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="is_deletable" :has-action-header="has_action_header" :item-actions="item_actions">
     <template slot="toolbar" v-if="!$vuetify.breakpoint.xsOnly">
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
@@ -15,9 +15,9 @@
       </v-tooltip>
       <slot name="toolbar" />
 
-      <v-dialog v-if="is_creatable || is_updatable" v-model="dialog" :max-width="dialogWidth">
+      <v-dialog v-show="is_creatable || is_updatable" v-model="dialog" :max-width="dialogWidth">
         <div style="overflow-x: hidden;">
-          <h-form v-bind="$attrs" v-model="form" hide-hint :entity="entity" :fields="formFields" :edit-mode="edit_mode" @cancelled="close_dialog" @saved="entity_saved"> </h-form>
+          <h-edit-form ref="form" v-bind="$attrs" v-model="form" hide-hint :entity="entity" :fields="editFields" :update-mode="update_mode" @cancel="close_dialog" @saved="entity_saved"> </h-edit-form>
         </div>
       </v-dialog>
     </template>
@@ -44,14 +44,15 @@ export default {
     actions: { type: Array, default: () => [] },
     //dialog setting
     dialogWidth: { type: String, default: "800px" },
+
     searchFields: { type: Array, default: () => [] },
-    formFields: { type: Array, default: () => [] },
-    tableFields: { type: Array, default: () => [] },
+    editFields: { type: Array, default: () => [] },
+    headers: { type: Array, default: () => [] },
   },
 
   data() {
     return {
-      edit_mode: false,
+      update_mode: false,
       form: {},
       dialog: false,
     };
@@ -86,7 +87,7 @@ export default {
       return this.$t("table.create_title", { entity: this.entity_label });
     },
 
-    edit_title() {
+    update_title() {
       return this.$t("table.update_title", { entity: this.entity_label });
     },
 
@@ -102,7 +103,7 @@ export default {
     item_actions() {
       const array = [];
       if (this.is_updatable) {
-        array.push({ color: "edit", icon: "mdi-square-edit-outline", tooltip: this.edit_title, handle: this.edit_entity });
+        array.push({ color: "edit", icon: "mdi-square-edit-outline", tooltip: this.update_title, handle: this.update_entity });
       }
       if (this.is_deletable) {
         array.push({ color: "delete", icon: "mdi-delete-circle", tooltip: this.delete_title, handle: this.delete_entity });
@@ -117,8 +118,8 @@ export default {
   },
 
   methods: {
-    async edit_entity(item) {
-      this.edit_mode = true;
+    async update_entity(item) {
+      this.update_mode = true;
       const entity_obj = await read_entity(this.entity, item);
       this.form = entity_obj;
       this.dialog = true;
@@ -171,9 +172,12 @@ export default {
     },
 
     show_create_dialog() {
-      this.dialog = true;
-      this.edit_mode = false;
+      this.update_mode = false;
       this.form = {};
+      if (this.$refs.form) {
+        this.$refs.form.reset_form();
+      }
+      this.dialog = true;
     },
 
     close_dialog() {

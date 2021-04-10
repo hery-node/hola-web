@@ -1,14 +1,14 @@
 <template>
   <div>
     <div v-if="searchable">
-      <h-search v-bind="$attrs" v-model="search_form" :entity="entity" @clear="clear_search" @search="do_search"></h-search>
+      <h-search-form v-bind="$attrs" v-model="search_form" :entity="entity" :fields="searchFields" :title="searchTitle" :cols="searchCols" @clear="clear_search" @search="do_search"></h-search-form>
       <v-divider class="mt-5"></v-divider>
     </div>
     <v-data-table v-bind="$attrs" v-on="$listeners" :mobile-breakpoint="mobile ? 600 : 10" :headers="table_headers" :items="items" :loading="loading" multi-sort v-model="selected" :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0" :hide-default-footer="!pagination">
       <template v-slot:top>
         <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
         <v-toolbar flat v-if="!hideToolbar">
-          <v-toolbar-title v-if="!hideTableTitle">{{ table_title }}</v-toolbar-title>
+          <v-toolbar-title v-if="!hideTitle">{{ table_title }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <slot name="toolbar" />
         </v-toolbar>
@@ -76,27 +76,35 @@ export default {
     sortDesc: { type: Array, required: true },
     sortKey: { type: Array, required: true },
     //end
+
     //has search form or not
     searchable: { type: Boolean, default: false },
+    searchTitle: { type: String },
+    //search colspan for the field
+    searchCols: { type: Number, default: 0 },
+    searchFields: { type: Array, default: () => [] },
+
     //control the toolbar
     hideToolbar: { type: Boolean, default: false },
-    hideTableTitle: { type: Boolean, default: false },
+    hideTitle: { type: Boolean, default: false },
+    title: { type: String },
+
     //has action header to add update and delete button for item
     hasActionHeader: { type: Boolean, default: false },
-    tableTitle: { type: String },
-    //turn off table in mobile list mode
-    mobile: { type: Boolean, default: false },
-    interval: { type: Number, default: -1 },
+    //action for the item, such as delete item or edit item
+    itemActions: { type: Array, default: () => [] },
     headerWidth: { type: String, default: "120px" },
     //Available options are start, center, end, baseline and stretch.
     headerAlign: { type: String, default: "start" },
+
+    //turn off table in mobile list mode
+    mobile: { type: Boolean, default: false },
+    interval: { type: Number, default: -1 },
+
     //infinite scroll or not
     infinite: { type: Boolean, default: false },
     //this is to control the page size for infinite scroll mode
     itemPerPage: { type: Number, default: 30 },
-
-    //action for the item, such as delete item or edit item
-    itemActions: { type: Array, default: () => [] },
   },
 
   data() {
@@ -168,8 +176,8 @@ export default {
       if (this.hideTableTitle) {
         return "";
       }
-      if (this.tableTitle) {
-        return this.tableTitle;
+      if (this.title) {
+        return this.title;
       }
       return this.$t("table.title", { entity: this.entity_label });
     },

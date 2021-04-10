@@ -16,9 +16,10 @@
     </v-app-bar>
 
     <v-main>
-      <h-form :fields="search_fields" hide-title title="hello world" v-model="form" hide_title></h-form>
-      <!-- <h-table infinite searchable hide_title entity="user" :headers="headers" :sort_key="sort_key" :sort_desc="sort_desc" :search_fields="search_fields" :search_cols="6"></h-table> -->
-      <!-- <h-crud searchable entity="user" header-align="end" item-label-key="name" :table-fields="headers" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="4" :cols="6"></h-crud> -->
+      <!-- <h-search-form entity="user" :fields="search_fields" :cols="6" clear-label="reset" search-label="query" v-model="form" @search="do_search"></h-search-form> -->
+      <!-- <h-edit-form entity="user" v-model="form" hide-cancel :cols="6" :fields="search_fields" :success-hint="success_hint" submit-label="Save" @saved="saved"></h-edit-form> -->
+      <!-- <h-table searchable entity="user" :headers="headers" :sort-key="sort_key" :sort-desc="sort_desc" :search-fields="search_fields" :search-cols="6" clear-label="reset" search-label="query"></h-table> -->
+      <h-crud searchable mode="cu" dialog-width="900px" entity="user" header-align="end" item-label-key="name" :headers="headers" :edit-fields="search_fields" :search-fields="search_fields" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="4" :cols="6"></h-crud>
     </v-main>
   </v-app>
 </template>
@@ -31,6 +32,7 @@ export default {
 
   data: () => ({
     form: {},
+    success_hint: "you have successfully registered as a new user",
     sort_key: ["name"],
     sort_desc: [false],
     search_fields: [{ name: "name" }, { name: "role" }, { name: "gender" }, { name: "age" }],
@@ -61,5 +63,22 @@ export default {
       { name: "rate" },
     ],
   }),
+
+  methods: {
+    cancel_search() {
+      console.log("cancel_search");
+      console.log(this.form);
+    },
+
+    do_search() {
+      console.log("do_search");
+      console.log(this.form);
+    },
+
+    saved() {
+      console.log("after saving");
+      console.log(this.form);
+    },
+  },
 };
 </script>
