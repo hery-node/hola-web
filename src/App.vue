@@ -35,7 +35,21 @@ export default {
     success_hint: "you have successfully registered as a new user",
     sort_key: ["name"],
     sort_desc: [false],
-    search_fields: [{ name: "name" }, { name: "role" }, { name: "gender" }, { name: "age" }, { name: "currency" }, { name: "rate" }],
+    search_fields: [
+      { name: "name", icon: "mdi-account" },
+      { name: "role", icon: "mdi-account" },
+      { name: "gender", icon: "mdi-account" },
+      { name: "age", icon: "mdi-account" },
+      { name: "currency", icon: "mdi-account" },
+      {
+        name: "rate",
+        icon: "mdi-account",
+        rule: (vue, field_name) => {
+          const err = vue.$t("type.number", { field: field_name });
+          return (value) => value <= 100 || err;
+        },
+      },
+    ],
     headers: [
       { name: "name" },
       { name: "email" },

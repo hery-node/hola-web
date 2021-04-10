@@ -39,6 +39,7 @@ export default {
             const suffix = field.suffix ? field.suffix : (type.suffix ? type.suffix : null);
             field.prefix = typeof prefix === 'function' ? prefix(this) : (prefix ? prefix : "");
             field.suffix = typeof suffix === 'function' ? suffix(this) : (suffix ? suffix : "");
+            field.icon = field.icon ? field.icon : (type.icon ? type.icon : null);
         },
 
         async get_search_fields() {
