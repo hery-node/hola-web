@@ -7,6 +7,7 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 const META = "/meta";
 const CREATE = "/create";
 const READ = "/read";
+const READ_PROPERTIES = "/read_properties";
 const LIST = "/list";
 const UPDATE = "/update";
 const DELETE = "/delete";
@@ -192,6 +193,19 @@ const read_entity = (entity, id, attr_names) => {
     });
 };
 
+const read_entity_properties = (entity, id, attr_names) => {
+    const url = "/" + entity + READ_PROPERTIES;
+    const params = { "_id": id, "attr_names": attr_names };
+
+    return axios_post(url, params).then(result => {
+        if (is_success_response(result.code)) {
+            return result.data;
+        } else {
+            return {};
+        }
+    });
+};
+
 const list_entity = (entity, form, params) => {
     const url = "/" + entity + LIST;
     form["_query"] = params;
@@ -216,5 +230,5 @@ export {
     init_axios,
     axios_download, axios_upload,
     is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params,
-    save_entity, read_entity, list_entity, delete_entity, get_ref_labels, get_entity_meta
+    save_entity, read_entity, read_entity_properties, list_entity, delete_entity, get_ref_labels, get_entity_meta
 }

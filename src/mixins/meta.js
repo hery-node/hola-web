@@ -35,6 +35,10 @@ export default {
             type.items && (field.items = type.items(this));
             field.ref && (field.items = await get_ref_labels(field.ref));
 
+            this.set_field_prefix_suffix(field, type);
+        },
+
+        async set_field_prefix_suffix(field, type) {
             const prefix = field.prefix ? field.prefix : (type.prefix ? type.prefix : null);
             const suffix = field.suffix ? field.suffix : (type.suffix ? type.suffix : null);
             field.prefix = typeof prefix === 'function' ? prefix(this) : (prefix ? prefix : "");
@@ -92,6 +96,29 @@ export default {
                 type.rule && field.rules.push(type.rule(this, field.name));
                 field.rule && field.rules.push(...field.rule);
 
+                form_fields.push(field);
+            }
+            return form_fields;
+        },
+
+        async get_property_fields() {
+            const meta = await this.get_meta();
+            if (!meta) {
+                return [];
+            }
+
+            const form_fields = [];
+            const server_fields = meta.fields.filter(field => field.sys != true);
+            const meta_fields = this.fields.length > 0 ? this.fields : server_fields;
+
+            for (let i = 0; i < meta_fields.length; i++) {
+                const field = this.merge_with_server(meta_fields[i], server_fields);
+                const label_i18n_key = this.entity + "." + field.name;
+                field.label = this.$t(label_i18n_key);
+
+                const type = this.get_field_type(field);
+                this.set_field_prefix_suffix(field, type);
+                type.format && (field.format = type.format);
                 form_fields.push(field);
             }
             return form_fields;

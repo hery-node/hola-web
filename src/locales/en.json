@@ -43,7 +43,9 @@
     "no_selected": "Please select the table items first.",
     "has_ref": "{entity} have been refered. So couldn't been deleted.",
     "confirm_yes": "Yes",
-    "confirm_no": "No"
+    "confirm_no": "No",
+    "property_name": "Name",
+    "property_value": "Value"
   },
   "user": {
     "_label": "User",

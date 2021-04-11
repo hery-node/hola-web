@@ -7,6 +7,7 @@ import SearchForm from './SearchForm.vue';
 import EditForm from './EditForm.vue';
 import Table from './Table.vue';
 import Crud from './Crud.vue';
+import Property from './Property.vue';
 import Navbar from './Navbar.vue';
 
 function setup_components() {
@@ -15,6 +16,7 @@ function setup_components() {
     Vue.component('h-edit-form', EditForm);
     Vue.component('h-table', Table);
     Vue.component('h-crud', Crud);
+    Vue.component('h-property', Property);
     Vue.component('h-nav-bar', Navbar);
 }
 
