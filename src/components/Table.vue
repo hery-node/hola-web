@@ -77,6 +77,9 @@ export default {
     sortKey: { type: Array, required: true },
     //end
 
+    //used to add filter conditions to table
+    filter: { type: Object },
+
     //has search form or not
     searchable: { type: Boolean, default: false },
     searchTitle: { type: String },
@@ -251,7 +254,8 @@ export default {
         params.limit = this.itemPerPage;
       }
 
-      const { code, total, data } = await list_entity(this.entity, this.search_form, params);
+      const query_obj = this.filter ? { ...this.search_form, ...this.filter } : this.search_form;
+      const { code, total, data } = await list_entity(this.entity, query_obj, params);
       this.loading = false;
       if (is_success_response(code)) {
         this.total = total;
