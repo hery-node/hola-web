@@ -44,10 +44,7 @@ export default {
       {
         name: "rate",
         icon: "mdi-account",
-        rule: (vue, field_name) => {
-          const err = vue.$t("type.number", { field: field_name });
-          return (value) => value <= 100 || err;
-        },
+        rule: [(value) => value <= 100 || "err value for rate"],
       },
     ],
     headers: [

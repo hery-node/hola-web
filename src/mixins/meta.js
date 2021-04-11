@@ -91,7 +91,7 @@ export default {
                 field.rules = rules;
                 field.required === true && rules.push((value) => !!value || value === false || this.$t("form.required", { field: field.label }));
                 type.rule && field.rules.push(type.rule(this, field.name));
-                field.rule && field.rules.push(field.rule(this, field.name));
+                field.rule && field.rules.push(...field.rule);
 
                 form_fields.push(field);
             }
