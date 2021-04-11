@@ -48,9 +48,7 @@ function has_cache(key) {
 }
 
 function get_cache(key) {
-    return new Promise(function (resolve) {
-        resolve(cache_memory[key]);
-    });
+    return cache_memory[key];
 }
 
 const init_axios = (config, handler) => {
@@ -118,17 +116,16 @@ const is_been_referred = (code) => {
     return code == CODE.HAS_REF;
 }
 
-const axios_cached_get = (url, params) => {
+const axios_cached_get = async (url, params) => {
     if (has_cache(url)) {
         return get_cache(url);
     } else {
         const _axios = get_axios();
-        return _axios.get(url, { params: params }).then(data => {
-            if (is_success_response(data.code)) {
-                set_cache(url, data);
-            }
-            return data;
-        });
+        const data = await _axios.get(url, { params: params });
+        if (is_success_response(data.code)) {
+            set_cache(url, data);
+        }
+        return data;
     }
 };
 
