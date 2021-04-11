@@ -25,6 +25,8 @@
 </template>
 
 <script>
+import { no_value } from "./core/type";
+
 export default {
   name: "App",
 
@@ -44,7 +46,7 @@ export default {
       {
         name: "rate",
         icon: "mdi-account",
-        rule: [(value) => value <= 100 || "err value for rate"],
+        rule: [(value) => no_value(value) || value <= 100 || "err value for rate"],
       },
     ],
     headers: [

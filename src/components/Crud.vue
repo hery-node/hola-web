@@ -17,7 +17,7 @@
 
       <v-dialog v-show="is_creatable || is_updatable" v-model="dialog" :max-width="dialogWidth">
         <div style="overflow-x: hidden;">
-          <h-edit-form ref="form" v-bind="$attrs" v-model="form" hide-hint :entity="entity" :fields="editFields" :update-mode="update_mode" @cancel="close_dialog" @saved="entity_saved"> </h-edit-form>
+          <h-edit-form v-bind="$attrs" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="close_dialog" @success="success_edit"> </h-edit-form>
         </div>
       </v-dialog>
     </template>
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { read_entity, delete_entity, is_success_response, is_been_referred } from "../core/axios";
+import { delete_entity, is_success_response, is_been_referred } from "../core/axios";
 
 export default {
   inheritAttrs: false,
@@ -52,8 +52,7 @@ export default {
 
   data() {
     return {
-      update_mode: false,
-      form: {},
+      edit_entity_id: null,
       dialog: false,
     };
   },
@@ -119,10 +118,7 @@ export default {
 
   methods: {
     async update_entity(item) {
-      this.update_mode = true;
-      const attr_names = this.$refs.form.attr_names();
-      const entity_obj = await read_entity(this.entity, item["_id"], attr_names);
-      this.form = entity_obj;
+      this.edit_entity_id = item["_id"];
       this.dialog = true;
     },
 
@@ -173,19 +169,17 @@ export default {
     },
 
     show_create_dialog() {
-      this.update_mode = false;
-      this.form = {};
-      if (this.$refs.form) {
-        this.$refs.form.reset_form();
-      }
+      this.edit_entity_id = null;
       this.dialog = true;
     },
 
     close_dialog() {
+      this.edit_entity_id = null;
       this.dialog = false;
     },
 
-    entity_saved() {
+    success_edit() {
+      this.edit_entity_id = null;
       this.dialog = false;
       this.refresh();
     },

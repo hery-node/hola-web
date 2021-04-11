@@ -19,22 +19,18 @@
 <script>
 import Meta from "../mixins/meta";
 import Alert from "../mixins/alert";
-import { save_entity, is_success_response, has_invalid_params, is_duplicated } from "../core/axios";
+import { read_entity, save_entity, is_success_response, has_invalid_params, is_duplicated } from "../core/axios";
 
 export default {
   inheritAttrs: false,
   mixins: [Alert, Meta],
 
-  model: {
-    prop: "form",
-  },
-
   props: {
     title: { type: String },
     //colspan for the field
     cols: { type: Number, default: 0 },
-    //is update or create
-    updateMode: { type: Boolean, default: false },
+    //has value then it is edit mode otherwise create mode
+    entityId: { type: String, default: null },
     //hide cancel button
     hideCancel: { type: Boolean, default: false },
     //label for cancel and submit button
@@ -48,17 +44,11 @@ export default {
     successHint: { type: String },
     //fail hint to shown
     failHint: { type: String },
-    //this is used as v-model property
-    form: {
-      type: Object,
-      default: function() {
-        return {};
-      },
-    },
   },
 
   data() {
     return {
+      form: {},
       edit_fields: [],
     };
   },
@@ -70,15 +60,29 @@ export default {
     });
 
     this.edit_fields = edit_fields;
+    this.read_entity();
+  },
+
+  watch: {
+    entityId: {
+      handler() {
+        this.read_entity();
+      },
+      deep: true,
+    },
   },
 
   computed: {
+    update_mode() {
+      return this.entityId != null;
+    },
+
     form_title() {
       if (this.title && this.title.length > 0) {
         return this.title;
       }
 
-      return this.updateMode ? this.$t("form.update_title", { entity: this.entity_label }) : this.$t("form.create_title", { entity: this.entity_label });
+      return this.update_mode ? this.$t("form.update_title", { entity: this.entity_label }) : this.$t("form.create_title", { entity: this.entity_label });
     },
   },
 
@@ -87,10 +91,6 @@ export default {
       if (this.$refs.form) {
         this.$refs.form.reset_form();
       }
-    },
-
-    attr_names() {
-      return this.edit_fields.map((h) => h.name).join(",");
     },
 
     is_validate() {
@@ -102,18 +102,27 @@ export default {
       this.$emit("cancel");
     },
 
+    async read_entity() {
+      if (this.update_mode) {
+        const attr_names = this.edit_fields.map((h) => h.name).join(",");
+        this.form = await read_entity(this.entity, this.entityId, attr_names);
+      } else {
+        this.reset_form();
+      }
+    },
+
     async submit_form() {
       if (!this.is_validate()) {
         return;
       }
 
-      const { code, err } = await save_entity(this.entity, this.form, this.updateMode);
+      const { code, err } = await save_entity(this.entity, this.form, this.update_mode);
       if (is_success_response(code)) {
         this.resetPost && this.reset_form();
 
-        const success_info = this.successHint ? this.successHint : this.updateMode ? this.$t("form.update_success_hint", { entity: this.entity_label }) : this.$t("form.create_success_hint", { entity: this.entity_label });
+        const success_info = this.successHint ? this.successHint : this.update_mode ? this.$t("form.update_success_hint", { entity: this.entity_label }) : this.$t("form.create_success_hint", { entity: this.entity_label });
         this.hideHint || this.show_success(success_info);
-        this.$emit("saved");
+        this.$emit("success");
       } else if (has_invalid_params(code)) {
         const field_names = err;
         if (field_names && field_names.length == 1) {
@@ -126,7 +135,7 @@ export default {
         const error_info = this.$t("form.err_duplicate", { entity: this.entity_label });
         this.show_error(error_info);
       } else {
-        const error_info = this.failHint ? this.failHint : this.updateMode ? this.$t("form.update_fail_hint", { entity: this.entity_label }) : this.$t("form.create_fail_hint", { entity: this.entity_label });
+        const error_info = this.failHint ? this.failHint : this.update_mode ? this.$t("form.update_fail_hint", { entity: this.entity_label }) : this.$t("form.create_fail_hint", { entity: this.entity_label });
         this.show_error(error_info);
       }
     },
