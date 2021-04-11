@@ -15,7 +15,7 @@
       </v-tooltip>
       <slot name="toolbar" />
 
-      <v-dialog v-show="is_creatable || is_updatable" v-model="dialog" :max-width="dialogWidth">
+      <v-dialog v-if="is_creatable || is_updatable" v-model="dialog" :max-width="dialogWidth">
         <div style="overflow-x: hidden;">
           <h-edit-form v-bind="$attrs" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="close_dialog" @success="success_edit"> </h-edit-form>
         </div>
@@ -52,6 +52,7 @@ export default {
 
   data() {
     return {
+      //used to pass id value to edit form
       edit_entity_id: null,
       dialog: false,
     };
