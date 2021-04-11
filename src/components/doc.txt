@@ -8,3 +8,43 @@ cols  //field col span
 label : entity + field.name 
 hint : entity + field.name + "_hint"
 
+
+
+  { name: "name", icon: "mdi-account" },
+      { name: "role", icon: "mdi-account" },
+      { name: "gender", icon: "mdi-account" },
+      { name: "age", icon: "mdi-account" },
+      { name: "currency", icon: "mdi-account" },
+      {
+        name: "rate",
+        icon: "mdi-account",
+        rule: [(value) => value <= 100 || "err value for rate"],
+      },
+
+      
+   headers: [
+      { name: "name" },
+      { name: "email" },
+      {
+        name: "age",
+        style: (value) => {
+          if (value > 15) {
+            return "red--text";
+          } else {
+            return "green--text";
+          }
+        },
+      },
+      {
+        name: "role",
+        align: "center",
+        chip: true,
+        style: () => {
+          return "blue";
+        },
+      },
+      { name: "gender" },
+      { name: "birthday" },
+      { name: "status" },
+      { name: "rate" },
+    ],

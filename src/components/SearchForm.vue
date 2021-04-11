@@ -31,14 +31,7 @@ export default {
   inheritAttrs: false,
   mixins: [Meta],
 
-  model: {
-    prop: "form",
-  },
-
   props: {
-    //this is used as v-model property
-    form: { type: Object, required: true },
-    //end required
     title: { type: String },
     //colspan for the field
     cols: { type: Number, default: 0 },
@@ -48,6 +41,7 @@ export default {
 
   data() {
     return {
+      form: {},
       search_fields: [],
     };
   },
@@ -80,7 +74,7 @@ export default {
     },
 
     submit_form() {
-      this.$emit("search");
+      this.$emit("search", this.form);
     },
   },
 };
