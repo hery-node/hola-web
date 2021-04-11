@@ -103,6 +103,11 @@ export default {
     },
 
     async read_entity() {
+      //change readonly property
+      this.edit_fields.forEach((field) => {
+        field.update == false && (field.disabled = this.update_mode);
+      });
+
       if (this.update_mode) {
         const attr_names = this.edit_fields.map((h) => h.name).join(",");
         this.form = await read_entity(this.entity, this.entityId, attr_names);

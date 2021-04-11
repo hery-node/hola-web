@@ -175,13 +175,13 @@ export default {
     },
 
     close_dialog() {
-      this.edit_entity_id = null;
       this.dialog = false;
+      this.edit_entity_id = null;
     },
 
     success_edit() {
-      this.edit_entity_id = null;
       this.dialog = false;
+      this.edit_entity_id = null;
       this.refresh();
     },
   },

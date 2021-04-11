@@ -49,7 +49,7 @@ export default {
             }
 
             const form_fields = [];
-            const server_fields = meta.fields.filter(field => field.searchable != false);
+            const server_fields = meta.fields.filter(field => field.search != false && field.sys != true);
             const meta_fields = this.fields.length > 0 ? this.fields : server_fields;
 
             for (let i = 0; i < meta_fields.length; i++) {
@@ -72,7 +72,7 @@ export default {
             }
 
             const form_fields = [];
-            const server_fields = meta.fields.filter(field => field.sys != true);
+            const server_fields = meta.fields.filter(field => field.create != false && field.sys != true);
             const meta_fields = this.fields.length > 0 ? this.fields : server_fields;
 
             for (let i = 0; i < meta_fields.length; i++) {
@@ -104,7 +104,7 @@ export default {
             }
 
             const table_headers = [];
-            const server_fields = meta.fields.filter(field => field.visible != false);
+            const server_fields = meta.fields.filter(field => field.list != false && field.sys != true);
             const meta_fields = this.headers.length > 0 ? this.headers : server_fields;
 
             for (let i = 0; i < meta_fields.length; i++) {
@@ -123,7 +123,7 @@ export default {
             if (this.fields.length > 0) {
                 const [server_field] = server_fields.filter((f) => f.name === field.name);
                 if (!server_field) {
-                    throw new Error("entity:" + this.entity + ", and field name" + field.name + " not found matched server field");
+                    throw new Error("entity:" + this.entity + ", and field name:" + field.name + " not found matched server field");
                 }
                 return { ...field, ...server_field };
             } else {
@@ -135,7 +135,7 @@ export default {
             if (this.headers.length > 0) {
                 const [server_field] = server_fields.filter((f) => f.name === field.name);
                 if (!server_field) {
-                    throw new Error("entity:" + this.entity + ", and field name" + field.name + " not found matched server field");
+                    throw new Error("entity:" + this.entity + ", and field name:" + field.name + " not found matched server field");
                 }
                 return { ...field, ...server_field };
             } else {
