@@ -60,10 +60,6 @@ export default {
                 field.input_type = type.search_input_type ? type.search_input_type : type.input_type;
                 this.set_field_type(field, type);
 
-                type.multiple && (field.multiple = type.multiple);
-                type.items && (field.items = type.items(this));
-                field.ref && (field.items = await get_ref_labels(field.ref));
-
                 form_fields.push(field);
             }
             return form_fields;
