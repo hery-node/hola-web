@@ -81,7 +81,10 @@ export default {
 
             for (let i = 0; i < meta_fields.length; i++) {
                 const field = this.merge_with_server(meta_fields[i], server_fields);
-                field.label = this.$t(this.entity + "." + field.name);
+                const label_i18n_key = this.entity + "." + field.name;
+                const hint_i18n_key = label_i18n_key + "_hint";
+                field.label = this.$t(label_i18n_key);
+                field.hint = this.$te(hint_i18n_key) ? this.$t(hint_i18n_key) : "";
 
                 const type = this.get_field_type(field);
                 field.input_type = type.input_type;

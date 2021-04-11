@@ -48,9 +48,11 @@
   "user": {
     "_label": "User",
     "name": "Name",
+    "name_hint": "Please input the user name",
     "age": "Age",
     "gender": "Gender",
     "currency": "Currency",
+    "currency_hint": "Please input the RMB number",
     "birthday": "Birthday",
     "summary": "Summary",
     "introduction": "Introduction",

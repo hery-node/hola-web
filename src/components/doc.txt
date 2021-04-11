@@ -2,3 +2,9 @@ Form field:
 
 name: field name
 cols  //field col span
+
+
+// auto retrieve the label info from locale field
+label : entity + field.name 
+hint : entity + field.name + "_hint"
+

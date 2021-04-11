@@ -75,6 +75,10 @@ export default {
     ],
   }),
 
+  // created() {
+  //   console.log(this.$te("user.role.hint"));
+  // },
+
   methods: {
     cancel_search() {
       console.log("cancel_search");
