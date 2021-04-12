@@ -31,6 +31,7 @@
     "err_invalid_value": "The value of {field} is invalid, please correct it.",
     "err_duplicate": "The {entity} already exist."
   },
+
   "table": {
     "title": "{entity} List",
     "action_header": "Action",
