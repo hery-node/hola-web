@@ -1,6 +1,6 @@
 <template>
   <v-expansion-panels flat>
-    <v-expansion-panel @click="load_search_meta">
+    <v-expansion-panel>
       <v-expansion-panel-header>
         <span class="title">{{ form_title }}</span>
       </v-expansion-panel-header>
@@ -46,6 +46,19 @@ export default {
     };
   },
 
+  async created() {
+    if (this.search_fields.length > 0) {
+      return;
+    }
+
+    const search_fields = await this.get_search_fields();
+    search_fields.forEach((field) => {
+      field.cols || (field.cols = this.cols);
+    });
+
+    this.search_fields = search_fields;
+  },
+
   computed: {
     form_title() {
       if (this.title && this.title.length > 0) {
@@ -57,20 +70,6 @@ export default {
   },
 
   methods: {
-    //lazy loading the meta info only during showing the search form
-    async load_search_meta() {
-      if (this.search_fields.length > 0) {
-        return;
-      }
-
-      const search_fields = await this.get_search_fields();
-      search_fields.forEach((field) => {
-        field.cols || (field.cols = this.cols);
-      });
-
-      this.search_fields = search_fields;
-    },
-
     clear() {
       if (this.$refs.form) {
         this.$refs.form.reset_form();

@@ -1,19 +1,44 @@
 <template>
-  <h-form v-bind="$attrs" v-on="$listeners" ref="form" v-model="form" :fields="edit_fields" :title="form_title" @submit="submit_form">
-    <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
-    <v-card-actions>
-      <slot>
-        <v-row align="center" justify="center" class="my-0 py-0">
-          <v-col cols="6" v-if="!hideCancel" align="center" justify="center">
-            <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="cancel">{{ cancelLabel ? cancelLabel : $t("form.cancel_label") }}</v-btn>
-          </v-col>
-          <v-col :cols="hideCancel ? 12 : 6" align="center" justify="center">
-            <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ submitLabel ? submitLabel : $t("form.submit_label") }}</v-btn>
-          </v-col>
-        </v-row>
-      </slot>
-    </v-card-actions>
-  </h-form>
+  <div>
+    <template v-if="dialog">
+      <v-dialog v-model="dialog_show_inner" :max-width="dialogWidth">
+        <div style="overflow-x: hidden;">
+          <h-form v-bind="$attrs" v-on="$listeners" ref="form" v-model="form" :fields="edit_fields" :title="form_title" @submit="submit_form">
+            <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
+            <v-card-actions>
+              <slot>
+                <v-row align="center" justify="center" class="my-0 py-0">
+                  <v-col cols="6" v-if="!hideCancel" align="center" justify="center">
+                    <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="cancel">{{ cancelLabel ? cancelLabel : $t("form.cancel_label") }}</v-btn>
+                  </v-col>
+                  <v-col :cols="hideCancel ? 12 : 6" align="center" justify="center">
+                    <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ submitLabel ? submitLabel : $t("form.submit_label") }}</v-btn>
+                  </v-col>
+                </v-row>
+              </slot>
+            </v-card-actions>
+          </h-form>
+        </div>
+      </v-dialog>
+    </template>
+    <template v-else>
+      <h-form v-bind="$attrs" v-on="$listeners" ref="form" v-model="form" :fields="edit_fields" :title="form_title" @submit="submit_form">
+        <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
+        <v-card-actions>
+          <slot>
+            <v-row align="center" justify="center" class="my-0 py-0">
+              <v-col cols="6" v-if="!hideCancel" align="center" justify="center">
+                <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="cancel">{{ cancelLabel ? cancelLabel : $t("form.cancel_label") }}</v-btn>
+              </v-col>
+              <v-col :cols="hideCancel ? 12 : 6" align="center" justify="center">
+                <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ submitLabel ? submitLabel : $t("form.submit_label") }}</v-btn>
+              </v-col>
+            </v-row>
+          </slot>
+        </v-card-actions>
+      </h-form>
+    </template>
+  </div>
 </template>
 
 <script>
@@ -30,7 +55,7 @@ export default {
     //colspan for the field
     cols: { type: Number, default: 0 },
     //has value then it is edit mode otherwise create mode
-    entityId: { type: String, default: null },
+    entityId: { type: String, default: undefined },
     //hide cancel button
     hideCancel: { type: Boolean, default: false },
     //label for cancel and submit button
@@ -44,29 +69,44 @@ export default {
     successHint: { type: String },
     //fail hint to shown
     failHint: { type: String },
+
+    //control whether the form in dialog or not
+    dialog: { type: Boolean, default: false },
+    //control by outside to show or hidden
+    dialogShown: { type: Boolean, default: false },
+    //dialog setting
+    dialogWidth: { type: String, default: "800px" },
   },
 
   data() {
     return {
+      //control dialog shown or hidden inner
+      dialog_show_inner: false,
       form: {},
       edit_fields: [],
     };
   },
 
   async created() {
+    if (this.edit_fields.length > 0) {
+      return;
+    }
+
     const edit_fields = await this.get_edit_fields();
     edit_fields.forEach((field) => {
       field.cols || (field.cols = this.cols);
     });
-
     this.edit_fields = edit_fields;
-    this.read_entity();
   },
 
   watch: {
-    entityId: {
+    dialogShown: {
       handler() {
-        this.read_entity();
+        if (this.dialogShown) {
+          this.init_form();
+        } else {
+          this.dialog_show_inner = false;
+        }
       },
       deep: true,
     },
@@ -102,8 +142,8 @@ export default {
       this.$emit("cancel");
     },
 
-    async read_entity() {
-      //change readonly property
+    async init_form() {
+      //change readonly property every time (update or create mode switch)
       this.edit_fields.forEach((field) => {
         field.update == false && (field.disabled = this.update_mode);
       });
@@ -111,8 +151,11 @@ export default {
       if (this.update_mode) {
         const attr_names = this.edit_fields.map((h) => h.name).join(",");
         this.form = await read_entity(this.entity, this.entityId, attr_names);
-      } else {
-        this.reset_form();
+      }
+
+      if (this.dialog) {
+        //show dialog after init
+        this.dialog_show_inner = true;
       }
     },
 

@@ -14,12 +14,7 @@
         <span>{{ batch_delete_title }}</span>
       </v-tooltip>
       <slot name="toolbar" />
-
-      <v-dialog v-if="is_creatable || is_updatable" v-model="dialog" :max-width="dialogWidth">
-        <div style="overflow-x: hidden;">
-          <h-edit-form v-bind="$attrs" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="close_dialog" @success="success_edit"> </h-edit-form>
-        </div>
-      </v-dialog>
+      <h-edit-form v-bind="$attrs" dialog :dialog-shown="dialog" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="close_dialog" @success="success_edit"> </h-edit-form>
     </template>
   </h-table>
 </template>
@@ -42,8 +37,6 @@ export default {
     mode: { type: String, default: "crudie" },
     //add more actions to item actions
     actions: { type: Array, default: () => [] },
-    //dialog setting
-    dialogWidth: { type: String, default: "800px" },
 
     searchFields: { type: Array, default: () => [] },
     editFields: { type: Array, default: () => [] },
@@ -118,11 +111,6 @@ export default {
   },
 
   methods: {
-    async update_entity(item) {
-      this.edit_entity_id = item["_id"];
-      this.dialog = true;
-    },
-
     delete_entity(item) {
       this.delete_entities([item]);
     },
@@ -174,14 +162,17 @@ export default {
       this.dialog = true;
     },
 
+    async update_entity(item) {
+      this.edit_entity_id = item["_id"];
+      this.dialog = true;
+    },
+
     close_dialog() {
       this.dialog = false;
-      this.edit_entity_id = null;
     },
 
     success_edit() {
       this.dialog = false;
-      this.edit_entity_id = null;
       this.refresh();
     },
   },
