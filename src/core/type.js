@@ -294,4 +294,4 @@ const gender_type = {
 
 register_type(gender_type);
 
-export { register_type, get_type, no_value }
+export { register_type, get_type, no_value, is_int }

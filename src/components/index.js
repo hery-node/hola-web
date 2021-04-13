@@ -1,6 +1,6 @@
 import Vue from 'vue';
-import { init_axios } from '../core/axios'
-import { register_type } from '../core/type'
+import axios from '../core/axios'
+import type from '../core/type'
 
 import Form from './Form.vue';
 import SearchForm from './SearchForm.vue';
@@ -20,4 +20,4 @@ function setup_components() {
     Vue.component('h-nav-bar', Navbar);
 }
 
-export { setup_components, init_axios, register_type }
+export { setup_components, axios, type };
