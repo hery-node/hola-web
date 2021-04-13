@@ -86,6 +86,7 @@ export default {
     //search colspan for the field
     searchCols: { type: Number, default: 0 },
     searchFields: { type: Array, default: () => [] },
+    refAsChip: { type: Boolean, default: true },
 
     //control the toolbar
     hideToolbar: { type: Boolean, default: false },
@@ -134,6 +135,7 @@ export default {
       header.width || (header.width = this.headerWidth);
       header.align || (header.align = this.headerAlign);
       header.chip && this.chips.push(header.name);
+      !header.chip && this.refAsChip && header.ref && this.chips.push(header.name);
       header.style && !header.chip && this.styles.push(header.name);
     }
 

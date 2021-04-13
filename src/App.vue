@@ -20,7 +20,7 @@
       <!-- <h-search-form entity="user" :fields="search_fields" :cols="6" clear-label="reset" search-label="query" v-model="form" @search="do_search"></h-search-form> -->
       <!-- <h-edit-form entity="user" v-model="form" hide-cancel :cols="6" :fields="search_fields" :success-hint="success_hint" submit-label="Save" @saved="saved"></h-edit-form> -->
       <!-- <h-table searchable entity="user" :headers="headers" :sort-key="sort_key" :sort-desc="sort_desc" :search-fields="search_fields" :search-cols="6" clear-label="reset" search-label="query"></h-table> -->
-      <h-crud searchable mode="crud" dialog-width="900px" entity="user" header-align="end" item-label-key="name" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="4" :cols="6"></h-crud>
+      <h-crud searchable mode="crud" :ref-as-chip="false" dialog-width="900px" entity="host" header-align="end" item-label-key="name" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="4" :cols="6"></h-crud>
     </v-main>
   </v-app>
 </template>
