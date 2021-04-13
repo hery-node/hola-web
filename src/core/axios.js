@@ -228,7 +228,7 @@ const delete_entity = (entity, ids) => {
 
 export {
     init_axios,
-    axios_download, axios_upload,
+    axios_get, axios_post, axios_cached_get, axios_download, axios_upload,
     is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params,
     save_entity, read_entity, read_entity_properties, list_entity, delete_entity, get_ref_labels, get_entity_meta
 }
