@@ -1,5 +1,5 @@
 <template>
-  <h-compare :entity="entity" :label-key="label_key" :entityIds="ids" :fields="headers"></h-compare>
+  <h-compare :entity="entity" :label-key="label_key" :entityIds="ids" :fields="headers" :recommend="recommend"></h-compare>
 </template>
 
 <script>
@@ -8,7 +8,8 @@ import { axios_post, is_success_response } from "./core/axios";
 export default {
   data() {
     return {
-      ids: ["60757b831e482deace70b3df", "6075522c7d39f2c1ec358ace"],
+      ids: ["60757b831e482deace70b3df"],
+      recommend: { "CPU family": 7, cpu_model: "Intel(R) Xeon(R) Gold 8080R CPU @ 2.70GHz" },
       mode: "crud",
       entity: "host",
       label_key: "ip",

@@ -3,7 +3,7 @@
     <v-card-title>
       <v-text-field v-model="search" append-icon="mdi-magnify" :label="$t('table.search')" single-line hide-details></v-text-field>
     </v-card-title>
-    <v-data-table :headers="table_headers" :items="items" :search="search" disable-pagination hide-default-footer>
+    <v-data-table :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" disable-pagination hide-default-footer fixed-header>
       <template v-slot:no-data>
         <span>{{ $t("table.no_data") }}</span>
       </template>
@@ -58,6 +58,9 @@ export default {
       }
     } else {
       headers.push({ text: this.$t("table.value"), value: "value", width: this.headerWidth, align: this.headerAlign });
+      if (this.recommend) {
+        headers.push({ text: this.$t("table.recommend"), value: "recommend", width: this.headerWidth, align: this.headerAlign });
+      }
     }
 
     const items = [];
@@ -81,6 +84,9 @@ export default {
             const obj = {};
             obj["attr"] = property;
             obj["value"] = object[property];
+            if (this.recommend) {
+              obj["recommend"] = this.recommend[property] ? this.recommend[property] + "" : "";
+            }
             items.push(obj);
           }
         }
@@ -94,6 +100,9 @@ export default {
           }
         } else {
           obj["value"] = this.get_field_value(field, objs[0]);
+          if (this.recommend) {
+            obj["recommend"] = this.recommend[field.name] ? this.recommend[field.name] + "" : "";
+          }
         }
         items.push(obj);
       }
@@ -104,6 +113,27 @@ export default {
   },
 
   methods: {
+    get_item_class(item) {
+      const diff_class = "diff_item";
+      if (this.entityIds.length > 1) {
+        let value = item["value0"];
+        for (let i = 0; i < this.entityIds.length; i++) {
+          if (item["value" + i] != value) {
+            return diff_class;
+          }
+        }
+      } else if (this.recommend) {
+        const value = item["value"];
+        const r_value = item["recommend"];
+        console.log("value:" + value);
+        console.log("r_value:" + r_value);
+        if (r_value && r_value.trim().length > 0 && r_value.trim() != value) {
+          return diff_class;
+        }
+      }
+      return "";
+    },
+
     get_field_value(field, obj) {
       const value = field.format ? field.format(obj[field.name], this) : obj[field.name];
       if (value) {
@@ -117,3 +147,15 @@ export default {
   },
 };
 </script>
+
+<style>
+.diff_item {
+  color: #37474f;
+  background-color: #ffcdd2;
+}
+
+.diff_item:hover {
+  color: #37474f !important;
+  background-color: #ffcdd2 !important;
+}
+</style>
