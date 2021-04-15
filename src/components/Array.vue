@@ -29,6 +29,7 @@ export default {
     headerWidth: { type: String, default: "120px" },
     //Available options are start, center, end, baseline and stretch.
     headerAlign: { type: String, default: "center" },
+    headerClass: { type: String, default: "cyan darken-3 subtitle-1 white--text" },
     check: { type: Function },
   },
 
@@ -49,7 +50,7 @@ export default {
     if (array && array.length > 0) {
       const meta_obj = array[0];
       for (const property in meta_obj) {
-        headers.push({ text: property, value: property, width: this.headerWidth, align: this.headerAlign });
+        headers.push({ text: property, value: property, width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
       }
       this.table_headers = headers;
       this.items = array;

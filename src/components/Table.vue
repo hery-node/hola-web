@@ -122,6 +122,7 @@ export default {
     headerWidth: { type: String, default: "120px" },
     //Available options are start, center, end, baseline and stretch.
     headerAlign: { type: String, default: "start" },
+    headerClass: { type: String, default: "cyan darken-3 subtitle-1 white--text" },
 
     //turn off table in mobile list mode
     mobile: { type: Boolean, default: false },
@@ -159,6 +160,7 @@ export default {
       const header = table_headers[i];
       header.width || (header.width = this.headerWidth);
       header.align || (header.align = this.headerAlign);
+      header.class || (header.class = this.headerClass);
       header.chip && this.chips.push(header.name);
       !header.chip && this.refAsChip && header.ref && this.chips.push(header.name);
       !header.chip && header.type == "array" && this.wrapLine == false && this.arrays.push(header.name);
@@ -169,6 +171,7 @@ export default {
       const action = { text: this.$t("table.action_header"), value: "_action", sortable: false };
       action.width = this.headerWidth;
       action.align = this.headerAlign;
+      action.class = this.headerClass;
       table_headers.push(action);
     }
 

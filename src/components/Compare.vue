@@ -27,6 +27,7 @@ export default {
     headerWidth: { type: String, default: "120px" },
     //Available options are start, center, end, baseline and stretch.
     headerAlign: { type: String, default: "center" },
+    headerClass: { type: String, default: "cyan darken-3 subtitle-1 white--text" },
     recommend: { type: Object },
   },
 
@@ -50,16 +51,16 @@ export default {
     }
 
     const headers = [];
-    headers.push({ text: this.$t("table.attribute"), value: "attr", width: this.headerWidth, align: this.headerAlign });
+    headers.push({ text: this.$t("table.attribute"), value: "attr", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
 
     if (objs.length > 1) {
       for (let i = 0; i < objs.length; i++) {
-        headers.push({ text: objs[i][this.labelKey], value: "value" + i, width: this.headerWidth, align: this.headerAlign });
+        headers.push({ text: objs[i][this.labelKey], value: "value" + i, width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
       }
     } else {
-      headers.push({ text: this.$t("table.value"), value: "value", width: this.headerWidth, align: this.headerAlign });
+      headers.push({ text: this.$t("table.value"), value: "value", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
       if (this.recommend) {
-        headers.push({ text: this.$t("table.recommend"), value: "recommend", width: this.headerWidth, align: this.headerAlign });
+        headers.push({ text: this.$t("table.recommend"), value: "recommend", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
       }
     }
 
