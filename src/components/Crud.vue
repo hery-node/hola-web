@@ -1,19 +1,15 @@
 <template>
   <h-table v-bind="$attrs" v-on="$listeners" ref="table" :entity="entity" :headers="headers" :search-fields="searchFields" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="is_deletable" :has-action-header="has_action_header" :item-actions="item_actions">
     <template slot="toolbar" v-if="!$vuetify.breakpoint.xsOnly">
-      <v-tooltip bottom>
+      <v-tooltip bottom v-for="(toolbar, index) in header_toolbars" v-bind:key="index">
         <template v-slot:activator="{ on }">
-          <v-btn v-show="is_creatable" icon @click="show_create_dialog" v-on="on"><v-icon color="create">mdi-plus-circle</v-icon></v-btn>
+          <v-btn icon @click.stop="toolbar.click()" v-on="on">
+            <v-icon :color="toolbar.color">{{ toolbar.icon }}</v-icon>
+          </v-btn>
         </template>
-        <span>{{ create_title }}</span>
+        <span>{{ toolbar.tooltip }}</span>
       </v-tooltip>
-      <v-tooltip bottom>
-        <template v-slot:activator="{ on }">
-          <v-btn v-show="is_deletable" icon @click="batch_delete" v-on="on"><v-icon color="delete">mdi-delete-circle</v-icon></v-btn>
-        </template>
-        <span>{{ batch_delete_title }}</span>
-      </v-tooltip>
-      <slot name="toolbar" />
+
       <h-edit-form v-bind="$attrs" dialog :dialog-shown="dialog" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="close_dialog" @success="success_edit"> </h-edit-form>
     </template>
   </h-table>
@@ -37,6 +33,8 @@ export default {
     mode: { type: String, default: "crudie" },
     //add more actions to item actions
     actions: { type: Array, default: () => [] },
+    //add more toolbars
+    toolbars: { type: Array, default: () => [] },
 
     searchFields: { type: Array, default: () => [] },
     editFields: { type: Array, default: () => [] },
@@ -48,7 +46,14 @@ export default {
       //used to pass id value to edit form
       edit_entity_id: null,
       dialog: false,
+      header_toolbars: [],
     };
+  },
+
+  created() {
+    this.is_creatable && this.header_toolbars.push({ color: "create", icon: "mdi-plus-circle", tooltip: this.create_title, click: this.show_create_dialog });
+    this.is_deletable && this.header_toolbars.push({ color: "delete", icon: "mdi-delete-circle", tooltip: this.batch_delete_title, click: this.batch_delete });
+    this.header_toolbars.push(...this.toolbars);
   },
 
   computed: {

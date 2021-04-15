@@ -227,7 +227,7 @@ export default {
     },
 
     reset_values() {
-      this.items = [];
+      !this.pagination && (this.items = []);
       this.next_page = 1;
     },
 
@@ -299,7 +299,12 @@ export default {
               }
             }
           }
-          this.items.push(...data);
+          if (this.pagination) {
+            this.items = data;
+          } else {
+            this.items.push(...data);
+          }
+
           this.next_page++;
         }
       }
