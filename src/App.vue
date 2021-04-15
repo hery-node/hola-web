@@ -1,5 +1,5 @@
 <template>
-  <h-crud ref="table" @click:row="row_clicked" wrap-chip :headers="headers" :searchable="searchable" :mode="mode" :entity="entity" :item-label-key="item_label_key" :actions="actions" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols">
+  <h-crud ref="table" @click:row="row_clicked" wrap-line :headers="headers" :searchable="searchable" :mode="mode" :entity="entity" :item-label-key="item_label_key" :actions="actions" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols">
     <template slot="toolbar" v-if="!$vuetify.breakpoint.xsOnly">
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">

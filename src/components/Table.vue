@@ -29,7 +29,7 @@
 
       <template v-for="(chip, index) in chips" v-slot:[`item.${chip}`]="{ item }">
         <template v-if="wrapLine">
-          <v-row class="d-flex flex-nowrap" :justify="get_header_align(chip)" :align="get_header_align(chip)" v-bind:key="index">
+          <v-row class="d-flex flex-nowrap" :justify="get_header_align(chip)" style="margin-top:5px;margin-bottom:5px" :align="get_header_align(chip)" v-bind:key="index">
             <template v-if="Array.isArray(item[chip])">
               <v-chip dark v-for="(tag, tag_index) in item[chip]" :key="tag_index" :class="get_item_style(chip, item[chip], 'chip')" style="margin:3px"> {{ tag }} </v-chip>
             </template>
