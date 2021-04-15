@@ -8,6 +8,7 @@ import {
 import { register_type, get_type, no_value, is_int } from '../core/type';
 
 import Form from './Form.vue';
+import ArrayList from './Array.vue';
 import Compare from './Compare.vue';
 import SearchForm from './SearchForm.vue';
 import EditForm from './EditForm.vue';
@@ -18,6 +19,7 @@ import Navbar from './Navbar.vue';
 
 function setup_components() {
     Vue.component('h-form', Form);
+    Vue.component('h-array', ArrayList);
     Vue.component('h-compare', Compare);
     Vue.component('h-search-form', SearchForm);
     Vue.component('h-edit-form', EditForm);

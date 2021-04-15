@@ -1,9 +1,9 @@
 <template>
-  <v-card>
+  <v-card v-bind="$attrs">
     <v-card-title>
       <v-text-field v-model="search" append-icon="mdi-magnify" :label="$t('table.search')" single-line hide-details></v-text-field>
     </v-card-title>
-    <v-data-table :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" disable-pagination hide-default-footer fixed-header>
+    <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" disable-pagination hide-default-footer fixed-header>
       <template v-slot:no-data>
         <span>{{ $t("table.no_data") }}</span>
       </template>
@@ -21,7 +21,7 @@ export default {
 
   props: {
     //one is used to show, more than one is used to compare
-    entityIds: { type: Array, required: true },
+    ids: { type: Array, required: true },
     labelKey: { type: String, required: true },
 
     headerWidth: { type: String, default: "120px" },
@@ -43,8 +43,8 @@ export default {
     const attr_names = property_fields.map((h) => h.name).join(",");
 
     const objs = [];
-    for (let i = 0; i < this.entityIds.length; i++) {
-      const entityId = this.entityIds[i];
+    for (let i = 0; i < this.ids.length; i++) {
+      const entityId = this.ids[i];
       const obj = await read_entity_properties(this.entity, entityId, attr_names + "," + this.labelKey);
       objs.push(obj);
     }
@@ -115,9 +115,9 @@ export default {
   methods: {
     get_item_class(item) {
       const diff_class = "diff_item";
-      if (this.entityIds.length > 1) {
+      if (this.ids.length > 1) {
         let value = item["value0"];
-        for (let i = 0; i < this.entityIds.length; i++) {
+        for (let i = 0; i < this.ids.length; i++) {
           if (item["value" + i] != value) {
             return diff_class;
           }
@@ -125,8 +125,6 @@ export default {
       } else if (this.recommend) {
         const value = item["value"];
         const r_value = item["recommend"];
-        console.log("value:" + value);
-        console.log("r_value:" + r_value);
         if (r_value && r_value.trim().length > 0 && r_value.trim() != value) {
           return diff_class;
         }
