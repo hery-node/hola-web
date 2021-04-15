@@ -25,7 +25,7 @@ export default {
             this.alert.shown = true;
             this.alert.type = type;
             this.alert.msg = msg;
-            delay || setTimeout(() => (this.alert.shown = false), time);
+            delay || delay == 0 || setTimeout(() => (this.alert.shown = false), time);
         }
     }
 };

@@ -1,5 +1,5 @@
 <template>
-  <h-array :entity="entity" :id="ids" field-name="network"></h-array>
+  <h-array :entity="entity" :id="ids" field-name="network" :check="check_disk"></h-array>
 </template>
 
 <script>
@@ -28,7 +28,10 @@ export default {
         this.$refs.table.refresh();
       }
     },
-    row_clicked() {},
+    check_disk(values) {
+      console.log(values);
+      return "error checking disks";
+    },
   },
 };
 </script>
