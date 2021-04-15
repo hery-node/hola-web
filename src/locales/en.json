@@ -35,6 +35,11 @@
   "table": {
     "title": "{entity} List",
     "action_header": "Action",
+    "attribute": "Attribute",
+    "value": "Value",
+    "recommendation": "Recommendation",
+    "hint": "Hint",
+    "search": "Search",
     "create_title": "Create {entity}",
     "update_title": "Update {entity}",
     "delete_title": "Delete {entity}",

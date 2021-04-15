@@ -41,6 +41,13 @@ const get_type = (name) => {
     }
 }
 
+const obj_type = {
+    name: "obj",
+    input_type: "text"
+}
+
+register_type(obj_type);
+
 const boolean_type = {
     name: "boolean",
     input_type: "switch",
