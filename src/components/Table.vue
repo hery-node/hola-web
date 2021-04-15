@@ -122,7 +122,7 @@ export default {
     headerWidth: { type: String, default: "120px" },
     //Available options are start, center, end, baseline and stretch.
     headerAlign: { type: String, default: "start" },
-    headerClass: { type: String, default: "cyan darken-3 subtitle-1 white--text" },
+    headerClass: { type: String, default: "table_header subtitle-1 white--text" },
 
     //turn off table in mobile list mode
     mobile: { type: Boolean, default: false },
