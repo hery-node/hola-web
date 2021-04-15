@@ -28,14 +28,36 @@
       </template>
 
       <template v-for="(chip, index) in chips" v-slot:[`item.${chip}`]="{ item }">
-        <v-row class="d-flex flex-nowrap" :justify="get_header_align(chip)" :align="get_header_align(chip)" v-bind:key="index">
-          <template v-if="Array.isArray(item[chip])">
-            <v-chip dark v-for="tag in item[chip]" :key="tag" :class="get_item_style(chip, item[chip], 'chip ma-1')"> {{ tag }} </v-chip>
-          </template>
-          <template v-else-if="item[chip]">
-            <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
-          </template>
-        </v-row>
+        <template v-if="wrapLine">
+          <v-row class="d-flex flex-nowrap" :justify="get_header_align(chip)" :align="get_header_align(chip)" v-bind:key="index">
+            <template v-if="Array.isArray(item[chip])">
+              <v-chip dark v-for="(tag, tag_index) in item[chip]" :key="tag_index" :class="get_item_style(chip, item[chip], 'chip')" style="margin:3px"> {{ tag }} </v-chip>
+            </template>
+            <template v-else-if="item[chip]">
+              <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
+            </template>
+          </v-row>
+        </template>
+        <template v-else>
+          <span v-bind:key="index">
+            <template v-if="Array.isArray(item[chip])">
+              <v-row class="d-flex flex-nowrap" :justify="get_header_align(chip)" style="margin-top:5px;margin-bottom:5px" :align="get_header_align(chip)" v-for="(tag, tag_index) in item[chip]" :key="tag_index">
+                <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')"> {{ tag }} </v-chip>
+              </v-row>
+            </template>
+            <template v-else-if="item[chip]">
+              <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
+            </template>
+          </span>
+        </template>
+      </template>
+
+      <template v-for="(array, index) in arrays" v-slot:[`item.${array}`]="{ item }">
+        <span v-bind:key="index">
+          <v-row :justify="get_header_align(array)" :align="get_header_align(array)" style="margin-top:5px;margin-bottom:5px" v-for="(tag, tag_index) in item[array]" :key="tag_index">
+            <span :class="get_item_style(array, item[array], 'ma-1')">{{ tag }}</span>
+          </v-row>
+        </span>
       </template>
 
       <template v-for="(style, index) in styles" v-slot:[`item.${style}`]="{ item }">
@@ -103,6 +125,8 @@ export default {
 
     //turn off table in mobile list mode
     mobile: { type: Boolean, default: false },
+    //wrap array and chip as one line
+    wrapLine: { type: Boolean, default: false },
     interval: { type: Number, default: -1 },
 
     //infinite scroll or not
@@ -122,6 +146,7 @@ export default {
       selected: [],
       chips: [],
       styles: [],
+      arrays: [],
       search_form: {},
       options: {},
     };
@@ -136,6 +161,7 @@ export default {
       header.align || (header.align = this.headerAlign);
       header.chip && this.chips.push(header.name);
       !header.chip && this.refAsChip && header.ref && this.chips.push(header.name);
+      !header.chip && header.type == "array" && this.wrapLine == false && this.arrays.push(header.name);
       header.style && !header.chip && this.styles.push(header.name);
     }
 

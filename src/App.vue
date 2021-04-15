@@ -1,94 +1,43 @@
 <template>
-  <v-app>
-    <v-app-bar app color="primary" dark>
-      <div class="d-flex align-center">
-        <v-img alt="Vuetify Logo" class="shrink mr-2" contain src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png" transition="scale-transition" width="40" />
-
-        <v-img alt="Vuetify Name" class="shrink mt-1 hidden-sm-and-down" contain min-width="100" src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png" width="100" />
-      </div>
-
-      <v-spacer></v-spacer>
-
-      <v-btn href="https://github.com/vuetifyjs/vuetify/releases/latest" target="_blank" text>
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar>
-
-    <v-main>
-      <!-- <h-property entity="user" entity-id="6071614ca73a602476c92d41"></h-property> -->
-      <!-- <h-search-form entity="user" :fields="search_fields" :cols="6" clear-label="reset" search-label="query" v-model="form" @search="do_search"></h-search-form> -->
-      <!-- <h-edit-form entity="user" v-model="form" hide-cancel :cols="6" :fields="search_fields" :success-hint="success_hint" submit-label="Save" @saved="saved"></h-edit-form> -->
-      <!-- <h-table searchable entity="user" :headers="headers" :sort-key="sort_key" :sort-desc="sort_desc" :search-fields="search_fields" :search-cols="6" clear-label="reset" search-label="query"></h-table> -->
-      <h-crud searchable mode="crud" :ref-as-chip="false" dialog-width="900px" entity="host" header-align="end" item-label-key="name" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="4" :cols="6"></h-crud>
-    </v-main>
-  </v-app>
+  <h-crud ref="table" @click:row="row_clicked" wrap-chip :headers="headers" :searchable="searchable" :mode="mode" :entity="entity" :item-label-key="item_label_key" :actions="actions" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols">
+    <template slot="toolbar" v-if="!$vuetify.breakpoint.xsOnly">
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-icon color="create" v-on="on" class="ma-3">mdi-compass-outline</v-icon>
+        </template>
+        <span>Compared Benchmark</span>
+      </v-tooltip>
+    </template>
+  </h-crud>
 </template>
 
 <script>
-import { no_value } from "./core/type";
+import { axios_post, is_success_response } from "./core/axios";
 
 export default {
-  name: "App",
-
-  components: {},
-
-  data: () => ({
-    filter: { age: ">30" },
-    form: {},
-    success_hint: "you have successfully registered as a new user",
-    sort_key: ["name"],
-    sort_desc: [false],
-    search_fields: [
-      { name: "name", icon: "mdi-account" },
-      { name: "role", icon: "mdi-account" },
-      { name: "gender", icon: "mdi-account" },
-      { name: "age", icon: "mdi-account" },
-      { name: "currency", icon: "mdi-account" },
-      {
-        name: "rate",
-        icon: "mdi-account",
-        rule: [(value) => no_value(value) || value <= 100 || "err value for rate"],
-      },
-    ],
-    headers: [
-      { name: "name" },
-      { name: "email" },
-      {
-        name: "age",
-        style: (value) => {
-          if (value > 15) {
-            return "red--text";
-          } else {
-            return "green--text";
-          }
-        },
-      },
-      { name: "gender" },
-      { name: "birthday" },
-      { name: "rate" },
-    ],
-  }),
-
-  // created() {
-  //   console.log(this.$te("user.role.hint"));
-  // },
-
+  data() {
+    return {
+      searchable: false,
+      search_cols: 4,
+      mode: "crud",
+      entity: "host",
+      item_label_key: "ip",
+      sort_key: ["ip"],
+      sort_desc: [false],
+      headers: [{ name: "name" }, { name: "ip" }, { name: "cpu_model" }, { name: "disk_model", chip: true }, { name: "network_model" }, { name: "owner" }],
+      actions: [{ color: "edit", icon: "mdi-refresh", tooltip: this.$t("host.refresh_host"), handle: this.refresh_host }],
+    };
+  },
   methods: {
-    cancel_search() {
-      console.log("cancel_search");
-      console.log(this.form);
+    async refresh_host(item) {
+      const url = "/host/refresh";
+      const { code } = axios_post(url, { _id: item["_id"] });
+      if (is_success_response(code) && this.$refs.table) {
+        this.$refs.table.refresh();
+      }
     },
 
-    do_search() {
-      console.log("do_search");
-      console.log(this.form);
-    },
-
-    saved() {
-      console.log("after saving");
-      console.log(this.form);
-    },
+    row_clicked() {},
   },
 };
 </script>
