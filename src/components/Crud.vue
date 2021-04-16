@@ -1,5 +1,5 @@
 <template>
-  <h-table v-bind="$attrs" v-on="$listeners" ref="table" :entity="entity" :headers="headers" :search-fields="searchFields" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="is_deletable" :has-action-header="has_action_header" :item-actions="item_actions">
+  <h-table v-bind="$attrs" v-on="$listeners" ref="table" :entity="entity" :headers="headers" :search-fields="searchFields" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="batch_mode" :has-action-header="has_action_header" :item-actions="item_actions">
     <template slot="toolbar" v-if="!$vuetify.breakpoint.xsOnly">
       <v-tooltip bottom v-for="(toolbar, index) in header_toolbars" v-bind:key="index">
         <template v-slot:activator="{ on }">
@@ -43,17 +43,18 @@ export default {
 
   data() {
     return {
+      //batch mode, this is used to control the crud table batch mode
+      batch_mode: false,
       //used to pass id value to edit form
       edit_entity_id: null,
       dialog: false,
+      has_action_header: false,
       header_toolbars: [],
     };
   },
 
   created() {
-    this.is_creatable && this.header_toolbars.push({ color: "create", icon: "mdi-plus-circle", tooltip: this.create_title, click: this.show_create_dialog });
-    this.is_deletable && this.header_toolbars.push({ color: "delete", icon: "mdi-delete-circle", tooltip: this.batch_delete_title, click: this.batch_delete });
-    this.header_toolbars.push(...this.toolbars);
+    this.show_toolbars();
   },
 
   computed: {
@@ -67,10 +68,6 @@ export default {
 
     is_deletable() {
       return this.mode.includes("d");
-    },
-
-    has_action_header() {
-      return this.is_updatable || this.is_deletable;
     },
 
     entity_label() {
@@ -110,12 +107,33 @@ export default {
       if (array.length > 0) {
         return array;
       } else {
-        return undefined;
+        return null;
       }
     },
   },
 
   methods: {
+    show_toolbars() {
+      const header_toolbars = [];
+      !this.batch_mode && this.is_creatable && header_toolbars.push({ color: "create", icon: "mdi-plus-circle", tooltip: this.create_title, click: this.show_create_dialog });
+      this.batch_mode && this.is_deletable && header_toolbars.push({ color: "delete", icon: "mdi-delete-circle", tooltip: this.batch_delete_title, click: this.batch_delete });
+      this.batch_mode && header_toolbars.push(...this.toolbars);
+      !this.batch_mode && header_toolbars.push({ color: "edit", icon: "mdi-checkbox-multiple-marked", tooltip: this.$t("table.switch_to_batch"), click: this.switch_to_batch });
+      this.batch_mode && header_toolbars.push({ color: "close", icon: "mdi-close-circle-multiple", tooltip: this.$t("table.switch_to_single"), click: this.switch_to_single });
+      this.header_toolbars = header_toolbars;
+      this.has_action_header = this.is_updatable || this.is_deletable;
+    },
+
+    switch_to_batch() {
+      this.batch_mode = true;
+      this.show_toolbars();
+    },
+
+    switch_to_single() {
+      this.batch_mode = false;
+      this.show_toolbars();
+    },
+
     delete_entity(item) {
       this.delete_entities([item]);
     },

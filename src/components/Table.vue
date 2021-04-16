@@ -7,7 +7,7 @@
     <v-data-table v-bind="$attrs" v-on="$listeners" :mobile-breakpoint="mobile ? 600 : 10" :headers="table_headers" :items="items" :loading="loading" multi-sort v-model="selected" :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0" :hide-default-footer="!pagination">
       <template v-slot:top>
         <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
-        <v-toolbar flat v-if="!hideToolbar">
+        <v-toolbar flat dense :class="toolbarClass" dark v-if="!hideToolbar">
           <v-toolbar-title v-if="!hideTitle">{{ table_title }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <slot name="toolbar" />
@@ -113,6 +113,7 @@ export default {
     //control the toolbar
     hideToolbar: { type: Boolean, default: false },
     hideTitle: { type: Boolean, default: false },
+    toolbarClass: { type: String, default: "app_bar" },
     title: { type: String },
 
     //has action header to add update and delete button for item
@@ -122,7 +123,8 @@ export default {
     headerWidth: { type: String, default: "120px" },
     //Available options are start, center, end, baseline and stretch.
     headerAlign: { type: String, default: "start" },
-    headerClass: { type: String, default: "table_header subtitle-1 white--text" },
+    headerClass: { type: String, default: "table_header subtitle-2" },
+    headerUppcase: { type: Boolean, default: false },
 
     //turn off table in mobile list mode
     mobile: { type: Boolean, default: false },
@@ -158,6 +160,7 @@ export default {
 
     for (let i = 0; i < table_headers.length; i++) {
       const header = table_headers[i];
+      header.text = this.uppcase_header(header.text);
       header.width || (header.width = this.headerWidth);
       header.align || (header.align = this.headerAlign);
       header.class || (header.class = this.headerClass);
@@ -168,7 +171,7 @@ export default {
     }
 
     if (this.hasActionHeader) {
-      const action = { text: this.$t("table.action_header"), value: "_action", sortable: false };
+      const action = { text: this.uppcase_header(this.$t("table.action_header")), value: "_action", sortable: false };
       action.width = this.headerWidth;
       action.align = this.headerAlign;
       action.class = this.headerClass;
@@ -218,6 +221,10 @@ export default {
   },
 
   methods: {
+    uppcase_header(header_title) {
+      return this.headerUppcase ? header_title.toUpperCase() : header_title;
+    },
+
     infinite_scroll(entries) {
       const intersection = entries[0].intersectionRatio > 0;
 
