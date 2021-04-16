@@ -1,14 +1,10 @@
 <template>
   <v-card v-bind="$attrs">
     <v-card-title>
-      <v-text-field v-model="search" append-icon="mdi-magnify" :label="$t('table.search')" single-line hide-details></v-text-field>
+      <v-text-field v-if="showSearch" v-model="search" append-icon="mdi-magnify" :label="search_hint" single-line hide-details clearable></v-text-field>
     </v-card-title>
     <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
-    <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :search="search" disable-pagination hide-default-footer fixed-header>
-      <template v-slot:no-data>
-        <span>{{ $t("table.no_data") }}</span>
-      </template>
-    </v-data-table>
+    <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :search="search" disable-pagination hide-default-footer fixed-header> </v-data-table>
   </v-card>
 </template>
 
@@ -29,7 +25,10 @@ export default {
     headerWidth: { type: String, default: "120px" },
     //Available options are start, center, end, baseline and stretch.
     headerAlign: { type: String, default: "center" },
-    headerClass: { type: String, default: "table_header subtitle-1 white--text" },
+    headerClass: { type: String, default: "table_header subtitle-2 white--text" },
+    headerUppcase: { type: Boolean, default: false },
+    showSearch: { type: Boolean, default: false },
+    searchHint: { type: String },
     check: { type: Function },
   },
 
@@ -50,18 +49,28 @@ export default {
     if (array && array.length > 0) {
       const meta_obj = array[0];
       for (const property in meta_obj) {
-        headers.push({ text: property, value: property, width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
+        headers.push({ text: this.headerUppcase ? property.toUpperCase() : property, value: property, width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
       }
       this.table_headers = headers;
       this.items = array;
     }
 
     if (this.check) {
-      const err = this.check(array);
-      if (err && err.trim().length > 0) {
-        this.show_error(err, 0);
+      const { success, msg } = this.check(array);
+      if (success == true) {
+        this.$emit("success");
+        this.show_success(msg, 0);
+      } else {
+        this.$emit("error");
+        this.show_error(msg, 0);
       }
     }
+  },
+
+  computed: {
+    search_hint() {
+      return this.searchHint ? this.searchHint : this.$t("table.search");
+    },
   },
 };
 </script>

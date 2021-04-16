@@ -1,7 +1,7 @@
 <template>
   <v-card v-bind="$attrs">
     <v-card-title>
-      <v-text-field v-model="search" append-icon="mdi-magnify" :label="$t('table.search')" single-line hide-details></v-text-field>
+      <v-text-field v-model="search" append-icon="mdi-magnify" :label="search_hint" single-line hide-details></v-text-field>
     </v-card-title>
     <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" disable-pagination hide-default-footer fixed-header>
       <template v-slot:no-data>
@@ -28,6 +28,7 @@ export default {
     //Available options are start, center, end, baseline and stretch.
     headerAlign: { type: String, default: "center" },
     headerClass: { type: String, default: "table_header subtitle-1 white--text" },
+    searchHint: { type: String },
     recommend: { type: Object },
   },
 
@@ -111,6 +112,12 @@ export default {
 
     this.table_headers = headers;
     this.items = items;
+  },
+
+  computed: {
+    search_hint() {
+      return this.searchHint ? this.searchHint : this.$t("table.search");
+    },
   },
 
   methods: {

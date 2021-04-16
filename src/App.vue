@@ -16,11 +16,8 @@
     </v-app-bar>
 
     <v-main>
-      <!-- <h-property entity="user" entity-id="6071614ca73a602476c92d41"></h-property> -->
-      <!-- <h-search-form entity="user" :fields="search_fields" :cols="6" clear-label="reset" search-label="query" v-model="form" @search="do_search"></h-search-form> -->
-      <!-- <h-edit-form entity="user" v-model="form" hide-cancel :cols="6" :fields="search_fields" :success-hint="success_hint" submit-label="Save" @saved="saved"></h-edit-form> -->
-      <!-- <h-table searchable entity="user" :headers="headers" :sort-key="sort_key" :sort-desc="sort_desc" :search-fields="search_fields" :search-cols="6" clear-label="reset" search-label="query"></h-table> -->
-      <h-crud searchable mode="cu" dialog-width="900px" header-class="cyan darken-3 subtitle-1 white--text" :headers="headers" :edit-fields="search_fields" :filter="filter" entity="user" header-align="end" item-label-key="name" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="4" :cols="6"></h-crud>
+      <h-array :entity="entity" :id="id" field-name="memory" header-class="cyan subtitle-2 white--text" :check="check" show-search header-uppcase></h-array>
+      <!-- <h-compare :entity="entity" :ids="ids" label-key="name" :fields="fields"></h-compare> -->
     </v-main>
   </v-app>
 </template>
@@ -31,34 +28,27 @@ export default {
 
   components: {},
 
-  data: () => ({
-    filter: { age: ">30" },
-    form: {},
-    success_hint: "you have successfully registered as a new user",
-    sort_key: ["name"],
-    sort_desc: [false],
-    search_fields: [{ name: "name", icon: "mdi-account" }],
-    headers: [{ name: "name" }],
-  }),
-
-  // created() {
-  //   console.log(this.$te("user.role.hint"));
-  // },
+  data() {
+    return {
+      id: "60757b831e482deace70b3df",
+      ids: ["60757b831e482deace70b3df"],
+      fields: [{ name: "cpu" }],
+      recommend: { "CPU family": 7, cpu_model: "Intel(R) Xeon(R) Gold 8080R CPU @ 2.70GHz" },
+      mode: "crud",
+      entity: "host",
+      label_key: "ip",
+      sort_key: ["ip"],
+      sort_desc: [false],
+      headers: [{ name: "cpu_model" }, { name: "disk_model", chip: true }, { name: "network_model" }, { name: "cpu" }],
+      actions: [{ color: "edit", icon: "mdi-refresh", tooltip: this.$t("host.refresh_host"), handle: this.refresh_host }],
+      toolbars: [{ color: "edit", icon: "mdi-compass-outline", tooltip: "compared", click: this.refresh_host }],
+    };
+  },
 
   methods: {
-    cancel_search() {
-      console.log("cancel_search");
-      console.log(this.form);
-    },
-
-    do_search() {
-      console.log("do_search");
-      console.log(this.form);
-    },
-
-    saved() {
-      console.log("after saving");
-      console.log(this.form);
+    check() {
+      // return { success: true, msg: "This is balanced memory configuration." };
+      return { success: false, msg: "This is unbalanced memory configuration." };
     },
   },
 };
