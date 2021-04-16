@@ -3,6 +3,11 @@
     <v-expansion-panel>
       <v-expansion-panel-header :class="searchToolbarClass">
         <span>{{ form_title }}</span>
+        <template v-slot:actions>
+          <v-icon color="white">
+            $expand
+          </v-icon>
+        </template>
       </v-expansion-panel-header>
       <v-expansion-panel-content>
         <h-form v-bind="$attrs" v-on="$listeners" ref="form" v-model="form" :fields="search_fields" hide-title @submit="submit_form">

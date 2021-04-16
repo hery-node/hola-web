@@ -8,7 +8,7 @@
       <template v-slot:top>
         <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
         <v-toolbar flat dense :class="toolbarClass" dark v-if="!hideToolbar">
-          <v-toolbar-title v-if="!hideTitle">{{ table_title }}</v-toolbar-title>
+          <span class="ml-3" v-if="!hideTitle">{{ table_title }}</span>
           <v-spacer></v-spacer>
           <slot name="toolbar" />
         </v-toolbar>
