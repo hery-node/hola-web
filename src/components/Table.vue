@@ -113,7 +113,7 @@ export default {
     //control the toolbar
     hideToolbar: { type: Boolean, default: false },
     hideTitle: { type: Boolean, default: false },
-    toolbarClass: { type: String, default: "app_bar" },
+    toolbarClass: { type: String, default: "app_bar subtitle-1" },
     title: { type: String },
 
     //has action header to add update and delete button for item

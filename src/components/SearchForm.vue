@@ -1,8 +1,8 @@
 <template>
   <v-expansion-panels flat>
     <v-expansion-panel>
-      <v-expansion-panel-header>
-        <span class="title">{{ form_title }}</span>
+      <v-expansion-panel-header :class="searchToolbarClass">
+        <span>{{ form_title }}</span>
       </v-expansion-panel-header>
       <v-expansion-panel-content>
         <h-form v-bind="$attrs" v-on="$listeners" ref="form" v-model="form" :fields="search_fields" hide-title @submit="submit_form">
@@ -37,6 +37,7 @@ export default {
     cols: { type: Number, default: 0 },
     clearLabel: { type: String },
     searchLabel: { type: String },
+    searchToolbarClass: { type: String, default: "app_bar subtitle-1 white--text" },
   },
 
   data() {
