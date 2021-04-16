@@ -1,9 +1,9 @@
 <template>
   <v-card v-bind="$attrs">
+    <v-alert class="mt-3" v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
     <v-toolbar :class="toolbarClass" dark v-if="showToolbar">
       <v-text-field v-model="search" append-icon="mdi-magnify" :label="search_hint" single-line hide-details clearable></v-text-field>
     </v-toolbar>
-    <v-alert class="mt-3" v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
     <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :search="search" disable-pagination hide-default-footer fixed-header> </v-data-table>
   </v-card>
 </template>

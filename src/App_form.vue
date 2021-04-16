@@ -16,87 +16,42 @@
     </v-app-bar>
 
     <v-main>
+      <br />
+      <br />
+      <br />
       <!-- <h-property entity="user" entity-id="6071614ca73a602476c92d41"></h-property> -->
       <!-- <h-search-form entity="user" :fields="search_fields" :cols="6" clear-label="reset" search-label="query" v-model="form" @search="do_search"></h-search-form> -->
       <!-- <h-edit-form entity="user" v-model="form" hide-cancel :cols="6" :fields="search_fields" :success-hint="success_hint" submit-label="Save" @saved="saved"></h-edit-form> -->
       <!-- <h-table searchable entity="user" :headers="headers" :sort-key="sort_key" :sort-desc="sort_desc" :search-fields="search_fields" :search-cols="6" clear-label="reset" search-label="query"></h-table> -->
-      <h-crud searchable mode="cu" dialog-width="900px" :headers="headers" :edit-fields="search_fields" :filter="filter" entity="user" header-align="end" item-label-key="name" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="4" :cols="6"></h-crud>
+      <h-crud ref="table" header-uppcase @click:row="row_clicked" :search-fields="headers" search-toolbar-class="cyan darken-2 white--text" toolbar-class="cyan darken-2" header-class="cyan lighten-4" :headers="headers" :searchable="searchable" :mode="mode" :entity="entity" :item-label-key="item_label_key" :actions="actions" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols"> </h-crud>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import { no_value } from "./core/type";
-
 export default {
   name: "App",
 
   components: {},
 
-  data: () => ({
-    filter: { age: ">30" },
-    form: {},
-    success_hint: "you have successfully registered as a new user",
-    sort_key: ["name"],
-    sort_desc: [false],
-    search_fields: [
-      { name: "name", icon: "mdi-account" },
-      { name: "role", icon: "mdi-account" },
-      { name: "gender", icon: "mdi-account" },
-      { name: "age", icon: "mdi-account" },
-      { name: "currency", icon: "mdi-account" },
-      {
-        name: "rate",
-        icon: "mdi-account",
-        rule: [(value) => no_value(value) || value <= 100 || "err value for rate"],
-      },
-    ],
-    headers: [
-      { name: "name" },
-      { name: "email" },
-      {
-        name: "age",
-        style: (value) => {
-          if (value > 15) {
-            return "red--text";
-          } else {
-            return "green--text";
-          }
-        },
-      },
-      {
-        name: "role",
-        align: "center",
-        chip: true,
-        style: () => {
-          return "blue";
-        },
-      },
-      { name: "gender" },
-      { name: "birthday" },
-      { name: "rate" },
-    ],
-  }),
-
-  // created() {
-  //   console.log(this.$te("user.role.hint"));
-  // },
-
+  data() {
+    return {
+      searchable: true,
+      search_cols: 4,
+      mode: "crud",
+      entity: "host",
+      item_label_key: "ip",
+      sort_key: ["ip"],
+      sort_desc: [false],
+      headers: [{ name: "name" }, { name: "ip" }, { name: "cpu_model" }, { name: "disk_model" }, { name: "network_model" }],
+      actions: [{ color: "edit", icon: "mdi-refresh", tooltip: this.$t("host.refresh_host"), handle: this.refresh_host }],
+      toolbars: [{ color: "edit", icon: "mdi-compass-outline", tooltip: "compared", handle: this.refresh_host }],
+    };
+  },
   methods: {
-    cancel_search() {
-      console.log("cancel_search");
-      console.log(this.form);
-    },
+    async refresh_host() {},
 
-    do_search() {
-      console.log("do_search");
-      console.log(this.form);
-    },
-
-    saved() {
-      console.log("after saving");
-      console.log(this.form);
-    },
+    row_clicked() {},
   },
 };
 </script>
