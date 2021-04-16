@@ -20,8 +20,8 @@
       <br />
       <br />
       <br />
-      <!-- <h-array :entity="entity" :id="id" field-name="memory" header-class="cyan subtitle-2 white--text" :check="check" show-search header-uppcase no-results-text="no result"></h-array> -->
-      <h-compare :entity="entity" :ids="ids" label-key="name" search-hint="Search CPU Configuration" show-toolbar :recommend="recommend" toolbar-class="cyan darken-2" header-class="cyan lighten-4" header-uppcase :fields="fields"></h-compare>
+      <h-array :entity="entity" :id="id" field-name="memory" search-hint="Search Memory Configuration" show-toolbar toolbar-class="cyan darken-2" header-class="cyan lighten-4" :check="check" show-search header-uppcase no-results-text="no result"></h-array>
+      <!-- <h-compare :entity="entity" :ids="ids" label-key="name" search-hint="Search CPU Configuration" show-toolbar :recommend="recommend" toolbar-class="cyan darken-2" header-class="cyan lighten-4" header-uppcase :fields="fields"></h-compare> -->
     </v-main>
   </v-app>
 </template>
@@ -35,7 +35,7 @@ export default {
   data() {
     return {
       id: "60757b831e482deace70b3df",
-      ids: ["60757b831e482deace70b3df"],
+      ids: ["60757b831e482deace70b3df", "607551cc7d39f2c1ec358acd"],
       fields: [{ name: "cpu" }],
       recommend: { "CPU family": 7, cpu_model: "Intel(R) Xeon(R) Gold 8080R CPU @ 2.70GHz" },
       mode: "crud",

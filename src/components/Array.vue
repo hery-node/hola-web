@@ -1,9 +1,9 @@
 <template>
   <v-card v-bind="$attrs">
-    <v-card-title>
-      <v-text-field v-if="showSearch" v-model="search" append-icon="mdi-magnify" :label="search_hint" single-line hide-details clearable></v-text-field>
-    </v-card-title>
-    <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
+    <v-toolbar :class="toolbarClass" dark v-if="showToolbar">
+      <v-text-field v-model="search" append-icon="mdi-magnify" :label="search_hint" single-line hide-details clearable></v-text-field>
+    </v-toolbar>
+    <v-alert class="mt-3" v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
     <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :search="search" disable-pagination hide-default-footer fixed-header> </v-data-table>
   </v-card>
 </template>
@@ -25,9 +25,10 @@ export default {
     headerWidth: { type: String, default: "120px" },
     //Available options are start, center, end, baseline and stretch.
     headerAlign: { type: String, default: "center" },
-    headerClass: { type: String, default: "table_header subtitle-2 white--text" },
+    headerClass: { type: String, default: "table_header subtitle-2" },
     headerUppcase: { type: Boolean, default: false },
-    showSearch: { type: Boolean, default: false },
+    showToolbar: { type: Boolean, default: false },
+    toolbarClass: { type: String, default: "app_bar" },
     searchHint: { type: String },
     check: { type: Function },
   },
