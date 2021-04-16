@@ -27,7 +27,7 @@ export default {
     headerClass: { type: String, default: "table_header subtitle-2" },
     headerUppcase: { type: Boolean, default: false },
     showToolbar: { type: Boolean, default: false },
-    toolbarClass: { type: String, default: "app_bar subtitle-1" },
+    toolbarClass: { type: String, default: "app_bar subtitle-2" },
     searchHint: { type: String },
     showDiffLabel: { type: String },
     recommend: { type: Object },

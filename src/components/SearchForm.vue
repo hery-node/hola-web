@@ -37,7 +37,7 @@ export default {
     cols: { type: Number, default: 0 },
     clearLabel: { type: String },
     searchLabel: { type: String },
-    searchToolbarClass: { type: String, default: "app_bar subtitle-1 white--text" },
+    searchToolbarClass: { type: String, default: "app_bar subtitle-2 white--text" },
   },
 
   data() {

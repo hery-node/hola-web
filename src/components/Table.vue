@@ -41,7 +41,7 @@
         <template v-else>
           <span v-bind:key="index">
             <template v-if="Array.isArray(item[chip])">
-              <v-row class="d-flex flex-nowrap" :justify="get_header_align(chip)" style="margin-top:5px;margin-bottom:5px" :align="get_header_align(chip)" v-for="(tag, tag_index) in item[chip]" :key="tag_index">
+              <v-row class="d-flex flex-nowrap my-3" :justify="get_header_align(chip)" :align="get_header_align(chip)" v-for="(tag, tag_index) in item[chip]" :key="tag_index">
                 <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')"> {{ tag }} </v-chip>
               </v-row>
             </template>
@@ -54,7 +54,7 @@
 
       <template v-for="(array, index) in arrays" v-slot:[`item.${array}`]="{ item }">
         <span v-bind:key="index">
-          <v-row :justify="get_header_align(array)" :align="get_header_align(array)" style="margin-top:5px;margin-bottom:5px" v-for="(tag, tag_index) in item[array]" :key="tag_index">
+          <v-row :justify="get_header_align(array)" :align="get_header_align(array)" class="my-3" v-for="(tag, tag_index) in item[array]" :key="tag_index">
             <span :class="get_item_style(array, item[array], 'ma-1')">{{ tag }}</span>
           </v-row>
         </span>
@@ -113,7 +113,7 @@ export default {
     //control the toolbar
     hideToolbar: { type: Boolean, default: false },
     hideTitle: { type: Boolean, default: false },
-    toolbarClass: { type: String, default: "app_bar subtitle-1" },
+    toolbarClass: { type: String, default: "app_bar subtitle-2" },
     title: { type: String },
 
     //has action header to add update and delete button for item
