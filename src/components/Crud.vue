@@ -33,8 +33,10 @@ export default {
     mode: { type: String, default: "crudie" },
     //add more actions to item actions
     actions: { type: Array, default: () => [] },
-    //add more toolbars
+    //add more toolbars for single mode
     toolbars: { type: Array, default: () => [] },
+    //add more toolbars for batch mode
+    batchToolbars: { type: Array, default: () => [] },
 
     searchFields: { type: Array, default: () => [] },
     editFields: { type: Array, default: () => [] },
@@ -117,7 +119,8 @@ export default {
       const header_toolbars = [];
       !this.batch_mode && this.is_creatable && header_toolbars.push({ color: "create", icon: "mdi-plus-circle", tooltip: this.create_title, click: this.show_create_dialog });
       this.batch_mode && this.is_deletable && header_toolbars.push({ color: "delete", icon: "mdi-delete-circle", tooltip: this.batch_delete_title, click: this.batch_delete });
-      this.batch_mode && header_toolbars.push(...this.toolbars);
+      !this.batch_mode && header_toolbars.push(...this.toolbars);
+      this.batch_mode && header_toolbars.push(...this.batchToolbars);
       !this.batch_mode && header_toolbars.push({ color: "edit", icon: "mdi-checkbox-multiple-marked", tooltip: this.$t("table.switch_to_batch"), click: this.switch_to_batch });
       this.batch_mode && header_toolbars.push({ color: "close", icon: "mdi-close-circle-multiple", tooltip: this.$t("table.switch_to_single"), click: this.switch_to_single });
       this.header_toolbars = header_toolbars;
