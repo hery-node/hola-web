@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
+    <v-app-bar app color="primary" dark dense>
       <div class="d-flex align-center">
         <v-img alt="Vuetify Logo" class="shrink mr-2" contain src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png" transition="scale-transition" width="40" />
 
@@ -16,8 +16,12 @@
     </v-app-bar>
 
     <v-main>
-      <h-array :entity="entity" :id="id" field-name="memory" header-class="cyan subtitle-2 white--text" :check="check" show-search header-uppcase></h-array>
-      <!-- <h-compare :entity="entity" :ids="ids" label-key="name" :fields="fields"></h-compare> -->
+      <br />
+      <br />
+      <br />
+      <br />
+      <!-- <h-array :entity="entity" :id="id" field-name="memory" header-class="cyan subtitle-2 white--text" :check="check" show-search header-uppcase no-results-text="no result"></h-array> -->
+      <h-compare :entity="entity" :ids="ids" label-key="name" search-hint="Search CPU Configuration" show-toolbar :recommend="recommend" toolbar-class="cyan darken-2" header-class="cyan lighten-4" header-uppcase :fields="fields"></h-compare>
     </v-main>
   </v-app>
 </template>

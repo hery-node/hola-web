@@ -52,6 +52,13 @@
     "property_name": "Name",
     "property_value": "Value"
   },
+
+  "compare": {
+    "search": "Search",
+    "show_diff": "Only Show Difference",
+    "no_diff_result": "No Difference"
+  },
+
   "user": {
     "_label": "User",
     "name": "Name",
