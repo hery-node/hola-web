@@ -166,7 +166,7 @@ export default {
         return;
       }
 
-      const form = this.hidden ? { ...this.form, ...this.hidden } : this.form;
+      const form = this.hiddenValues ? { ...this.form, ...this.hiddenValues } : this.form;
       const { code, err } = await save_entity(this.entity, form, this.update_mode);
       if (is_success_response(code)) {
         this.resetPost && this.reset_form();
