@@ -57,7 +57,7 @@ export default {
     //has value then it is edit mode otherwise create mode
     entityId: { type: String, default: undefined },
     //pass hidden values to the form
-    hidden: { type: Object },
+    hiddenValues: { type: Object },
     //hide cancel button
     hideCancel: { type: Boolean, default: false },
     //label for cancel and submit button
