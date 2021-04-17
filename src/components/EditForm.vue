@@ -56,6 +56,8 @@ export default {
     cols: { type: Number, default: 0 },
     //has value then it is edit mode otherwise create mode
     entityId: { type: String, default: undefined },
+    //pass hidden values to the form
+    hidden: { type: Object },
     //hide cancel button
     hideCancel: { type: Boolean, default: false },
     //label for cancel and submit button
@@ -164,7 +166,8 @@ export default {
         return;
       }
 
-      const { code, err } = await save_entity(this.entity, this.form, this.update_mode);
+      const form = this.hidden ? { ...this.form, ...this.hidden } : this.form;
+      const { code, err } = await save_entity(this.entity, form, this.update_mode);
       if (is_success_response(code)) {
         this.resetPost && this.reset_form();
 

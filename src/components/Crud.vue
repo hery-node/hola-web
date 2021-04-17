@@ -41,6 +41,13 @@ export default {
     searchFields: { type: Array, default: () => [] },
     editFields: { type: Array, default: () => [] },
     headers: { type: Array, default: () => [] },
+
+    //title related setting
+    no_select_label: { type: String },
+    create_label: { type: String },
+    update_label: { type: String },
+    delete_label: { type: String },
+    batch_delete_label: { type: String },
   },
 
   data() {
@@ -77,23 +84,23 @@ export default {
     },
 
     no_selected() {
-      return this.$t("table.no_selected");
+      return this.no_select_label ? this.no_select_label : this.$t("table.no_selected");
     },
 
     create_title() {
-      return this.$t("table.create_title", { entity: this.entity_label });
+      return this.create_label ? this.create_label : this.$t("table.create_title", { entity: this.entity_label });
     },
 
     update_title() {
-      return this.$t("table.update_title", { entity: this.entity_label });
+      return this.update_label ? this.update_label : this.$t("table.update_title", { entity: this.entity_label });
     },
 
     delete_title() {
-      return this.$t("table.delete_title", { entity: this.entity_label });
+      return this.delete_label ? this.delete_label : this.$t("table.delete_title", { entity: this.entity_label });
     },
 
     batch_delete_title() {
-      return this.$t("table.batch_delete_title", { entity: this.entity_label });
+      return this.batch_delete_label ? this.batch_delete_label : this.$t("table.batch_delete_title", { entity: this.entity_label });
     },
 
     //actions for item operation
