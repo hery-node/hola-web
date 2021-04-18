@@ -10,7 +10,7 @@
         <span>{{ toolbar.tooltip }}</span>
       </v-tooltip>
 
-      <h-edit-form v-bind="$attrs" dialog :dialog-shown="dialog" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="close_dialog" @success="success_edit"> </h-edit-form>
+      <h-edit-form v-bind="$attrs" dialog :dialog-shown="dialog" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="close_dialog" @success="success_edit" :create-title="create_title" :update-title="update_title"> </h-edit-form>
     </template>
   </h-table>
 </template>
@@ -48,6 +48,9 @@ export default {
     updateLabel: { type: String },
     deleteLabel: { type: String },
     batchDeleteLabel: { type: String },
+    createIcon: { type: String, default: "mdi-plus-circle" },
+    updateIcon: { type: String, default: "mdi-square-edit-outline" },
+    deleteIcon: { type: String, default: "mdi-delete-circle" },
   },
 
   data() {
@@ -107,10 +110,10 @@ export default {
     item_actions() {
       const array = [];
       if (this.is_updatable) {
-        array.push({ color: "edit", icon: "mdi-square-edit-outline", tooltip: this.update_title, handle: this.update_entity });
+        array.push({ color: "edit", icon: this.updateIcon, tooltip: this.update_title, handle: this.update_entity });
       }
       if (this.is_deletable) {
-        array.push({ color: "delete", icon: "mdi-delete-circle", tooltip: this.delete_title, handle: this.delete_entity });
+        array.push({ color: "delete", icon: this.deleteIcon, tooltip: this.delete_title, handle: this.delete_entity });
       }
       array.push(...this.actions);
       if (array.length > 0) {
@@ -124,8 +127,8 @@ export default {
   methods: {
     show_toolbars() {
       const header_toolbars = [];
-      !this.batch_mode && this.is_creatable && header_toolbars.push({ color: "toolbar_icon", icon: "mdi-plus-circle", tooltip: this.create_title, click: this.show_create_dialog });
-      this.batch_mode && this.is_deletable && header_toolbars.push({ color: "toolbar_icon", icon: "mdi-delete-circle", tooltip: this.batch_delete_title, click: this.batch_delete });
+      !this.batch_mode && this.is_creatable && header_toolbars.push({ color: "toolbar_icon", icon: this.createIcon, tooltip: this.create_title, click: this.show_create_dialog });
+      this.batch_mode && this.is_deletable && header_toolbars.push({ color: "toolbar_icon", icon: this.deleteIcon, tooltip: this.batch_delete_title, click: this.batch_delete });
       !this.batch_mode && header_toolbars.push(...this.toolbars);
       this.batch_mode && header_toolbars.push(...this.batchToolbars);
       !this.batch_mode && header_toolbars.push({ color: "toolbar_icon", icon: "mdi-checkbox-multiple-marked", tooltip: this.$t("table.switch_to_batch"), click: this.switch_to_batch });

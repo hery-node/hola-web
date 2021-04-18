@@ -5,14 +5,15 @@
         <div style="overflow-x: hidden;">
           <h-form v-bind="$attrs" v-on="$listeners" ref="form" v-model="form" :fields="edit_fields" :title="form_title" @submit="submit_form">
             <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
+            <v-progress-linear v-if="loading" indeterminate :color="progressBarColor" class="mx-3"></v-progress-linear>
             <v-card-actions>
               <slot>
                 <v-row align="center" justify="center" class="my-0 py-0">
                   <v-col cols="6" v-if="!hideCancel" align="center" justify="center">
-                    <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="cancel">{{ cancelLabel ? cancelLabel : $t("form.cancel_label") }}</v-btn>
+                    <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="cancel">{{ cancel_label }}</v-btn>
                   </v-col>
                   <v-col :cols="hideCancel ? 12 : 6" align="center" justify="center">
-                    <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ submitLabel ? submitLabel : $t("form.submit_label") }}</v-btn>
+                    <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ submit_label }}</v-btn>
                   </v-col>
                 </v-row>
               </slot>
@@ -24,14 +25,15 @@
     <template v-else>
       <h-form v-bind="$attrs" v-on="$listeners" ref="form" v-model="form" :fields="edit_fields" :title="form_title" @submit="submit_form">
         <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
+        <v-progress-linear v-if="loading" indeterminate :color="progressBarColor" class="mx-3"></v-progress-linear>
         <v-card-actions>
           <slot>
             <v-row align="center" justify="center" class="my-0 py-0">
               <v-col cols="6" v-if="!hideCancel" align="center" justify="center">
-                <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="cancel">{{ cancelLabel ? cancelLabel : $t("form.cancel_label") }}</v-btn>
+                <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="cancel">{{ cancel_label }}</v-btn>
               </v-col>
               <v-col :cols="hideCancel ? 12 : 6" align="center" justify="center">
-                <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ submitLabel ? submitLabel : $t("form.submit_label") }}</v-btn>
+                <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ submit_label }}</v-btn>
               </v-col>
             </v-row>
           </slot>
@@ -51,7 +53,8 @@ export default {
   mixins: [Alert, Meta],
 
   props: {
-    title: { type: String },
+    createTitle: { type: String },
+    updateTitle: { type: String },
     //colspan for the field
     cols: { type: Number, default: 0 },
     //has value then it is edit mode otherwise create mode
@@ -61,8 +64,10 @@ export default {
     //hide cancel button
     hideCancel: { type: Boolean, default: false },
     //label for cancel and submit button
-    cancelLabel: { type: String },
-    submitLabel: { type: String },
+    createCancelLabel: { type: String },
+    createSubmitLabel: { type: String },
+    updateCancelLabel: { type: String },
+    updateSubmitLabel: { type: String },
     //reset value after posting
     resetPost: { type: Boolean, default: true },
     //hide hint or not
@@ -78,12 +83,14 @@ export default {
     dialogShown: { type: Boolean, default: false },
     //dialog setting
     dialogWidth: { type: String, default: "800px" },
+    progressBarColor: { type: String, default: "indigo" },
   },
 
   data() {
     return {
       //control dialog shown or hidden inner
       dialog_show_inner: false,
+      loading: false,
       form: {},
       edit_fields: [],
     };
@@ -120,11 +127,45 @@ export default {
     },
 
     form_title() {
-      if (this.title && this.title.length > 0) {
-        return this.title;
+      if (this.update_mode) {
+        if (this.updateTitle && this.updateTitle.length > 0) {
+          return this.updateTitle;
+        }
+      } else {
+        if (this.createTitle && this.createTitle.length > 0) {
+          return this.createTitle;
+        }
       }
 
       return this.update_mode ? this.$t("form.update_title", { entity: this.entity_label }) : this.$t("form.create_title", { entity: this.entity_label });
+    },
+
+    cancel_label() {
+      if (this.update_mode) {
+        if (this.updateCancelLabel && this.updateCancelLabel.length > 0) {
+          return this.updateCancelLabel;
+        }
+      } else {
+        if (this.createCancelLabel && this.createCancelLabel.length > 0) {
+          return this.createCancelLabel;
+        }
+      }
+
+      return this.$t("form.cancel_label");
+    },
+
+    submit_label() {
+      if (this.update_mode) {
+        if (this.updateSubmitLabel && this.updateSubmitLabel.length > 0) {
+          return this.updateSubmitLabel;
+        }
+      } else {
+        if (this.createSubmitLabel && this.createSubmitLabel.length > 0) {
+          return this.createSubmitLabel;
+        }
+      }
+
+      return this.$t("form.submit_label");
     },
   },
 
@@ -166,8 +207,10 @@ export default {
         return;
       }
 
+      this.loading = true;
       const form = this.hiddenValues ? { ...this.form, ...this.hiddenValues } : this.form;
       const { code, err } = await save_entity(this.entity, form, this.update_mode);
+      this.loading = false;
       if (is_success_response(code)) {
         this.resetPost && this.reset_form();
 

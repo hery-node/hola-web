@@ -23,7 +23,8 @@
       <!-- <h-search-form entity="user" :fields="search_fields" :cols="6" clear-label="reset" search-label="query" v-model="form" @search="do_search"></h-search-form> -->
       <!-- <h-edit-form entity="user" v-model="form" hide-cancel :cols="6" :fields="search_fields" :success-hint="success_hint" submit-label="Save" @saved="saved"></h-edit-form> -->
       <!-- <h-table searchable entity="user" :headers="headers" :sort-key="sort_key" :sort-desc="sort_desc" :search-fields="search_fields" :search-cols="6" clear-label="reset" search-label="query"></h-table> -->
-      <h-crud ref="table" header-uppcase @click:row="row_clicked" :search-fields="headers" search-toolbar-class="cyan darken-2 white--text" toolbar-class="cyan darken-2" header-class="cyan lighten-4" :headers="headers" :searchable="searchable" :mode="mode" :entity="entity" :item-label-key="item_label_key" :actions="actions" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols"> </h-crud>
+      <!-- <h-crud ref="table" header-uppcase @click:row="row_clicked" :search-fields="headers" search-toolbar-class="cyan darken-2 white--text" toolbar-class="cyan darken-2" header-class="cyan lighten-4" :headers="headers" :searchable="searchable" :mode="mode" :entity="entity" :item-label-key="item_label_key" :actions="actions" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols"> </h-crud> -->
+      <h-crud :edit-fields="edit_fields" create-label="Run Inspection" create-icon="mdi-run" update-label="Tag Inspection" update-icon="mdi-tag-outline" :search-fields="fields" :headers="fields" @click:row="row_clicked" :searchable="searchable" header-uppcase :mode="mode" :entity="entity" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols"> </h-crud>
     </v-main>
   </v-app>
 </template>
@@ -39,19 +40,18 @@ export default {
       searchable: true,
       search_cols: 4,
       mode: "crud",
-      entity: "host",
-      item_label_key: "ip",
-      sort_key: ["ip"],
-      sort_desc: [false],
-      headers: [{ name: "name" }, { name: "ip" }, { name: "cpu_model" }, { name: "disk_model" }, { name: "network_model" }],
-      actions: [{ color: "edit", icon: "mdi-refresh", tooltip: this.$t("host.refresh_host"), handle: this.refresh_host }],
-      toolbars: [{ color: "edit", icon: "mdi-compass-outline", tooltip: "compared", handle: this.refresh_host }],
+      entity: "inspection",
+      item_label_key: "tag",
+      sort_key: ["time"],
+      sort_desc: [true],
+      edit_fields: [{ name: "tag" }],
+      fields: [{ name: "tag" }, { name: "time" }, { name: "hash" }],
     };
   },
   methods: {
-    async refresh_host() {},
-
-    row_clicked() {},
+    row_clicked(item) {
+      this.$router.push({ path: "/host_info/" + item["_id"] });
+    },
   },
 };
 </script>
