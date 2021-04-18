@@ -73,7 +73,7 @@ export default {
       const field = property_fields[i];
       if (field.type == "obj") {
         if (objs.length > 1) {
-          const property_objs = objs.map((o) => o[field.name]);
+          const property_objs = this.conver_obj_keys(objs.map((o) => o[field.name]));
           const merged_attributes = this.merge_attributes(property_objs);
           for (let i = 0; i < merged_attributes.length; i++) {
             const attribute = merged_attributes[i];
@@ -85,7 +85,7 @@ export default {
             items.push(obj);
           }
         } else {
-          const object = objs[0][field.name];
+          const object = this.conver_obj_keys([objs[0][field.name]])[0];
           const merged_attributes = this.recommend ? this.merge_attributes([object, this.recommend]) : this.merge_attributes([object]);
           for (let i = 0; i < merged_attributes.length; i++) {
             const attribute = merged_attributes[i];
@@ -159,6 +159,19 @@ export default {
         }
       });
       return attributes;
+    },
+
+    conver_obj_keys(objs) {
+      const results = [];
+      objs.forEach((obj) => {
+        const converted = {};
+        for (const property in obj) {
+          const replaced_property = property.replaceAll("___", ".");
+          converted[replaced_property] = obj[property];
+        }
+        results.push(converted);
+      });
+      return results;
     },
 
     is_diff_value(item) {
