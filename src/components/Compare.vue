@@ -17,7 +17,7 @@
         </v-list>
       </v-menu>
     </v-toolbar>
-    <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" disable-pagination hide-default-footer fixed-header> </v-data-table>
+    <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" disable-pagination hide-default-footer> </v-data-table>
   </v-card>
 </template>
 
