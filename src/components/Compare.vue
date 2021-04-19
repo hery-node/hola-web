@@ -3,6 +3,19 @@
     <v-toolbar :class="toolbarClass" dark v-if="showToolbar">
       <v-text-field v-model="search" append-icon="mdi-magnify" class="mr-5" :label="search_hint" single-line hide-details clearable></v-text-field>
       <v-checkbox v-model="only_show_diff" v-if="show_only_show_diff" hide-details :label="show_diff_label"></v-checkbox>
+      <v-menu left bottom v-if="show_choose_fields">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on">
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list>
+          <v-list-item v-for="field in fields" :key="field.name">
+            <v-checkbox v-model="show_fields[field.name]" hide-details :label="field.name" @click.native.prevent.stop="filter_fields"></v-checkbox>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-toolbar>
     <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" disable-pagination hide-default-footer fixed-header> </v-data-table>
   </v-card>
@@ -40,6 +53,7 @@ export default {
       all_items: [],
       items: [],
       table_headers: [],
+      show_fields: {},
     };
   },
 
@@ -71,6 +85,7 @@ export default {
     const items = [];
     for (let i = 0; i < property_fields.length; i++) {
       const field = property_fields[i];
+      this.show_fields[field.name] = true;
       if (field.type == "obj") {
         if (objs.length > 1) {
           const property_objs = this.conver_obj_keys(objs.map((o) => o[field.name]));
@@ -79,6 +94,7 @@ export default {
             const attribute = merged_attributes[i];
             const obj = {};
             obj["attr"] = attribute;
+            obj["owner"] = field.name;
             for (let j = 0; j < objs.length; j++) {
               obj["value" + j] = property_objs[j] && property_objs[j][attribute] ? property_objs[j][attribute] : "";
             }
@@ -91,6 +107,7 @@ export default {
             const attribute = merged_attributes[i];
             const obj = {};
             obj["attr"] = attribute;
+            obj["owner"] = field.name;
             obj["value"] = object[attribute] ? object[attribute] + "" : "";
             if (this.recommend) {
               obj["recommend"] = this.recommend[attribute] ? this.recommend[attribute] + "" : "";
@@ -101,6 +118,7 @@ export default {
       } else {
         const obj = {};
         obj["attr"] = field.label;
+        obj["owner"] = field.name;
 
         if (objs.length > 1) {
           for (let i = 0; i < objs.length; i++) {
@@ -141,6 +159,10 @@ export default {
 
     show_diff_label() {
       return this.showDiffLabel ? this.showDiffLabel : this.$t("compare.show_diff");
+    },
+
+    show_choose_fields() {
+      return this.fields.length > 1;
     },
   },
 
@@ -213,6 +235,11 @@ export default {
       } else {
         this.items = this.all_items;
       }
+    },
+
+    filter_fields() {
+      const show_fields_names = this.fields.filter((f) => this.show_fields[f.name] == true).map((f) => f.name);
+      this.items = this.all_items.filter((item) => show_fields_names.includes(item.owner));
     },
   },
 };
