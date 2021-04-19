@@ -83,7 +83,7 @@ export default {
       }
     }
 
-    if (objs.length == 2 || this.recommend) {
+    if (this.showPercentage && (objs.length == 2 || this.recommend)) {
       headers.push({
         text: this.uppcase_header(this.$t("compare.percentage")),
         value: "percentage",
@@ -151,7 +151,7 @@ export default {
     }
 
     //calculate the percentage
-    if (objs.length == 2) {
+    if (this.showPercentage && objs.length == 2) {
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
         item["percentage"] = this.calculate_percentage(item["value0"], item["value1"]);
