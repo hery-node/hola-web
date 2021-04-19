@@ -166,7 +166,7 @@ export default {
   watch: {
     only_show_diff: {
       handler() {
-        this.filter_diff_values();
+        this.filter_fields();
       },
       deep: true,
     },
@@ -263,17 +263,10 @@ export default {
       }
     },
 
-    filter_diff_values() {
-      if (this.only_show_diff) {
-        this.items = this.all_items.filter((item) => this.is_diff_value(item));
-      } else {
-        this.items = this.all_items;
-      }
-    },
-
     filter_fields() {
       const show_fields_names = this.fields.filter((f) => this.show_fields[f.name] == true).map((f) => f.name);
-      this.items = this.all_items.filter((item) => show_fields_names.includes(item.owner));
+      const items = this.only_show_diff ? this.all_items.filter((item) => this.is_diff_value(item)) : this.all_items;
+      this.items = items.filter((item) => show_fields_names.includes(item.owner));
     },
   },
 };
