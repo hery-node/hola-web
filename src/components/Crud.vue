@@ -17,9 +17,11 @@
 
 <script>
 import { delete_entity, is_success_response, is_been_referred } from "../core/axios";
+import Keymap from "../mixins/keymap";
 
 export default {
   inheritAttrs: false,
+  mixins: [Keymap],
 
   props: {
     //required attributes for data table and form
@@ -135,6 +137,10 @@ export default {
       this.batch_mode && header_toolbars.push({ color: "toolbar_icon", icon: "mdi-close-circle-multiple", tooltip: this.$t("table.switch_to_single"), click: this.switch_to_single });
       this.header_toolbars = header_toolbars;
       this.has_action_header = this.is_updatable || this.is_deletable;
+    },
+
+    press_esc() {
+      this.batch_mode == true && this.switch_to_single();
     },
 
     switch_to_batch() {

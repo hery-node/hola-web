@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark dense>
+    <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
         <v-img alt="Vuetify Logo" class="shrink mr-2" contain src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png" transition="scale-transition" width="40" />
 
@@ -19,9 +19,12 @@
       <br />
       <br />
       <br />
-      <br />
-      <!-- <h-array :entity="entity" :id="id" field-name="memory" search-hint="Search Memory Configuration" show-toolbar toolbar-class="cyan darken-2" header-class="cyan lighten-4" :check="check" show-search header-uppcase no-results-text="no result"></h-array> -->
-      <h-compare dense show-percentage :entity="entity" :ids="ids" label-key="tag" show-toolbar toolbar-class="cyan darken-2" header-class="cyan lighten-4" header-uppcase :fields="fields"></h-compare>
+      <!-- <h-property entity="user" entity-id="6071614ca73a602476c92d41"></h-property> -->
+      <!-- <h-search-form entity="user" :fields="search_fields" :cols="6" clear-label="reset" search-label="query" v-model="form" @search="do_search"></h-search-form> -->
+      <!-- <h-edit-form entity="user" v-model="form" hide-cancel :cols="6" :fields="search_fields" :success-hint="success_hint" submit-label="Save" @saved="saved"></h-edit-form> -->
+      <!-- <h-table searchable entity="user" :headers="headers" :sort-key="sort_key" :sort-desc="sort_desc" :search-fields="search_fields" :search-cols="6" clear-label="reset" search-label="query"></h-table> -->
+      <!-- <h-crud ref="table" header-uppcase @click:row="row_clicked" :search-fields="headers" search-toolbar-class="cyan darken-2 white--text" toolbar-class="cyan darken-2" header-class="cyan lighten-4" :headers="headers" :searchable="searchable" :mode="mode" :entity="entity" :item-label-key="item_label_key" :actions="actions" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols"> </h-crud> -->
+      <h-crud :hidden-values="host" :filter="host" :title="table_title" :create-label="create_label" :update-label="update_label" create-icon="mdi-run" update-icon="mdi-tag-outline" :edit-fields="edit_fields" :search-fields="fields" :headers="fields" :searchable="searchable" header-uppcase :mode="mode" :entity="entity" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols" :batchToolbars="toolbars"> </h-crud>
     </v-main>
   </v-app>
 </template>
@@ -31,27 +34,41 @@ export default {
   name: "App",
 
   components: {},
+
   data() {
     return {
-      id: "60757b831e482deace70b3df",
-      ids: ["607cef9d170cfbea2f86438f", "607cef88170cfbea2f86438c"],
-      fields: [{ name: "bios" }, { name: "cpu" }, { name: "os" }],
-      recommend: { "CPU family": 7, cpu_model: "Intel(R) Xeon(R) Gold 8080R CPU @ 2.70GHz" },
+      searchable: true,
+      search_cols: 4,
       mode: "crud",
       entity: "inspection",
-      label_key: "ip",
-      sort_key: ["ip"],
-      sort_desc: [false],
-      headers: [{ name: "cpu_model" }, { name: "disk_model", chip: true }, { name: "network_model" }, { name: "cpu" }],
-      actions: [{ color: "edit", icon: "mdi-refresh", tooltip: this.$t("host.refresh_host"), handle: this.refresh_host }],
-      toolbars: [{ color: "edit", icon: "mdi-compass-outline", tooltip: "compared", click: this.refresh_host }],
+      item_label_key: "tag",
+      sort_key: ["time"],
+      sort_desc: [true],
+      edit_fields: [{ name: "tag" }],
+      fields: [{ name: "tag" }, { name: "time" }, { name: "hash" }],
+      toolbars: [{ color: "white", icon: "mdi-compass-outline", tooltip: this.$t("inspection.compare"), handle: this.compare }],
     };
   },
 
-  methods: {
-    check() {
-      // return { success: true, msg: "This is balanced memory configuration." };
-      return { success: false, msg: "This is unbalanced memory configuration." };
+  computed: {
+    table_title() {
+      return this.$t("inspection.table_title", { host: this.host_name });
+    },
+
+    create_label() {
+      return this.$t("inspection.run");
+    },
+
+    update_label() {
+      return this.$t("inspection.tag_inspect");
+    },
+
+    host() {
+      return { host: this.host_name };
+    },
+
+    host_name() {
+      return "clx16";
     },
   },
 };
