@@ -40,6 +40,7 @@ export default {
     headerClass: { type: String, default: "table_header subtitle-2" },
     headerUppcase: { type: Boolean, default: false },
     showToolbar: { type: Boolean, default: false },
+    showPercentage: { type: Boolean, default: false },
     toolbarClass: { type: String, default: "app_bar subtitle-2" },
     searchHint: { type: String },
     showDiffLabel: { type: String },
@@ -80,6 +81,21 @@ export default {
       if (this.recommend) {
         headers.push({ text: this.uppcase_header(this.$t("table.recommend")), value: "recommend", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
       }
+    }
+
+    if (objs.length == 2 || this.recommend) {
+      headers.push({
+        text: this.uppcase_header(this.$t("compare.percentage")),
+        value: "percentage",
+        width: this.headerWidth,
+        align: this.headerAlign,
+        class: this.headerClass,
+        sort: function(a, b) {
+          const a1 = isNaN(parseFloat(a)) ? 0 : parseFloat(a);
+          const b1 = isNaN(parseFloat(b)) ? 0 : parseFloat(b);
+          return a1 - b1;
+        },
+      });
     }
 
     const items = [];
@@ -134,6 +150,14 @@ export default {
       }
     }
 
+    //calculate the percentage
+    if (objs.length == 2) {
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        item["percentage"] = this.calculate_percentage(item["value0"], item["value1"]);
+      }
+    }
+
     this.table_headers = headers;
     this.all_items = items;
     this.items = items;
@@ -167,6 +191,16 @@ export default {
   },
 
   methods: {
+    calculate_percentage(value1, value2) {
+      const num1 = Number(value1);
+      const num2 = Number(value2);
+      if (!isNaN(num1) && !isNaN(num2) && num1 != num2) {
+        return ((num2 * 100) / num1).toFixed(2) + "%";
+      } else {
+        return "";
+      }
+    },
+
     uppcase_header(header_title) {
       return this.headerUppcase ? header_title.toUpperCase() : header_title;
     },

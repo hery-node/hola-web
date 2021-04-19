@@ -61,7 +61,8 @@
   "compare": {
     "search": "Search",
     "show_diff": "Only Show Difference",
-    "no_diff_result": "No Difference"
+    "no_diff_result": "No Difference",
+    "percentage": "Percentage"
   },
 
   "user": {

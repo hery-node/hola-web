@@ -21,7 +21,7 @@
       <br />
       <br />
       <!-- <h-array :entity="entity" :id="id" field-name="memory" search-hint="Search Memory Configuration" show-toolbar toolbar-class="cyan darken-2" header-class="cyan lighten-4" :check="check" show-search header-uppcase no-results-text="no result"></h-array> -->
-      <h-compare :entity="entity" :ids="ids" label-key="tag" show-toolbar toolbar-class="cyan darken-2" header-class="cyan lighten-4" header-uppcase :fields="fields"></h-compare>
+      <h-compare dense show-percentage :entity="entity" :ids="ids" label-key="tag" show-toolbar toolbar-class="cyan darken-2" header-class="cyan lighten-4" header-uppcase :fields="fields"></h-compare>
     </v-main>
   </v-app>
 </template>
