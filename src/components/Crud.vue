@@ -161,6 +161,11 @@ export default {
       }
     },
 
+    show_error(msg) {
+      const table = this.$refs.table;
+      table.show_error(msg);
+    },
+
     reset_selected() {
       const table = this.$refs.table;
       table.selected = [];

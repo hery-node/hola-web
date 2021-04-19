@@ -12,7 +12,7 @@
 
         <v-list>
           <v-list-item v-for="field in fields" :key="field.name">
-            <v-checkbox v-model="show_fields[field.name]" hide-details :label="field.name" @click.native.prevent.stop="filter_fields"></v-checkbox>
+            <v-checkbox v-model="show_fields[field.name]" hide-details :label="field.label" @click.native.prevent.stop="filter_fields"></v-checkbox>
           </v-list-item>
         </v-list>
       </v-menu>
