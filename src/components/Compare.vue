@@ -11,7 +11,7 @@
         </template>
 
         <v-list>
-          <v-list-item v-for="field in fields" :key="field.name">
+          <v-list-item v-for="field in property_fields" :key="field.name">
             <v-checkbox v-model="show_fields[field.name]" hide-details :label="field.label" @click.native.prevent.stop="filter_fields"></v-checkbox>
           </v-list-item>
         </v-list>
@@ -53,6 +53,7 @@ export default {
       search: "",
       all_items: [],
       items: [],
+      property_fields: [],
       table_headers: [],
       show_fields: {},
     };
@@ -158,6 +159,7 @@ export default {
       }
     }
 
+    this.property_fields = property_fields;
     this.table_headers = headers;
     this.all_items = items;
     this.items = items;
