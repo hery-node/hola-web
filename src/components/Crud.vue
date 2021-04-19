@@ -9,7 +9,7 @@
         </template>
         <span>{{ toolbar.tooltip }}</span>
       </v-tooltip>
-
+      <h-confirm ref="confirm" />
       <h-edit-form v-bind="$attrs" dialog :dialog-shown="dialog" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="close_dialog" @success="success_edit" :create-title="create_title" :update-title="update_title"> </h-edit-form>
     </template>
   </h-table>
@@ -87,7 +87,7 @@ export default {
     },
 
     no_selected() {
-      return this.noSelectLabel ? this.noSelectLabel : this.$t("table.no_selected");
+      return this.noSelectLabel ? this.noSelectLabel : this.$t("table.no_selected", { entity: this.entity_label });
     },
 
     create_title() {
@@ -151,33 +151,44 @@ export default {
       this.delete_entities([item]);
     },
 
-    async batch_delete() {
+    get_selected_items() {
       const table = this.$refs.table;
       if (table.selected.length == 0) {
         table.show_error(this.no_selected);
-        return;
+        return null;
+      } else {
+        return table.selected;
       }
+    },
 
-      await this.delete_entities(table.selected);
+    reset_selected() {
+      const table = this.$refs.table;
       table.selected = [];
     },
 
-    confirm_delete(items) {
+    async batch_delete() {
+      const selected = this.get_selected_items();
+      if (selected != null) {
+        await this.delete_entities(selected);
+      }
+    },
+
+    async confirm_delete(items) {
       const labels = items.map((item) => item[this.itemLabelKey]).join(",");
       const title = items.length > 1 ? this.batch_delete_title : this.delete_title;
-      const options = { icon: "mdi-delete-circle", title: title, buttonTrueText: this.$t("table.confirm_yes"), buttonFalseText: this.$t("table.confirm_no") };
       const msg = this.$t("table.delete_confirm", { entity: labels });
-      return this.$confirm(msg, options);
+      return await this.$refs.confirm.open(title, msg);
     },
 
     async delete_entities(items) {
       const ids = items.map((item) => item["_id"]);
-      const res = await this.confirm_delete(items, ids);
+      const res = await this.confirm_delete(items);
 
       if (res) {
         const { code, err } = await delete_entity(this.entity, ids);
         if (is_success_response(code)) {
           this.refresh();
+          this.reset_selected();
         } else if (is_been_referred(code)) {
           const labels = items
             .filter((item) => err.includes(item._id + ""))

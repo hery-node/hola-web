@@ -6,14 +6,12 @@ import { TiptapVuetifyPlugin } from 'tiptap-vuetify'
 import 'tiptap-vuetify/dist/main.css'
 // Vuetify's CSS styles 
 import 'vuetify/dist/vuetify.min.css'
-import VuetifyConfirm from 'vuetify-confirm'
 
 // Vuetify Object (as described in the Vuetify 2 documentation)
 const vuetify = new Vuetify()
 
 // use Vuetify's plugin
 Vue.use(Vuetify)
-Vue.use(VuetifyConfirm, { vuetify });
 
 // use this package's plugin
 Vue.use(TiptapVuetifyPlugin, {

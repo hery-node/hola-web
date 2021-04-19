@@ -24,44 +24,7 @@
       <!-- <h-edit-form entity="user" v-model="form" hide-cancel :cols="6" :fields="search_fields" :success-hint="success_hint" submit-label="Save" @saved="saved"></h-edit-form> -->
       <!-- <h-table searchable entity="user" :headers="headers" :sort-key="sort_key" :sort-desc="sort_desc" :search-fields="search_fields" :search-cols="6" clear-label="reset" search-label="query"></h-table> -->
       <!-- <h-crud ref="table" header-uppcase @click:row="row_clicked" :search-fields="headers" search-toolbar-class="cyan darken-2 white--text" toolbar-class="cyan darken-2" header-class="cyan lighten-4" :headers="headers" :searchable="searchable" :mode="mode" :entity="entity" :item-label-key="item_label_key" :actions="actions" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols"> </h-crud> -->
-      <!-- <h-crud :edit-fields="edit_fields" create-label="Run Inspection" create-icon="mdi-run" update-label="Tag Inspection" update-icon="mdi-tag-outline" :search-fields="fields" :headers="fields" @click:row="row_clicked" :searchable="searchable" header-uppcase :mode="mode" :entity="entity" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols"> </h-crud> -->
-      <div>
-        <h-bread></h-bread>
-        <v-card>
-          <v-card-title class="text-center justify-center py-6">
-            <h1 class="text-h6">Intel® System Health Inspector</h1>
-          </v-card-title>
-
-          <v-tabs v-model="tab" background-color="transparent" grow>
-            <v-tab v-for="item in items" :key="item.name">
-              <v-badge :color="item.color" :content="item.count">
-                {{ item.name }}
-              </v-badge>
-            </v-tab>
-          </v-tabs>
-
-          <v-tabs-items v-model="tab">
-            <v-tab-item key="BIOS" class="mt-3">
-              <h-compare dense :entity="entity" show-toolbar header-uppcase :search-hint="$t('inspection.search_bios')" label-key="tag" :ids="ids" :fields="bios_fields"></h-compare>
-            </v-tab-item>
-            <v-tab-item key="CPU" class="mt-3">
-              <h-compare dense :entity="entity" show-toolbar header-uppcase :search-hint="$t('inspection.search_cpu')" label-key="tag" :ids="ids" :fields="cpu_fields"></h-compare>
-            </v-tab-item>
-            <v-tab-item key="Memory" class="mt-3">
-              <h-array dense :entity="entity" show-toolbar header-uppcase :search-hint="$t('inspection.search_memory')" :id="id" field-name="memory" :check="check_memory"></h-array>
-            </v-tab-item>
-            <v-tab-item key="Disks" class="mt-3">
-              <h-array dense :entity="entity" show-toolbar header-uppcase :search-hint="$t('inspection.search_disk')" :id="id" field-name="disk"></h-array>
-            </v-tab-item>
-            <v-tab-item key="Network" class="mt-3">
-              <h-array dense :entity="entity" show-toolbar header-uppcase :search-hint="$t('inspection.search_network')" :id="id" field-name="network"></h-array>
-            </v-tab-item>
-            <v-tab-item key="OS" class="mt-3">
-              <h-compare dense :entity="entity" show-toolbar header-uppcase :search-hint="$t('inspection.search_os')" label-key="tag" :ids="ids" :fields="os_fields"></h-compare>
-            </v-tab-item>
-          </v-tabs-items>
-        </v-card>
-      </div>
+      <h-crud :hidden-values="host" :filter="host" :title="table_title" :create-label="create_label" :update-label="update_label" create-icon="mdi-run" update-icon="mdi-tag-outline" :edit-fields="edit_fields" :search-fields="fields" :headers="fields" :searchable="searchable" header-uppcase :mode="mode" :entity="entity" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols" :batchToolbars="toolbars"> </h-crud>
     </v-main>
   </v-app>
 </template>
@@ -74,26 +37,38 @@ export default {
 
   data() {
     return {
+      searchable: true,
+      search_cols: 4,
+      mode: "crud",
       entity: "inspection",
-      tab: null,
-      items: [
-        { name: "BIOS", count: "0", color: "success" },
-        { name: "CPU", count: "0", color: "success" },
-        { name: "Memory", count: "0", color: "success" },
-        { name: "Disks", count: "0", color: "success" },
-        { name: "Network", count: "0", color: "success" },
-        { name: "OS", count: "0", color: "success" },
-      ],
-      id: "607be8b3565493a85c2e04f3",
-      ids: ["607be8b3565493a85c2e04f3"],
-      bios_fields: [{ name: "bios" }],
-      cpu_fields: [{ name: "cpu" }],
-      os_fields: [{ name: "os" }],
+      item_label_key: "tag",
+      sort_key: ["time"],
+      sort_desc: [true],
+      edit_fields: [{ name: "tag" }],
+      fields: [{ name: "tag" }, { name: "time" }, { name: "hash" }],
+      toolbars: [{ color: "white", icon: "mdi-compass-outline", tooltip: this.$t("inspection.compare"), handle: this.compare }],
     };
   },
-  methods: {
-    row_clicked(item) {
-      this.$router.push({ path: "/host_info/" + item["_id"] });
+
+  computed: {
+    table_title() {
+      return this.$t("inspection.table_title", { host: this.host_name });
+    },
+
+    create_label() {
+      return this.$t("inspection.run");
+    },
+
+    update_label() {
+      return this.$t("inspection.tag_inspect");
+    },
+
+    host() {
+      return { host: this.host_name };
+    },
+
+    host_name() {
+      return "clx16";
     },
   },
 };

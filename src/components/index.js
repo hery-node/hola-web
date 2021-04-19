@@ -7,6 +7,7 @@ import {
 } from '../core/axios';
 import { register_type, get_type, no_value, is_int } from '../core/type';
 
+import Confirm from './Confirm.vue';
 import Form from './Form.vue';
 import ArrayList from './Array.vue';
 import Compare from './Compare.vue';
@@ -18,6 +19,7 @@ import Property from './Property.vue';
 import Navbar from './Navbar.vue';
 
 function setup_components() {
+    Vue.component('h-confirm', Confirm);
     Vue.component('h-form', Form);
     Vue.component('h-array', ArrayList);
     Vue.component('h-compare', Compare);
