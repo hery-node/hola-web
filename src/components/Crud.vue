@@ -190,15 +190,15 @@ export default {
       }
     },
 
-    async confirm_delete(items) {
+    confirm_delete(items) {
       const labels = items.map((item) => item[this.itemLabelKey]).join(",");
       const title = items.length > 1 ? this.batch_delete_title : this.delete_title;
       const msg = this.$t("table.delete_confirm", { entity: labels });
       return this.show_confirm(title, msg);
     },
 
-    async show_confirm(title, msg) {
-      return await this.$refs.confirm.open(title, msg);
+    show_confirm(title, msg) {
+      return this.$refs.confirm.open(title, msg);
     },
 
     async delete_entities(items) {
