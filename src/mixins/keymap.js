@@ -11,6 +11,8 @@ export default {
         run_keybind(event) {
             if (event.key === 'Escape' || event.keyCode === 27) {
                 this.press_esc && this.press_esc();
+            } else if (this.press_key) {
+                this.press_key(event);
             }
         }
     }

@@ -143,6 +143,12 @@ export default {
       this.batch_mode == true && this.switch_to_single();
     },
 
+    press_key(event) {
+      if (event.key == "b" && event.ctrlKey == true) {
+        this.batch_mode == false && this.switch_to_batch();
+      }
+    },
+
     switch_to_batch() {
       this.batch_mode = true;
       this.show_toolbars();
