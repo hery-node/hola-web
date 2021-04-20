@@ -45,6 +45,7 @@ export default {
     searchHint: { type: String },
     showDiffLabel: { type: String },
     recommend: { type: Object },
+    maxLineWords: { type: Number, default: 50 },
   },
 
   data() {
@@ -113,7 +114,7 @@ export default {
             obj["attr"] = attribute;
             obj["owner"] = field.name;
             for (let j = 0; j < objs.length; j++) {
-              obj["value" + j] = property_objs[j] && property_objs[j][attribute] ? property_objs[j][attribute] : "";
+              obj["value" + j] = property_objs[j] && property_objs[j][attribute] ? this.convert_long_to_newline(property_objs[j][attribute]) : "";
             }
             items.push(obj);
           }
@@ -125,7 +126,7 @@ export default {
             const obj = {};
             obj["attr"] = attribute;
             obj["owner"] = field.name;
-            obj["value"] = object[attribute] ? object[attribute] + "" : "";
+            obj["value"] = object[attribute] ? this.convert_long_to_newline(object[attribute] + "") : "";
             if (this.recommend) {
               obj["recommend"] = this.recommend[attribute] ? this.recommend[attribute] + "" : "";
             }
@@ -193,6 +194,17 @@ export default {
   },
 
   methods: {
+    convert_long_to_newline(value) {
+      if (!value) {
+        return "";
+      }
+      if (value.length < this.maxLineWords) {
+        return value;
+      } else {
+        return value.replaceAll(",", "\n");
+      }
+    },
+
     calculate_percentage(value1, value2) {
       const num1 = Number(value1);
       const num2 = Number(value2);
