@@ -198,10 +198,15 @@ export default {
       if (!value) {
         return "";
       }
-      if (value.length < this.maxLineWords) {
-        return value;
+
+      if (typeof value === "string" || value instanceof String) {
+        if (value.length < this.maxLineWords) {
+          return value;
+        } else {
+          return value.replaceAll(",", "\n");
+        }
       } else {
-        return value.replaceAll(",", "\n");
+        return value;
       }
     },
 
