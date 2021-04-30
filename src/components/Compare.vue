@@ -41,6 +41,8 @@ export default {
     headerUppcase: { type: Boolean, default: false },
     showToolbar: { type: Boolean, default: false },
     showPercentage: { type: Boolean, default: false },
+    //can be diff abs_diff improve
+    diffMode: { type: String, default: "diff" },
     toolbarClass: { type: String, default: "app_bar subtitle-2" },
     searchHint: { type: String },
     showDiffLabel: { type: String },
@@ -87,7 +89,7 @@ export default {
 
     if (this.showPercentage && (objs.length == 2 || this.recommend)) {
       headers.push({
-        text: this.uppcase_header(this.$t("compare.percentage")),
+        text: this.uppcase_header(this.diffMode == "improve" ? this.$t("compare.improve") : this.$t("compare.diff")),
         value: "percentage",
         width: this.headerWidth,
         align: this.headerAlign,
@@ -214,7 +216,13 @@ export default {
       const num1 = Number(value1);
       const num2 = Number(value2);
       if (!isNaN(num1) && !isNaN(num2) && num1 != num2) {
-        return ((num2 * 100) / num1).toFixed(2) + "%";
+        if (this.diffMode == "improve") {
+          return ((num2 * 100) / num1).toFixed(2) + "%";
+        } else if (this.diffMode == "abs_diff") {
+          return ((Math.abs(num2 - num1) * 100) / num1).toFixed(2) + "%";
+        } else {
+          return (((num2 - num1) * 100) / num1).toFixed(2) + "%";
+        }
       } else {
         return "";
       }
