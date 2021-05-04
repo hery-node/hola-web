@@ -178,6 +178,10 @@ export default {
       table.show_error(msg);
     },
 
+    get_table() {
+      return this.$refs.table;
+    },
+
     reset_selected() {
       const table = this.$refs.table;
       table.selected = [];
