@@ -4,7 +4,7 @@
       <h-search-form v-bind="$attrs" :entity="entity" :fields="searchFields" :title="searchTitle" :cols="searchCols" @clear="clear_search" @search="do_search"></h-search-form>
       <v-divider class="mt-5"></v-divider>
     </div>
-    <v-data-table v-bind="$attrs" v-on="$listeners" :mobile-breakpoint="mobile ? 600 : 10" :headers="table_headers" :items="items" :loading="loading" multi-sort v-model="selected" :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0" :hide-default-footer="!pagination">
+    <v-data-table v-bind="$attrs" v-on="$listeners" :mobile-breakpoint="mobile ? 600 : 10" :headers="table_headers" :items="items" :loading="loading" multi-sort v-model="selected" :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0" :hide-default-footer="!pagination" :show-expand="is_expanded" :expanded.sync="expanded">
       <template v-slot:top>
         <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
         <v-toolbar flat dense :class="toolbarClass" dark v-if="!hideToolbar">
@@ -77,6 +77,12 @@
         </v-tooltip>
       </template>
 
+      <template v-slot:expanded-item="{ headers, item }" v-if="expandField">
+        <td :colspan="headers.length" style="white-space:pre-wrap; word-wrap:break-word" class="my-5">
+          {{ get_expanded(item) }}
+        </td>
+      </template>
+
       <template v-slot:no-data>
         <span>{{ $t("table.no_data") }}</span>
       </template>
@@ -136,6 +142,7 @@ export default {
     infinite: { type: Boolean, default: false },
     //this is to control the page size for infinite scroll mode
     itemPerPage: { type: Number, default: 30 },
+    expandField: { type: String },
   },
 
   data() {
@@ -150,6 +157,7 @@ export default {
       chips: [],
       styles: [],
       arrays: [],
+      expanded: [],
       search_form: {},
       options: {},
     };
@@ -205,6 +213,10 @@ export default {
   },
 
   computed: {
+    is_expanded() {
+      return this.expandField ? true : false;
+    },
+
     pagination() {
       return !this.infinite;
     },
@@ -221,6 +233,10 @@ export default {
   },
 
   methods: {
+    get_expanded(item) {
+      return item[this.expandField] ? item[this.expandField] : "";
+    },
+
     uppcase_header(header_title) {
       return this.headerUppcase ? header_title.toUpperCase() : header_title;
     },
@@ -282,7 +298,9 @@ export default {
       const { page, sortBy, sortDesc, itemsPerPage } = this.options;
       const sort_by = sortBy && sortBy.length > 0 ? sortBy.join(",") : this.sortKey.join(",");
       const desc = sortDesc && sortDesc.length > 0 ? sortDesc.join(",") : this.sortDesc.join(",");
-      const attr_names = this.table_headers.map((h) => h.name).join(",");
+      const attrs = this.table_headers.filter((h) => h.name && h.name.length > 0).map((h) => h.name);
+      this.expandField && attrs.push(this.expandField);
+      const attr_names = attrs.join(",");
       const params = { attr_names: attr_names, sort_by: sort_by, desc: desc };
       if (this.pagination) {
         params.page = page;

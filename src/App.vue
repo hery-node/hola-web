@@ -20,41 +20,7 @@
       <br />
       <br />
       <br />
-      <v-card>
-        <v-card-title class="text-center justify-center py-6">
-          <h1 class="text-h6">Intel® System Health Inspector</h1>
-        </v-card-title>
-
-        <v-tabs v-model="tab" background-color="transparent" grow>
-          <v-tab v-for="item in items" :key="item.name">
-            <v-badge :color="item.color" :content="item.count">
-              {{ item.name }}
-            </v-badge>
-          </v-tab>
-        </v-tabs>
-
-        <v-tabs-items v-model="tab">
-          <v-tab-item key="BIOS" class="mt-3">
-            <h-compare dense :entity="entity" show-toolbar header-uppcase :search-hint="$t('inspection.search_bios')" label-key="tag" :ids="ids" :fields="bios_fields"></h-compare>
-          </v-tab-item>
-          <v-tab-item key="CPU" class="mt-3">
-            <h-compare dense :entity="entity" show-toolbar header-uppcase :search-hint="$t('inspection.search_cpu')" label-key="tag" :ids="ids" :fields="cpu_fields" :recommend="cpu_recommend"></h-compare>
-          </v-tab-item>
-
-          <v-tab-item key="Disks" class="mt-3">
-            <h-array dense :entity="entity" show-toolbar header-uppcase :search-hint="$t('inspection.search_disk')" :id="id" field-name="disk"></h-array>
-          </v-tab-item>
-          <v-tab-item key="Network" class="mt-3">
-            <h-array dense :entity="entity" show-toolbar header-uppcase :search-hint="$t('inspection.search_network')" :id="id" field-name="network"></h-array>
-          </v-tab-item>
-          <v-tab-item key="OS" class="mt-3">
-            <h-compare dense :entity="entity" show-toolbar header-uppcase :search-hint="$t('inspection.search_os')" label-key="tag" :ids="ids" :fields="os_fields" :recommend="os_recommend"></h-compare>
-          </v-tab-item>
-          <v-tab-item key="MySQL" class="mt-3">
-            <h-compare dense :entity="entity" show-toolbar header-uppcase label-key="tag" :ids="ids" :fields="workload_fields"></h-compare>
-          </v-tab-item>
-        </v-tabs-items>
-      </v-card>
+      <h-crud ref="table" :headers="headers" :filter="workload" @click:row="row_clicked" :title="table_title" :searchable="searchable" :mode="mode" :entity="entity" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc" :toolbars="toolbars" :batch-toolbars="batch_toolbars" :actions="actions"></h-crud>
     </v-main>
   </v-app>
 </template>
@@ -67,32 +33,51 @@ export default {
 
   data() {
     return {
-      entity: "inspection",
-      tab: null,
-      items: [
-        { name: "BIOS", count: "0", color: "success" },
-        { name: "CPU", count: "0", color: "success" },
-        { name: "Disks", count: "0", color: "success" },
-        { name: "Network", count: "0", color: "success" },
-        { name: "OS", count: "0", color: "success" },
-        { name: "MySQL", count: "0", color: "success" },
+      searchable: false,
+      mode: "urd",
+      entity: "monitor",
+      item_label_key: "time",
+      sort_key: ["time"],
+      sort_desc: [true],
+      headers: [{ name: "tag" }, { name: "time" }, { name: "host" }, { name: "result" }],
+      toolbars: [{ color: "white", icon: "mdi-run", tooltip: this.$t("workload.run"), click: this.run_workload }],
+      batch_toolbars: [
+        { color: "white", icon: "mdi-select-compare", tooltip: this.$t("monitor.compare"), click: this.compare },
+        { color: "white", icon: "stacked_bar_chart", tooltip: this.$t("monitor.top_down_compare"), click: this.top_down_compare },
       ],
-      id: "607e856d2f829f996c69e1db",
-      ids: ["607e856d2f829f996c69e1db"],
-      bios_fields: [{ name: "bios" }],
-      cpu_fields: [{ name: "cpu" }],
-      os_fields: [{ name: "os" }],
-      workload_fields: [{ name: "workload_info" }],
-      cpu_recommend: {},
-      os_recommend: {},
+      actions: [
+        { color: "edit", icon: "mdi-download", tooltip: this.$t("workload.download_emon"), handle: this.download_emon },
+        { color: "edit", icon: "visibility", tooltip: this.$t("workload.view_raw_result"), handle: this.view_raw_result },
+      ],
     };
   },
 
-  methods: {
-    check() {
-      // return { success: true, msg: "This is balanced memory configuration." };
-      return { success: false, msg: "This is unbalanced memory configuration." };
+  computed: {
+    table_title() {
+      return this.$t("monitor.table_title", { workload: this.workload_name });
     },
+
+    workload_name() {
+      return "Sysbench";
+    },
+
+    workload() {
+      return { workload: this.workload_name };
+    },
+  },
+
+  methods: {
+    row_clicked(item) {
+      this.$router.push({ path: "/monitor_detail/" + item["_id"] });
+    },
+
+    download_emon() {},
+
+    async run_workload() {},
+
+    compare() {},
+
+    top_down_compare() {},
   },
 };
 </script>
