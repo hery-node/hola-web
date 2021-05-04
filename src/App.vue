@@ -20,7 +20,7 @@
       <br />
       <br />
       <br />
-      <h-crud ref="table" :headers="headers" :filter="workload" @click:row="row_clicked" :title="table_title" :searchable="searchable" :mode="mode" :entity="entity" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc" :toolbars="toolbars" :batch-toolbars="batch_toolbars" :actions="actions"></h-crud>
+      <h-crud ref="table" :headers="headers" :hidden-fields="hidden_fields" :item-class="get_item_class" :expand-field="expand_field" :filter="workload" @click:row="row_clicked" :title="table_title" :searchable="searchable" :mode="mode" :entity="entity" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc" :toolbars="toolbars" :batch-toolbars="batch_toolbars" :actions="actions"></h-crud>
     </v-main>
   </v-app>
 </template>
@@ -39,7 +39,9 @@ export default {
       item_label_key: "time",
       sort_key: ["time"],
       sort_desc: [true],
-      headers: [{ name: "tag" }, { name: "time" }, { name: "host" }, { name: "result" }],
+      expand_field: "result_txt",
+      hidden_fields: ["result"],
+      headers: [{ name: "tag" }, { name: "time" }, { name: "host" }],
       toolbars: [{ color: "white", icon: "mdi-run", tooltip: this.$t("workload.run"), click: this.run_workload }],
       batch_toolbars: [
         { color: "white", icon: "mdi-select-compare", tooltip: this.$t("monitor.compare"), click: this.compare },
@@ -67,6 +69,10 @@ export default {
   },
 
   methods: {
+    get_item_class(item) {
+      return item["tag"] == "clx16_Sysbench_1620111025267" ? "red" : "";
+    },
+
     row_clicked(item) {
       this.$router.push({ path: "/monitor_detail/" + item["_id"] });
     },

@@ -4,6 +4,7 @@
       <h-search-form v-bind="$attrs" :entity="entity" :fields="searchFields" :title="searchTitle" :cols="searchCols" @clear="clear_search" @search="do_search"></h-search-form>
       <v-divider class="mt-5"></v-divider>
     </div>
+
     <v-data-table v-bind="$attrs" v-on="$listeners" :mobile-breakpoint="mobile ? 600 : 10" :headers="table_headers" :items="items" :loading="loading" multi-sort v-model="selected" :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0" :hide-default-footer="!pagination" :show-expand="is_expanded" :expanded.sync="expanded">
       <template v-slot:top>
         <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
@@ -78,8 +79,10 @@
       </template>
 
       <template v-slot:expanded-item="{ headers, item }" v-if="expandField">
-        <td :colspan="headers.length" style="white-space:pre-wrap; word-wrap:break-word" class="my-5">
-          {{ get_expanded(item) }}
+        <td :colspan="headers.length" style="white-space:pre-wrap; word-wrap:break-word" flat>
+          <div style="margin:15px">
+            {{ get_expanded(item) }}
+          </div>
         </td>
       </template>
 
@@ -143,6 +146,7 @@ export default {
     //this is to control the page size for infinite scroll mode
     itemPerPage: { type: Number, default: 30 },
     expandField: { type: String },
+    hiddenFields: { type: Array, default: () => [] },
   },
 
   data() {
@@ -298,8 +302,9 @@ export default {
       const { page, sortBy, sortDesc, itemsPerPage } = this.options;
       const sort_by = sortBy && sortBy.length > 0 ? sortBy.join(",") : this.sortKey.join(",");
       const desc = sortDesc && sortDesc.length > 0 ? sortDesc.join(",") : this.sortDesc.join(",");
-      const attrs = this.table_headers.filter((h) => h.name && h.name.length > 0).map((h) => h.name);
+      let attrs = this.table_headers.filter((h) => h.name && h.name.length > 0).map((h) => h.name);
       this.expandField && attrs.push(this.expandField);
+      attrs = attrs.concat([this.hiddenFields]);
       const attr_names = attrs.join(",");
       const params = { attr_names: attr_names, sort_by: sort_by, desc: desc };
       if (this.pagination) {
