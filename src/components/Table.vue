@@ -5,7 +5,7 @@
       <v-divider class="mt-5"></v-divider>
     </div>
 
-    <v-data-table v-bind="$attrs" v-on="$listeners" :mobile-breakpoint="mobile ? 600 : 10" :headers="table_headers" :items="items" :loading="loading" multi-sort v-model="selected" :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0" :hide-default-footer="!pagination" :show-expand="is_expanded" :expanded.sync="expanded">
+    <v-data-table v-bind="$attrs" v-on="$listeners" :mobile-breakpoint="mobile ? 600 : 10" :headers="table_headers" :items="items" :loading="loading" multi-sort v-model="selected" :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0" :hide-default-footer="!pagination" :show-expand="is_expanded()" :show-select="showSelect" :expanded.sync="expanded">
       <template v-slot:top>
         <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
         <v-toolbar flat dense :class="toolbarClass" dark v-if="!hideToolbar">
@@ -125,6 +125,7 @@ export default {
     toolbarClass: { type: String, default: "app_bar subtitle-2" },
     title: { type: String },
 
+    showSelect: { type: Boolean, default: false },
     //has action header to add update and delete button for item
     hasActionHeader: { type: Boolean, default: false },
     //action for the item, such as delete item or edit item
@@ -217,10 +218,6 @@ export default {
   },
 
   computed: {
-    is_expanded() {
-      return this.expandField ? true : false;
-    },
-
     pagination() {
       return !this.infinite;
     },
@@ -237,6 +234,10 @@ export default {
   },
 
   methods: {
+    is_expanded() {
+      return this.expandField ? (this.showSelect == true ? false : true) : false;
+    },
+
     get_expanded(item) {
       return item[this.expandField] ? item[this.expandField] : "";
     },
