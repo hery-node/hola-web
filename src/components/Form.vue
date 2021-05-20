@@ -31,7 +31,7 @@
               <v-switch align="center" justify="center" v-model="form[field.name]" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-switch>
             </template>
             <template v-else-if="field.input_type === 'textarea'">
-              <v-textarea v-model="form[field.name]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-textarea>
+              <v-textarea v-model="form[field.name]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true" auto-grow></v-textarea>
             </template>
             <template v-else>
               <v-text-field v-model="form[field.name]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-text-field>
