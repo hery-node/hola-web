@@ -52,7 +52,7 @@ export default {
 
   data() {
     return {
-      only_show_diff: false,
+      only_show_diff: true,
       search: "",
       all_items: [],
       items: [],
@@ -165,7 +165,7 @@ export default {
     this.property_fields = property_fields;
     this.table_headers = headers;
     this.all_items = items;
-    this.items = items;
+    this.filter_fields();
   },
 
   watch: {
