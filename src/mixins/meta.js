@@ -74,9 +74,21 @@ export default {
             if (!meta) {
                 return [];
             }
-
-            const form_fields = [];
             const server_fields = meta.fields.filter(field => field.create != false && field.sys != true);
+            return this.get_form_fields(server_fields);
+        },
+
+        async get_clone_fields() {
+            const meta = await this.get_meta();
+            if (!meta) {
+                return [];
+            }
+            const server_fields = meta.fields.filter(field => field.create != false && field.clone != false && field.sys != true);
+            return this.get_form_fields(server_fields);
+        },
+
+        get_form_fields(server_fields) {
+            const form_fields = [];
             const meta_fields = this.fields.length > 0 ? this.fields : server_fields;
 
             for (let i = 0; i < meta_fields.length; i++) {

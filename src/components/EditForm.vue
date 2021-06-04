@@ -55,10 +55,13 @@ export default {
   props: {
     createTitle: { type: String },
     updateTitle: { type: String },
+    cloneTitle: { type: String },
     //colspan for the field
     cols: { type: Number, default: 0 },
     //has value then it is edit mode otherwise create mode
     entityId: { type: String, default: undefined },
+    //is this edit form is clone or update
+    clone: { type: Boolean, default: false },
     //pass hidden values to the form
     hiddenValues: { type: Object },
     //hide cancel button
@@ -101,7 +104,7 @@ export default {
       return;
     }
 
-    const edit_fields = await this.get_edit_fields();
+    const edit_fields = this.clone ? await this.get_clone_fields() : await this.get_edit_fields();
     edit_fields.forEach((field) => {
       field.cols || (field.cols = this.cols);
     });
@@ -128,8 +131,14 @@ export default {
 
     form_title() {
       if (this.update_mode) {
-        if (this.updateTitle && this.updateTitle.length > 0) {
-          return this.updateTitle;
+        if (this.clone) {
+          if (this.cloneTitle && this.cloneTitle.length > 0) {
+            return this.cloneTitle;
+          }
+        } else {
+          if (this.updateTitle && this.updateTitle.length > 0) {
+            return this.updateTitle;
+          }
         }
       } else {
         if (this.createTitle && this.createTitle.length > 0) {
@@ -137,7 +146,8 @@ export default {
         }
       }
 
-      return this.update_mode ? this.$t("form.update_title", { entity: this.entity_label }) : this.$t("form.create_title", { entity: this.entity_label });
+      const title = this.clone ? this.$t("form.clone_title", { entity: this.entity_label }) : this.$t("form.update_title", { entity: this.entity_label });
+      return this.update_mode ? title : this.$t("form.create_title", { entity: this.entity_label });
     },
 
     cancel_label() {
@@ -187,9 +197,11 @@ export default {
 
     async init_form() {
       //change readonly property every time (update or create mode switch)
-      this.edit_fields.forEach((field) => {
-        field.update == false && (field.disabled = this.update_mode);
-      });
+      if (this.clone != true) {
+        this.edit_fields.forEach((field) => {
+          field.update == false && (field.disabled = this.update_mode);
+        });
+      }
 
       if (this.update_mode) {
         const attr_names = this.edit_fields.map((h) => h.name).join(",");
@@ -209,12 +221,13 @@ export default {
 
       this.loading = true;
       const form = this.hiddenValues ? { ...this.form, ...this.hiddenValues } : this.form;
-      const { code, err } = await save_entity(this.entity, form, this.update_mode);
+      const { code, err } = await save_entity(this.entity, form, this.update_mode, this.clone);
       this.loading = false;
       if (is_success_response(code)) {
         this.resetPost && this.reset_form();
 
-        const success_info = this.successHint ? this.successHint : this.update_mode ? this.$t("form.update_success_hint", { entity: this.entity_label }) : this.$t("form.create_success_hint", { entity: this.entity_label });
+        const update_info = this.clone ? this.$t("form.clone_success_hint", { entity: this.entity_label }) : this.$t("form.update_success_hint", { entity: this.entity_label });
+        const success_info = this.successHint ? this.successHint : this.update_mode ? update_info : this.$t("form.create_success_hint", { entity: this.entity_label });
         this.hideHint || this.show_success(success_info);
         this.$emit("success");
       } else if (has_invalid_params(code)) {
@@ -229,7 +242,8 @@ export default {
         const error_info = this.$t("form.err_duplicate", { entity: this.entity_label });
         this.show_error(error_info);
       } else {
-        const error_info = this.failHint ? this.failHint : this.update_mode ? this.$t("form.update_fail_hint", { entity: this.entity_label }) : this.$t("form.create_fail_hint", { entity: this.entity_label });
+        const update_info = this.clone ? this.$t("form.clone_fail_hint", { entity: this.entity_label }) : this.$t("form.update_fail_hint", { entity: this.entity_label });
+        const error_info = this.failHint ? this.failHint : this.update_mode ? update_info : this.$t("form.create_fail_hint", { entity: this.entity_label });
         this.show_error(error_info);
       }
     },

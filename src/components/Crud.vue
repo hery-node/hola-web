@@ -10,7 +10,7 @@
         <span>{{ toolbar.tooltip }}</span>
       </v-tooltip>
       <h-confirm ref="confirm" />
-      <h-edit-form v-bind="$attrs" dialog :dialog-shown="dialog" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="close_dialog" @success="success_edit" :create-title="create_title" :update-title="update_title"> </h-edit-form>
+      <h-edit-form v-bind="$attrs" dialog :dialog-shown="dialog" :clone="clone_mode" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="close_dialog" @success="success_edit" :create-title="create_title" :update-title="update_title" :clone-title="clone_title"> </h-edit-form>
     </template>
   </h-table>
 </template>
@@ -31,7 +31,7 @@ export default {
     //show delete name in batch delete dialog
     itemLabelKey: { type: String, required: true },
     //end
-    //c stands for create, r: read, u:update,d:delete, i:import ,e:export
+    //c stands for create, r: read, u:update, o:clone, d:delete, i:import ,e:export
     mode: { type: String, default: "crudie" },
     //add more actions to item actions
     actions: { type: Array, default: () => [] },
@@ -48,10 +48,12 @@ export default {
     noSelectLabel: { type: String },
     createLabel: { type: String },
     updateLabel: { type: String },
+    cloneLabel: { type: String },
     deleteLabel: { type: String },
     batchDeleteLabel: { type: String },
     createIcon: { type: String, default: "mdi-plus-circle" },
     updateIcon: { type: String, default: "mdi-square-edit-outline" },
+    cloneIcon: { type: String, default: "mdi-content-copy" },
     deleteIcon: { type: String, default: "mdi-delete-circle" },
   },
 
@@ -62,6 +64,7 @@ export default {
       //used to pass id value to edit form
       edit_entity_id: null,
       dialog: false,
+      clone_mode: false,
       has_action_header: false,
       header_toolbars: [],
     };
@@ -84,6 +87,10 @@ export default {
       return this.mode.includes("d");
     },
 
+    is_cloneable() {
+      return this.mode.includes("o");
+    },
+
     entity_label() {
       return this.$t(this.entity + "._label");
     },
@@ -100,6 +107,10 @@ export default {
       return this.updateLabel ? this.updateLabel : this.$t("table.update_title", { entity: this.entity_label });
     },
 
+    clone_title() {
+      return this.cloneLabel ? this.cloneLabel : this.$t("table.clone_title", { entity: this.entity_label });
+    },
+
     delete_title() {
       return this.deleteLabel ? this.deleteLabel : this.$t("table.delete_title", { entity: this.entity_label });
     },
@@ -113,6 +124,9 @@ export default {
       const array = [];
       if (this.is_updatable) {
         array.push({ color: "edit", icon: this.updateIcon, tooltip: this.update_title, handle: this.update_entity });
+      }
+      if (this.is_cloneable) {
+        array.push({ color: "clone", icon: this.cloneIcon, tooltip: this.clone_title, handle: this.clone_entity });
       }
       if (this.is_deletable) {
         array.push({ color: "delete", icon: this.deleteIcon, tooltip: this.delete_title, handle: this.delete_entity });
@@ -235,6 +249,13 @@ export default {
     },
 
     async update_entity(item) {
+      this.clone_mode = false;
+      this.edit_entity_id = item["_id"];
+      this.dialog = true;
+    },
+
+    async clone_entity(item) {
+      this.clone_mode = true;
       this.edit_entity_id = item["_id"];
       this.dialog = true;
     },

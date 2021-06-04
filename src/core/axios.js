@@ -10,6 +10,7 @@ const READ = "/read";
 const READ_PROPERTIES = "/read_properties";
 const LIST = "/list";
 const UPDATE = "/update";
+const CLONE = "/clone";
 const DELETE = "/delete";
 const REF = "/ref";
 
@@ -212,8 +213,8 @@ const list_entity = (entity, form, params) => {
     return axios_post(url, form);
 };
 
-const save_entity = (entity, form, edit_mode) => {
-    const url = edit_mode ? "/" + entity + UPDATE : "/" + entity + CREATE;
+const save_entity = (entity, form, edit_mode, clone) => {
+    const url = edit_mode ? (clone ? "/" + entity + CLONE : "/" + entity + UPDATE) : "/" + entity + CREATE;
     if (form._has_file) {
         return axios_post_file_form(url, form);
     } else {

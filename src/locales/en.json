@@ -29,7 +29,10 @@
     "update_success_hint": "Update {entity} Successful",
     "update_fail_hint": "Update {entity} Failed",
     "err_invalid_value": "The value of {field} is invalid, please correct it.",
-    "err_duplicate": "The {entity} already exist."
+    "err_duplicate": "The {entity} already exist.",
+    "clone_title": "Clone {entity}",
+    "clone_success_hint": "Clone {entity} Successful",
+    "clone_fail_hint": "Clone {entity} Failed"
   },
   "confirm": {
     "yes": "Yes",
@@ -46,6 +49,7 @@
     "switch_to_single": "Switch to single mode(Keymap:ESC)",
     "create_title": "Create {entity}",
     "update_title": "Update {entity}",
+    "clone_title": "Clone {entity}",
     "delete_title": "Delete {entity}",
     "batch_delete_title": "Batch delete {entity}",
     "no_data": "No Data",

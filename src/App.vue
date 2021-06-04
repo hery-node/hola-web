@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark dense>
+    <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
         <v-img alt="Vuetify Logo" class="shrink mr-2" contain src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png" transition="scale-transition" width="40" />
 
@@ -19,8 +19,12 @@
       <br />
       <br />
       <br />
-      <br />
-      <h-crud ref="table" :headers="headers" :hidden-fields="hidden_fields" :item-class="get_item_class" :expand-field="expand_field" :filter="workload" @click:row="row_clicked" :title="table_title" :searchable="searchable" :mode="mode" :entity="entity" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc" :toolbars="toolbars" :batch-toolbars="batch_toolbars" :actions="actions"></h-crud>
+      <!-- <h-property entity="user" entity-id="6071614ca73a602476c92d41"></h-property> -->
+      <!-- <h-search-form entity="user" :fields="search_fields" :cols="6" clear-label="reset" search-label="query" v-model="form" @search="do_search"></h-search-form> -->
+      <!-- <h-edit-form entity="user" v-model="form" hide-cancel :cols="6" :fields="search_fields" :success-hint="success_hint" submit-label="Save" @saved="saved"></h-edit-form> -->
+      <!-- <h-table searchable entity="user" :headers="headers" :sort-key="sort_key" :sort-desc="sort_desc" :search-fields="search_fields" :search-cols="6" clear-label="reset" search-label="query"></h-table> -->
+      <!-- <h-crud ref="table" header-uppcase @click:row="row_clicked" :search-fields="headers" search-toolbar-class="cyan darken-2 white--text" toolbar-class="cyan darken-2" header-class="cyan lighten-4" :headers="headers" :searchable="searchable" :mode="mode" :entity="entity" :item-label-key="item_label_key" :actions="actions" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols"> </h-crud> -->
+      <h-crud header-uppcase :mode="mode" :entity="entity" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc"> </h-crud>
     </v-main>
   </v-app>
 </template>
@@ -33,57 +37,36 @@ export default {
 
   data() {
     return {
-      searchable: false,
-      mode: "urd",
-      entity: "monitor",
-      item_label_key: "time",
-      sort_key: ["time"],
+      searchable: true,
+      search_cols: 4,
+      mode: "cruod",
+      entity: "user",
+      item_label_key: "name",
+      sort_key: ["name"],
       sort_desc: [true],
-      expand_field: "result_txt",
-      hidden_fields: ["result"],
-      headers: [{ name: "tag" }, { name: "time" }, { name: "host" }],
-      toolbars: [{ color: "white", icon: "mdi-run", tooltip: this.$t("workload.run"), click: this.run_workload }],
-      batch_toolbars: [
-        { color: "white", icon: "mdi-select-compare", tooltip: this.$t("monitor.compare"), click: this.compare },
-        { color: "white", icon: "stacked_bar_chart", tooltip: this.$t("monitor.top_down_compare"), click: this.top_down_compare },
-      ],
-      actions: [
-        { color: "edit", icon: "mdi-download", tooltip: this.$t("workload.download_emon"), handle: this.download_emon },
-        { color: "edit", icon: "visibility", tooltip: this.$t("workload.view_raw_result"), handle: this.view_raw_result },
-      ],
     };
   },
 
   computed: {
     table_title() {
-      return this.$t("monitor.table_title", { workload: this.workload_name });
+      return this.$t("inspection.table_title", { host: this.host_name });
     },
 
-    workload_name() {
-      return "Sysbench";
+    create_label() {
+      return this.$t("inspection.run");
     },
 
-    workload() {
-      return { workload: this.workload_name };
-    },
-  },
-
-  methods: {
-    get_item_class(item) {
-      return item["tag"] == "clx16_Sysbench_1620111025267" ? "red" : "";
+    update_label() {
+      return this.$t("inspection.tag_inspect");
     },
 
-    row_clicked(item) {
-      this.$router.push({ path: "/monitor_detail/" + item["_id"] });
+    host() {
+      return { host: this.host_name };
     },
 
-    download_emon() {},
-
-    async run_workload() {},
-
-    compare() {},
-
-    top_down_compare() {},
+    host_name() {
+      return "clx16";
+    },
   },
 };
 </script>
