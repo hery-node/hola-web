@@ -53,7 +53,7 @@ export default {
             }
 
             const form_fields = [];
-            const server_fields = meta.fields.filter(field => field.search != false && field.sys != true);
+            const server_fields = meta.fields.filter(field => field.search != false && field.sys != true && field.name != meta.user_field);
             const meta_fields = this.fields.length > 0 ? this.fields : server_fields;
 
             for (let i = 0; i < meta_fields.length; i++) {
@@ -74,7 +74,7 @@ export default {
             if (!meta) {
                 return [];
             }
-            const server_fields = meta.fields.filter(field => field.create != false && field.sys != true);
+            const server_fields = meta.fields.filter(field => field.create != false && field.sys != true && field.name != meta.user_field);
             return this.get_form_fields(server_fields);
         },
 
@@ -83,7 +83,7 @@ export default {
             if (!meta) {
                 return [];
             }
-            const server_fields = meta.fields.filter(field => field.create != false && field.clone != false && field.sys != true);
+            const server_fields = meta.fields.filter(field => field.create != false && field.clone != false && field.sys != true && field.name != meta.user_field);
             return this.get_form_fields(server_fields);
         },
 
@@ -120,7 +120,7 @@ export default {
             }
 
             const form_fields = [];
-            const server_fields = meta.fields.filter(field => field.sys != true);
+            const server_fields = meta.fields.filter(field => field.sys != true && field.name != meta.user_field);
             const meta_fields = this.fields.length > 0 ? this.fields : server_fields;
 
             for (let i = 0; i < meta_fields.length; i++) {
@@ -143,7 +143,7 @@ export default {
             }
 
             const table_headers = [];
-            const server_fields = meta.fields.filter(field => field.list != false && field.sys != true);
+            const server_fields = meta.fields.filter(field => field.list != false && field.sys != true && field.name != meta.user_field);
             const meta_fields = this.headers.length > 0 ? this.headers : server_fields;
 
             for (let i = 0; i < meta_fields.length; i++) {
