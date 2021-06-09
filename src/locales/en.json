@@ -13,7 +13,11 @@
     "boolean_true": "Yes",
     "boolean_false": "False",
     "gender_male": "Male",
-    "gender_female": "Female"
+    "gender_female": "Female",
+    "log_debug": "Debug",
+    "log_info": "Info",
+    "log_warn": "Warn",
+    "log_error": "Error"
   },
   "form": {
     "create_title": "Create {entity}",

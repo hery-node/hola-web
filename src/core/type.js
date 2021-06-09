@@ -301,4 +301,43 @@ const gender_type = {
 
 register_type(gender_type);
 
+const LOG_LEVEL_DEBUG = 0;
+const LOG_LEVEL_INFO = 1;
+const LOG_LEVEL_WARN = 2;
+const LOG_LEVEL_ERROR = 3;
+
+const log_level_type = {
+    name: "log_level",
+    input_type: "autocomplete",
+
+    items: (vue) => {
+        const log_levels = [];
+        log_levels.push({ value: LOG_LEVEL_DEBUG, text: vue.$t("type.log_debug") });
+        log_levels.push({ value: LOG_LEVEL_INFO, text: vue.$t("type.log_info") });
+        log_levels.push({ value: LOG_LEVEL_WARN, text: vue.$t("type.log_warn") });
+        log_levels.push({ value: LOG_LEVEL_ERROR, text: vue.$t("type.log_error") });
+        return log_levels;
+    },
+
+    format: (value, vue) => {
+        if (no_value(value)) {
+            return "";
+        }
+        switch (value) {
+            case LOG_LEVEL_DEBUG:
+                return vue.$t("type.log_debug");
+            case LOG_LEVEL_INFO:
+                return vue.$t("type.log_info");
+            case LOG_LEVEL_WARN:
+                return vue.$t("type.log_warn");
+            case LOG_LEVEL_ERROR:
+                return vue.$t("type.log_error");
+            default:
+                return "";
+        }
+    }
+}
+
+register_type(log_level_type);
+
 export { register_type, get_type, no_value, is_int }
