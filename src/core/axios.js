@@ -118,6 +118,10 @@ const is_been_referred = (code) => {
     return code == CODE.HAS_REF;
 }
 
+const is_no_session = (code) => {
+    return code == CODE.NO_SESSION;
+}
+
 const axios_cached_get = async (url, params) => {
     if (has_cache(url)) {
         return get_cache(url);
@@ -236,6 +240,6 @@ const get_url = (url) => {
 export {
     init_axios, get_url,
     axios_get, axios_post, axios_cached_get, axios_download, axios_upload,
-    is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params,
+    is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params, is_no_session,
     save_entity, read_entity, read_entity_properties, list_entity, delete_entity, get_ref_labels, get_entity_meta
 }
