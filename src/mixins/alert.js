@@ -24,7 +24,7 @@ export default {
             const time = delay ? delay : 5000;
             this.alert.shown = true;
             this.alert.type = type;
-            this.alert.msg = msg;
+            this.alert.msg = msg ? msg.replace(/\n/g, "<br />") : "";
             delay || delay == 0 || setTimeout(() => (this.alert.shown = false), time);
         }
     }
