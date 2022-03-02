@@ -48,6 +48,8 @@ export default {
     showDiffLabel: { type: String },
     recommend: { type: Object },
     maxLineWords: { type: Number, default: 50 },
+    diffThreshold: { type: Number, default: 0 },
+    objDot: { type: String, default: "*" },
   },
 
   data() {
@@ -250,7 +252,7 @@ export default {
       objs.forEach((obj) => {
         const converted = {};
         for (const property in obj) {
-          const replaced_property = property.replaceAll("___", ".");
+          const replaced_property = property.replaceAll(this.objDot, ".");
           converted[replaced_property] = obj[property];
         }
         results.push(converted);
@@ -260,10 +262,21 @@ export default {
 
     is_diff_value(item) {
       if (this.ids.length > 1) {
-        let value = item["value0"];
-        for (let i = 0; i < this.ids.length; i++) {
-          if (item["value" + i] != value) {
-            return true;
+        if (this.diffThreshold > 0) {
+          let values = [];
+          for (let i = 0; i < this.ids.length; i++) {
+            values.push(parseFloat(item["value" + i]));
+          }
+          let max = Math.max(values);
+          let min = Math.min(values);
+          let value_diff = ((max - min) * 100) / max;
+          return value_diff > this.diffThreshold;
+        } else {
+          let value = item["value0"];
+          for (let i = 0; i < this.ids.length; i++) {
+            if (item["value" + i] != value) {
+              return true;
+            }
           }
         }
       } else if (this.recommend) {
