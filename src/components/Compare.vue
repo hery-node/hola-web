@@ -267,8 +267,8 @@ export default {
           for (let i = 0; i < this.ids.length; i++) {
             values.push(parseFloat(item["value" + i]));
           }
-          let max = Math.max(values);
-          let min = Math.min(values);
+          let max = Math.max(...values);
+          let min = Math.min(...values);
           let value_diff = ((max - min) * 100) / max;
           return value_diff > this.diffThreshold;
         } else {
