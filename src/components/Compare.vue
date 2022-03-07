@@ -56,6 +56,7 @@ export default {
     searchHint: { type: String },
     showDiffLabel: { type: String },
     recommend: { type: Object },
+    topFields: { type: Array, default: () => [] },
     maxLineWords: { type: Number, default: 50 },
     diffThreshold: { type: Number, default: 0 },
     thresholdLabel: { type: String },
@@ -319,7 +320,12 @@ export default {
     },
 
     get_item_class(item) {
-      return this.is_diff_value(item) ? "diff_item" : "";
+      const attr = item["attr"];
+      if (this.topFields.includes(attr)) {
+        return "top_item";
+      } else {
+        return this.is_diff_value(item) ? "diff_item" : "";
+      }
     },
 
     get_field_value(field, obj) {
@@ -345,10 +351,19 @@ export default {
 <style>
 .diff_item {
   color: #37474f;
-  background-color: #ffcdd2;
+  background-color: #f3e5f5;
 }
 
 .diff_item:hover {
+  color: #37474f !important;
+  background-color: #f3e5f5 !important;
+}
+.top_item {
+  color: #37474f;
+  background-color: #ffcdd2;
+}
+
+.top_item:hover {
   color: #37474f !important;
   background-color: #ffcdd2 !important;
 }
