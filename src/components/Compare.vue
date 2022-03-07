@@ -1,8 +1,17 @@
 <template>
   <v-card v-bind="$attrs">
     <v-toolbar :class="toolbarClass" dark v-if="showToolbar">
-      <v-text-field v-model="search" append-icon="mdi-magnify" class="mr-5" :label="search_hint" single-line hide-details clearable></v-text-field>
-      <v-checkbox v-model="only_show_diff" v-if="show_only_show_diff" hide-details :label="show_diff_label"></v-checkbox>
+      <v-row>
+        <v-col cols="8">
+          <v-text-field v-model="search" append-icon="mdi-magnify" class="mr-5" :label="search_hint" single-line hide-details clearable></v-text-field>
+        </v-col>
+        <v-col cols="2" v-if="show_threshold">
+          <v-text-field v-model="threshold" :prefix="threshold_label" suffix="%" class="mr-5" single-line hide-details></v-text-field>
+        </v-col>
+        <v-col cols="2" v-if="show_only_show_diff">
+          <v-checkbox v-model="only_show_diff" hide-details :label="show_diff_label"></v-checkbox>
+        </v-col>
+      </v-row>
       <v-menu left bottom v-if="show_choose_fields">
         <template v-slot:activator="{ on, attrs }">
           <v-btn icon v-bind="attrs" v-on="on">
@@ -49,6 +58,7 @@ export default {
     recommend: { type: Object },
     maxLineWords: { type: Number, default: 50 },
     diffThreshold: { type: Number, default: 0 },
+    thresholdLabel: { type: String },
     objDot: { type: String, default: "*" },
   },
 
@@ -56,6 +66,7 @@ export default {
     return {
       only_show_diff: false,
       search: "",
+      threshold: 0,
       all_items: [],
       items: [],
       property_fields: [],
@@ -167,12 +178,18 @@ export default {
     this.property_fields = property_fields;
     this.table_headers = headers;
     this.all_items = items;
-    this.only_show_diff = this.show_only_show_diff;
+    this.threshold = this.diffThreshold;
     this.filter_fields();
   },
 
   watch: {
     only_show_diff: {
+      handler() {
+        this.filter_fields();
+      },
+      deep: true,
+    },
+    threshold: {
       handler() {
         this.filter_fields();
       },
@@ -189,8 +206,16 @@ export default {
       return this.recommend || this.ids.length > 1;
     },
 
+    show_threshold() {
+      return this.diffThreshold > 0;
+    },
+
     show_diff_label() {
       return this.showDiffLabel ? this.showDiffLabel : this.$t("compare.show_diff");
+    },
+
+    threshold_label() {
+      return this.thresholdLabel;
     },
 
     show_choose_fields() {
@@ -262,7 +287,10 @@ export default {
 
     is_diff_value(item) {
       if (this.ids.length > 1) {
-        if (this.diffThreshold > 0) {
+        if (this.threshold > 0) {
+          if (item["percentage"]) {
+            return Math.abs(parseFloat(item["percentage"])) > this.threshold;
+          }
           let values = [];
           for (let i = 0; i < this.ids.length; i++) {
             values.push(parseFloat(item["value" + i]));
@@ -270,7 +298,7 @@ export default {
           let max = Math.max(...values);
           let min = Math.min(...values);
           let value_diff = ((max - min) * 100) / max;
-          return value_diff > this.diffThreshold;
+          return value_diff > this.threshold;
         } else {
           let value = item["value0"];
           for (let i = 0; i < this.ids.length; i++) {
@@ -278,6 +306,7 @@ export default {
               return true;
             }
           }
+          return false;
         }
       } else if (this.recommend) {
         const value = item["value"];

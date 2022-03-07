@@ -20,8 +20,9 @@
       <br />
       <br />
       <br />
-      <h-array :entity="entity" :id="id" field-name="memory" search-hint="Search Memory Configuration" show-toolbar toolbar-class="cyan darken-2" header-class="cyan lighten-4" :check="check" show-search header-uppcase no-results-text="no result"></h-array>
+      <!-- <h-array :entity="entity" :id="id" field-name="memory" search-hint="Search Memory Configuration" show-toolbar toolbar-class="cyan darken-2" header-class="cyan lighten-4" :check="check" show-search header-uppcase no-results-text="no result"></h-array> -->
       <!-- <h-compare :entity="entity" :ids="ids" label-key="name" search-hint="Search CPU Configuration" show-toolbar :recommend="recommend" toolbar-class="cyan darken-2" header-class="cyan lighten-4" header-uppcase :fields="fields"></h-compare> -->
+      <h-compare :entity="entity" :ids="ids.split(',')" :diff-threshold="10" label-key="tag" header-align="start" show-toolbar header-uppcase show-percentage dense :fields="tmam_fields"></h-compare>
     </v-main>
   </v-app>
 </template>
@@ -35,11 +36,12 @@ export default {
   data() {
     return {
       id: "60757b831e482deace70b3df",
-      ids: ["60757b831e482deace70b3df", "607551cc7d39f2c1ec358acd"],
+      ids: ["622569e878ffccd5268880f9", "62256a2e78ffccd526888142"],
+      tmam_fields: [{ name: "tmam" }],
       fields: [{ name: "cpu" }],
       recommend: { "CPU family": 7, cpu_model: "Intel(R) Xeon(R) Gold 8080R CPU @ 2.70GHz" },
       mode: "crud",
-      entity: "host",
+      entity: "monitor",
       label_key: "ip",
       sort_key: ["ip"],
       sort_desc: [false],
