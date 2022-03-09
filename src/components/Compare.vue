@@ -247,7 +247,7 @@ export default {
       let max = Math.max(...values);
       let min = Math.min(...values);
       if (!isNaN(max) && !isNaN(min) && max != min) {
-        return (((max - min) * 100) / max).toFixed(2) + "%";
+        return (((max - min) * 100) / min).toFixed(2) + "%";
       } else {
         return "";
       }
