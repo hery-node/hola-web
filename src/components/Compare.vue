@@ -55,6 +55,7 @@ export default {
     showDiffLabel: { type: String },
     recommend: { type: Object },
     topFields: { type: Array, default: () => [] },
+    filterFields: { type: Array, default: () => [] },
     maxLineWords: { type: Number, default: 50 },
     diffThreshold: { type: Number, default: 0 },
     thresholdLabel: { type: String },
@@ -130,7 +131,11 @@ export default {
             for (let j = 0; j < objs.length; j++) {
               obj["value" + j] = property_objs[j] && property_objs[j][attribute] ? this.convert_long_to_newline(property_objs[j][attribute]) : "";
             }
-            items.push(obj);
+            if (this.filterFields.length == 0) {
+              items.push(obj);
+            } else if (this.filterFields.includes(attribute)) {
+              items.push(obj);
+            }
           }
         } else {
           const object = this.conver_obj_keys([objs[0][field.name]])[0];
@@ -144,7 +149,11 @@ export default {
             if (this.recommend) {
               obj["recommend"] = this.recommend[attribute] ? this.recommend[attribute] + "" : "";
             }
-            items.push(obj);
+            if (this.filterFields.length == 0) {
+              items.push(obj);
+            } else if (this.filterFields.includes(attribute)) {
+              items.push(obj);
+            }
           }
         }
       } else {
@@ -162,7 +171,11 @@ export default {
             obj["recommend"] = this.recommend[field.name] ? this.recommend[field.name] + "" : "";
           }
         }
-        items.push(obj);
+        if (this.filterFields.length == 0) {
+          items.push(obj);
+        } else if (this.filterFields.includes(field.label)) {
+          items.push(obj);
+        }
       }
     }
 
