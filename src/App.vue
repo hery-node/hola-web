@@ -22,7 +22,7 @@
       <br />
       <!-- <h-array :entity="entity" :id="id" field-name="memory" search-hint="Search Memory Configuration" show-toolbar toolbar-class="cyan darken-2" header-class="cyan lighten-4" :check="check" show-search header-uppcase no-results-text="no result"></h-array> -->
       <!-- <h-compare :entity="entity" :ids="ids" label-key="name" search-hint="Search CPU Configuration" show-toolbar :recommend="recommend" toolbar-class="cyan darken-2" header-class="cyan lighten-4" header-uppcase :fields="fields"></h-compare> -->
-      <h-compare :entity="entity" :ids="ids" :diff-threshold="10" :top-fields="top" label-key="tag" header-align="start" show-toolbar show-percentage dense :fields="tmam_fields"></h-compare>
+      <h-compare :objs="objs" :diff-threshold="10" :top-fields="top" label-key="tag" header-align="start" show-toolbar show-percentage dense></h-compare>
     </v-main>
   </v-app>
 </template>
@@ -35,6 +35,10 @@ export default {
 
   data() {
     return {
+      objs: [
+        { aaa: 100, bbb: 200, tag: "aaa" },
+        { aaa: 110, bbb: 260, tag: "bbb" },
+      ],
       top: ["Result", "Frontend_Bound(%)"],
       id: "60757b831e482deace70b3df",
       ids: ["622569e878ffccd5268880f9", "62256a2e78ffccd526888142"],

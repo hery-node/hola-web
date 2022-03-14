@@ -11,6 +11,7 @@ import Confirm from './Confirm.vue';
 import Form from './Form.vue';
 import ArrayList from './Array.vue';
 import Compare from './Compare.vue';
+import CompareEntity from './CompareEntity.vue';
 import SearchForm from './SearchForm.vue';
 import EditForm from './EditForm.vue';
 import Table from './Table.vue';
@@ -23,6 +24,7 @@ function setup_components() {
     Vue.component('h-form', Form);
     Vue.component('h-array', ArrayList);
     Vue.component('h-compare', Compare);
+    Vue.component('h-compare-entity', CompareEntity);
     Vue.component('h-search-form', SearchForm);
     Vue.component('h-edit-form', EditForm);
     Vue.component('h-table', Table);

@@ -12,18 +12,35 @@
           <v-checkbox v-model="only_show_diff" hide-details :label="show_diff_label"></v-checkbox>
         </v-col>
       </v-row>
+      <v-menu left bottom v-if="show_choose_fields">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on">
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list>
+          <v-list-item v-for="field in property_fields" :key="field.name">
+            <v-checkbox v-model="show_fields[field.name]" hide-details :label="field.label" @click.native.prevent.stop="filter_fields"></v-checkbox>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-toolbar>
     <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" disable-pagination hide-default-footer> </v-data-table>
   </v-card>
 </template>
 
 <script>
+import Meta from "../mixins/meta";
+import { read_entity_properties } from "../core/axios";
+
 export default {
   inheritAttrs: false,
+  mixins: [Meta],
 
   props: {
     //one is used to show, more than one is used to compare
-    objs: { type: Array, required: true },
+    ids: { type: Array, required: true },
     labelKey: { type: String, required: true },
 
     headerWidth: { type: String, default: "120px" },
@@ -36,6 +53,7 @@ export default {
     toolbarClass: { type: String, default: "app_bar subtitle-2" },
     searchHint: { type: String },
     showDiffLabel: { type: String },
+    recommend: { type: Object },
     topFields: { type: Array, default: () => [] },
     filterFields: { type: Array, default: () => [] },
     maxLineWords: { type: Number, default: 50 },
@@ -51,12 +69,23 @@ export default {
       threshold: 0,
       all_items: [],
       items: [],
+      property_fields: [],
       table_headers: [],
+      show_fields: {},
     };
   },
 
   async created() {
-    const objs = this.objs;
+    const property_fields = await this.get_property_fields();
+    const attr_names = property_fields.map((h) => h.name).join(",");
+
+    const objs = [];
+    for (let i = 0; i < this.ids.length; i++) {
+      const entityId = this.ids[i];
+      const obj = await read_entity_properties(this.entity, entityId, attr_names + "," + this.labelKey);
+      objs.push(obj);
+    }
+
     const headers = [];
     headers.push({ text: this.uppcase_header(this.$t("table.attribute")), value: "attr", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
 
@@ -66,9 +95,12 @@ export default {
       }
     } else {
       headers.push({ text: this.uppcase_header(this.$t("table.value")), value: "value", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
+      if (this.recommend) {
+        headers.push({ text: this.uppcase_header(this.$t("table.recommend")), value: "recommend", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
+      }
     }
 
-    if (this.showPercentage && objs.length >= 2) {
+    if (this.showPercentage && (objs.length >= 2 || this.recommend)) {
       headers.push({
         text: this.uppcase_header(this.$t("compare.diff")),
         value: "percentage",
@@ -84,38 +116,65 @@ export default {
     }
 
     const items = [];
-    if (objs.length > 1) {
-      const property_objs = this.conver_obj_keys(objs);
-      const merged_attributes = this.merge_attributes(property_objs);
-      for (let i = 0; i < merged_attributes.length; i++) {
-        const attribute = merged_attributes[i];
-        if (attribute != this.labelKey) {
-          const obj = {};
-          obj["attr"] = attribute;
-          for (let j = 0; j < objs.length; j++) {
-            obj["value" + j] = property_objs[j] && property_objs[j][attribute] ? this.convert_long_to_newline(property_objs[j][attribute]) : "";
+    for (let i = 0; i < property_fields.length; i++) {
+      const field = property_fields[i];
+      this.show_fields[field.name] = true;
+      if (field.type == "obj") {
+        if (objs.length > 1) {
+          const property_objs = this.conver_obj_keys(objs.map((o) => o[field.name]));
+          const merged_attributes = this.merge_attributes(property_objs);
+          for (let i = 0; i < merged_attributes.length; i++) {
+            const attribute = merged_attributes[i];
+            const obj = {};
+            obj["attr"] = attribute;
+            obj["owner"] = field.name;
+            for (let j = 0; j < objs.length; j++) {
+              obj["value" + j] = property_objs[j] && property_objs[j][attribute] ? this.convert_long_to_newline(property_objs[j][attribute]) : "";
+            }
+            if (this.filterFields.length == 0) {
+              items.push(obj);
+            } else if (this.filterFields.includes(attribute)) {
+              items.push(obj);
+            }
           }
-          if (this.filterFields.length == 0) {
-            items.push(obj);
-          } else if (this.filterFields.includes(attribute)) {
-            items.push(obj);
+        } else {
+          const object = this.conver_obj_keys([objs[0][field.name]])[0];
+          const merged_attributes = this.recommend ? this.merge_attributes([object, this.recommend]) : this.merge_attributes([object]);
+          for (let i = 0; i < merged_attributes.length; i++) {
+            const attribute = merged_attributes[i];
+            const obj = {};
+            obj["attr"] = attribute;
+            obj["owner"] = field.name;
+            obj["value"] = object[attribute] ? this.convert_long_to_newline(object[attribute] + "") : "";
+            if (this.recommend) {
+              obj["recommend"] = this.recommend[attribute] ? this.recommend[attribute] + "" : "";
+            }
+            if (this.filterFields.length == 0) {
+              items.push(obj);
+            } else if (this.filterFields.includes(attribute)) {
+              items.push(obj);
+            }
           }
         }
-      }
-    } else {
-      const object = this.conver_obj_keys([objs[0]])[0];
-      const merged_attributes = this.recommend ? this.merge_attributes([object, this.recommend]) : this.merge_attributes([object]);
-      for (let i = 0; i < merged_attributes.length; i++) {
-        const attribute = merged_attributes[i];
-        if (attribute != this.labelKey) {
-          const obj = {};
-          obj["attr"] = attribute;
-          obj["value"] = object[attribute] ? this.convert_long_to_newline(object[attribute] + "") : "";
-          if (this.filterFields.length == 0) {
-            items.push(obj);
-          } else if (this.filterFields.includes(attribute)) {
-            items.push(obj);
+      } else {
+        const obj = {};
+        obj["attr"] = field.label;
+        obj["owner"] = field.name;
+
+        if (objs.length > 1) {
+          for (let i = 0; i < objs.length; i++) {
+            obj["value" + i] = this.get_field_value(field, objs[i]);
           }
+        } else {
+          obj["value"] = this.get_field_value(field, objs[0]);
+          if (this.recommend) {
+            obj["recommend"] = this.recommend[field.name] ? this.recommend[field.name] + "" : "";
+          }
+        }
+        if (this.filterFields.length == 0) {
+          items.push(obj);
+        } else if (this.filterFields.includes(field.label)) {
+          items.push(obj);
         }
       }
     }
@@ -128,6 +187,7 @@ export default {
       }
     }
 
+    this.property_fields = property_fields;
     this.table_headers = headers;
     this.all_items = items;
     this.threshold = this.diffThreshold;
@@ -155,11 +215,11 @@ export default {
     },
 
     show_only_show_diff() {
-      return this.objs.length > 1;
+      return this.recommend || this.ids.length > 1;
     },
 
     show_threshold() {
-      return this.diffThreshold > 0 && this.objs.length > 1;
+      return this.diffThreshold > 0 && this.ids.length > 1;
     },
 
     show_diff_label() {
@@ -168,6 +228,10 @@ export default {
 
     threshold_label() {
       return this.thresholdLabel;
+    },
+
+    show_choose_fields() {
+      return this.fields.length > 1;
     },
   },
 
@@ -190,7 +254,7 @@ export default {
 
     calculate_percentage(item) {
       let values = [];
-      for (let i = 0; i < this.objs.length; i++) {
+      for (let i = 0; i < this.ids.length; i++) {
         values.push(parseFloat(item["value" + i]));
       }
       let max = Math.max(...values);
@@ -232,7 +296,7 @@ export default {
     },
 
     is_diff_value(item) {
-      if (this.objs.length > 1) {
+      if (this.ids.length > 1) {
         if (this.threshold > 0) {
           if (item["percentage"]) {
             return Math.abs(parseFloat(item["percentage"])) > this.threshold;
@@ -247,6 +311,12 @@ export default {
           }
           return false;
         }
+      } else if (this.recommend) {
+        const value = item["value"];
+        const r_value = item["recommend"];
+        if (r_value && r_value.trim().length > 0 && r_value.trim() != value) {
+          return true;
+        }
       }
       return false;
     },
@@ -260,10 +330,43 @@ export default {
       }
     },
 
+    get_field_value(field, obj) {
+      const value = field.format ? field.format(obj[field.name], this) : obj[field.name];
+      if (value) {
+        const prefix = field.prefix && !value.toString().includes(field.prefix) ? field.prefix : "";
+        const suffix = field.suffix && !value.toString().includes(field.suffix) ? field.suffix : "";
+        return `${prefix} ${value} ${suffix}`;
+      } else {
+        return "";
+      }
+    },
+
     filter_fields() {
+      const show_fields_names = this.fields.filter((f) => this.show_fields[f.name] == true).map((f) => f.name);
       const items = this.only_show_diff ? this.all_items.filter((item) => this.is_diff_value(item)) : this.all_items;
-      this.items = items;
+      this.items = items.filter((item) => show_fields_names.includes(item.owner));
     },
   },
 };
 </script>
+
+<style>
+.diff_item {
+  color: #37474f;
+  background-color: #f3e5f5;
+}
+
+.diff_item:hover {
+  color: #37474f !important;
+  background-color: #f3e5f5 !important;
+}
+.top_item {
+  color: #37474f;
+  background-color: #ffcdd2;
+}
+
+.top_item:hover {
+  color: #37474f !important;
+  background-color: #ffcdd2 !important;
+}
+</style>
