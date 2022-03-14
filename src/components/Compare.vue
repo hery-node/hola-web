@@ -55,83 +55,8 @@ export default {
     };
   },
 
-  async created() {
-    const objs = this.objs;
-    const headers = [];
-    headers.push({ text: this.uppcase_header(this.$t("table.attribute")), value: "attr", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
-
-    if (objs.length > 1) {
-      for (let i = 0; i < objs.length; i++) {
-        headers.push({ text: this.uppcase_header(objs[i][this.labelKey]), value: "value" + i, width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
-      }
-    } else {
-      headers.push({ text: this.uppcase_header(this.$t("table.value")), value: "value", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
-    }
-
-    if (this.showPercentage && objs.length >= 2) {
-      headers.push({
-        text: this.uppcase_header(this.$t("compare.diff")),
-        value: "percentage",
-        width: this.headerWidth,
-        align: this.headerAlign,
-        class: this.headerClass,
-        sort: function(a, b) {
-          const a1 = isNaN(parseFloat(a)) ? 0 : parseFloat(a);
-          const b1 = isNaN(parseFloat(b)) ? 0 : parseFloat(b);
-          return a1 - b1;
-        },
-      });
-    }
-
-    const items = [];
-    if (objs.length > 1) {
-      const property_objs = this.conver_obj_keys(objs);
-      const merged_attributes = this.merge_attributes(property_objs);
-      for (let i = 0; i < merged_attributes.length; i++) {
-        const attribute = merged_attributes[i];
-        if (attribute != this.labelKey) {
-          const obj = {};
-          obj["attr"] = attribute;
-          for (let j = 0; j < objs.length; j++) {
-            obj["value" + j] = property_objs[j] && property_objs[j][attribute] ? this.convert_long_to_newline(property_objs[j][attribute]) : "";
-          }
-          if (this.filterFields.length == 0) {
-            items.push(obj);
-          } else if (this.filterFields.includes(attribute)) {
-            items.push(obj);
-          }
-        }
-      }
-    } else {
-      const object = this.conver_obj_keys([objs[0]])[0];
-      const merged_attributes = this.recommend ? this.merge_attributes([object, this.recommend]) : this.merge_attributes([object]);
-      for (let i = 0; i < merged_attributes.length; i++) {
-        const attribute = merged_attributes[i];
-        if (attribute != this.labelKey) {
-          const obj = {};
-          obj["attr"] = attribute;
-          obj["value"] = object[attribute] ? this.convert_long_to_newline(object[attribute] + "") : "";
-          if (this.filterFields.length == 0) {
-            items.push(obj);
-          } else if (this.filterFields.includes(attribute)) {
-            items.push(obj);
-          }
-        }
-      }
-    }
-
-    //calculate the percentage
-    if (this.showPercentage && objs.length >= 2) {
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-        item["percentage"] = this.calculate_percentage(item);
-      }
-    }
-
-    this.table_headers = headers;
-    this.all_items = items;
-    this.threshold = this.diffThreshold;
-    this.filter_fields();
+  created() {
+    this.parse_data();
   },
 
   watch: {
@@ -144,6 +69,12 @@ export default {
     threshold: {
       handler() {
         this.filter_fields();
+      },
+      deep: true,
+    },
+    objs: {
+      handler() {
+        this.parse_data();
       },
       deep: true,
     },
@@ -172,6 +103,85 @@ export default {
   },
 
   methods: {
+    parse_data() {
+      const objs = this.objs;
+      const headers = [];
+      headers.push({ text: this.uppcase_header(this.$t("table.attribute")), value: "attr", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
+
+      if (objs.length > 1) {
+        for (let i = 0; i < objs.length; i++) {
+          headers.push({ text: this.uppcase_header(objs[i][this.labelKey]), value: "value" + i, width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
+        }
+      } else {
+        headers.push({ text: this.uppcase_header(this.$t("table.value")), value: "value", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
+      }
+
+      if (this.showPercentage && objs.length >= 2) {
+        headers.push({
+          text: this.uppcase_header(this.$t("compare.diff")),
+          value: "percentage",
+          width: this.headerWidth,
+          align: this.headerAlign,
+          class: this.headerClass,
+          sort: function(a, b) {
+            const a1 = isNaN(parseFloat(a)) ? 0 : parseFloat(a);
+            const b1 = isNaN(parseFloat(b)) ? 0 : parseFloat(b);
+            return a1 - b1;
+          },
+        });
+      }
+
+      const items = [];
+      if (objs.length > 1) {
+        const property_objs = this.conver_obj_keys(objs);
+        const merged_attributes = this.merge_attributes(property_objs);
+        for (let i = 0; i < merged_attributes.length; i++) {
+          const attribute = merged_attributes[i];
+          if (attribute != this.labelKey) {
+            const obj = {};
+            obj["attr"] = attribute;
+            for (let j = 0; j < objs.length; j++) {
+              obj["value" + j] = property_objs[j] && property_objs[j][attribute] ? this.convert_long_to_newline(property_objs[j][attribute]) : "";
+            }
+            if (this.filterFields.length == 0) {
+              items.push(obj);
+            } else if (this.filterFields.includes(attribute)) {
+              items.push(obj);
+            }
+          }
+        }
+      } else {
+        const object = this.conver_obj_keys([objs[0]])[0];
+        const merged_attributes = this.recommend ? this.merge_attributes([object, this.recommend]) : this.merge_attributes([object]);
+        for (let i = 0; i < merged_attributes.length; i++) {
+          const attribute = merged_attributes[i];
+          if (attribute != this.labelKey) {
+            const obj = {};
+            obj["attr"] = attribute;
+            obj["value"] = object[attribute] ? this.convert_long_to_newline(object[attribute] + "") : "";
+            if (this.filterFields.length == 0) {
+              items.push(obj);
+            } else if (this.filterFields.includes(attribute)) {
+              items.push(obj);
+            }
+          }
+        }
+      }
+
+      //calculate the percentage
+      if (this.showPercentage && objs.length >= 2) {
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i];
+          item["percentage"] = this.calculate_percentage(item);
+        }
+      }
+
+      this.table_headers = headers;
+      this.all_items = items;
+      this.threshold = this.diffThreshold;
+      this.filter_fields();
+    },
+
     convert_long_to_newline(value) {
       if (!value) {
         return "";
