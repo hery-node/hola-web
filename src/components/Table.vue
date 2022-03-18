@@ -108,6 +108,9 @@ export default {
     sortKey: { type: Array, required: true },
     //end
 
+    //action to do list
+    listAction: { type: String },
+
     //used to add filter conditions to table
     filter: { type: Object },
 
@@ -316,7 +319,7 @@ export default {
       }
 
       const query_obj = this.filter ? { ...this.search_form, ...this.filter } : this.search_form;
-      const { code, total, data } = await list_entity(this.entity, query_obj, params);
+      const { code, total, data } = await list_entity(this.entity, query_obj, params, this.listAction);
       this.loading = false;
       if (is_success_response(code)) {
         this.total = total;
