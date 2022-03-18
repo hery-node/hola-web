@@ -212,7 +212,7 @@ const read_entity_properties = (entity, id, attr_names) => {
 };
 
 const list_entity = (entity, form, params, list_action) => {
-    const url = "/" + entity + list_action ? list_action : LIST;
+    const url = "/" + entity + list_action && list_action.trim().length > 0 ? list_action : LIST;
     form["_query"] = params;
     return axios_post(url, form);
 };
