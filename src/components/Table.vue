@@ -30,9 +30,9 @@
 
       <template v-for="(chip, index) in chips" v-slot:[`item.${chip}`]="{ item }">
         <template v-if="wrapLine">
-          <v-row class="d-flex flex-nowrap" :justify="get_header_align(chip)" style="margin-top:5px;margin-bottom:5px" :align="get_header_align(chip)" v-bind:key="index">
+          <v-row class="d-flex flex-nowrap" :justify="get_header_align(chip)" style="margin-top: 5px; margin-bottom: 5px" :align="get_header_align(chip)" v-bind:key="index">
             <template v-if="Array.isArray(item[chip])">
-              <v-chip dark v-for="(tag, tag_index) in item[chip]" :key="tag_index" :class="get_item_style(chip, item[chip], 'chip')" style="margin:3px"> {{ tag }} </v-chip>
+              <v-chip dark v-for="(tag, tag_index) in item[chip]" :key="tag_index" :class="get_item_style(chip, item[chip], 'chip')" style="margin: 3px"> {{ tag }} </v-chip>
             </template>
             <template v-else-if="item[chip]">
               <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
@@ -69,7 +69,7 @@
 
       <template v-slot:[`item._action`]="{ item }">
         <v-tooltip v-for="(action, index) in itemActions" bottom v-bind:key="index">
-          <template v-slot:activator="{ on }">
+          <template v-slot:activator="{ on }" v-if="action.has(item)">
             <v-btn icon @click.stop="action.handle(item)" v-on="on">
               <v-icon :color="action.color">{{ action.icon }}</v-icon>
             </v-btn>
@@ -79,8 +79,8 @@
       </template>
 
       <template v-slot:expanded-item="{ headers, item }" v-if="expandField">
-        <td :colspan="headers.length" style="white-space:pre-wrap; word-wrap:break-word" flat>
-          <div style="margin:15px">
+        <td :colspan="headers.length" style="white-space: pre-wrap; word-wrap: break-word" flat>
+          <div style="margin: 15px">
             {{ get_expanded(item) }}
           </div>
         </td>
