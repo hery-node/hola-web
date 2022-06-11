@@ -52,6 +52,7 @@
     "switch_to_batch": "Switch to batch mode(Keymap:CTRL+B)",
     "switch_to_single": "Switch to single mode(Keymap:ESC)",
     "create_title": "Create {entity}",
+    "refresh_title": "Refresh {entity} List",
     "update_title": "Update {entity}",
     "clone_title": "Clone {entity}",
     "delete_title": "Delete {entity}",

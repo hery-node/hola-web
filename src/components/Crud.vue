@@ -31,7 +31,7 @@ export default {
     //show delete name in batch delete dialog
     itemLabelKey: { type: String, required: true },
     //end
-    //c stands for create, r: read, u:update, o:clone, d:delete, i:import ,e:export
+    //c stands for create, r: read, u:update, o:clone, d:delete, i:import ,e:export, f:refresh
     mode: { type: String, default: "crudie" },
     //add more actions to item actions
     actions: { type: Array, default: () => [] },
@@ -47,11 +47,13 @@ export default {
     //title related setting
     noSelectLabel: { type: String },
     createLabel: { type: String },
+    refreshLabel: { type: String },
     updateLabel: { type: String },
     cloneLabel: { type: String },
     deleteLabel: { type: String },
     batchDeleteLabel: { type: String },
     createIcon: { type: String, default: "mdi-plus-circle" },
+    refreshIcon: { type: String, default: "mdi-refresh" },
     updateIcon: { type: String, default: "mdi-square-edit-outline" },
     cloneIcon: { type: String, default: "mdi-content-copy" },
     deleteIcon: { type: String, default: "mdi-delete-circle" },
@@ -91,6 +93,10 @@ export default {
       return this.mode.includes("o");
     },
 
+    is_refreshable() {
+      return this.mode.includes("f");
+    },
+
     entity_label() {
       return this.$t(this.entity + "._label");
     },
@@ -101,6 +107,10 @@ export default {
 
     create_title() {
       return this.createLabel ? this.createLabel : this.$t("table.create_title", { entity: this.entity_label });
+    },
+
+    refresh_title() {
+      return this.refreshLabel ? this.refreshLabel : this.$t("table.refresh_title", { entity: this.entity_label });
     },
 
     update_title() {
@@ -144,6 +154,7 @@ export default {
     show_toolbars() {
       const header_toolbars = [];
       !this.batch_mode && this.is_creatable && header_toolbars.push({ color: "toolbar_icon", icon: this.createIcon, tooltip: this.create_title, click: this.show_create_dialog });
+      !this.batch_mode && this.is_refreshable && header_toolbars.push({ color: "toolbar_icon", icon: this.refreshIcon, tooltip: this.refresh_title, click: this.refresh });
       this.batch_mode && this.is_deletable && header_toolbars.push({ color: "toolbar_icon", icon: this.deleteIcon, tooltip: this.batch_delete_title, click: this.batch_delete });
       !this.batch_mode && header_toolbars.push(...this.toolbars);
       this.batch_mode && header_toolbars.push(...this.batchToolbars);
