@@ -21,9 +21,6 @@
                 <v-date-picker :first-day-of-week="0" v-model="form[field.name]" no-title scrollable @input="show_date_picker = false"></v-date-picker>
               </v-menu>
             </template>
-            <template v-else-if="field.input_type === 'editor'">
-              <tiptap-vuetify v-model="form[field.name]" :extensions="extensions"></tiptap-vuetify>
-            </template>
             <template v-else-if="field.items">
               <v-autocomplete :items="field.items" :autofocus="index == 0" v-model="form[field.name]" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :multiple="field.multiple" chips :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-autocomplete>
             </template>
@@ -45,8 +42,6 @@
 </template>
 
 <script>
-import { TiptapVuetify, Heading, Image, Bold, Italic, Strike, Underline, Code, Paragraph, BulletList, OrderedList, ListItem, Link, Blockquote, HardBreak, HorizontalRule, History } from "tiptap-vuetify";
-
 export default {
   inheritAttrs: false,
 
@@ -65,13 +60,10 @@ export default {
     hideTitle: { type: Boolean, default: false },
   },
 
-  components: { TiptapVuetify },
-
   data() {
     return {
       show_date_picker: false,
       show_password: false,
-      extensions: [History, Blockquote, Link, Image, Underline, Strike, Italic, ListItem, BulletList, OrderedList, [Heading, { options: { levels: [1, 2, 3] } }], Bold, Code, HorizontalRule, Paragraph, HardBreak],
     };
   },
 
