@@ -69,8 +69,8 @@
 
       <template v-slot:[`item._action`]="{ item }">
         <v-tooltip v-for="(action, index) in itemActions" bottom v-bind:key="index">
-          <template v-slot:activator="{ on }" v-if="!action.shown || action.shown(item)">
-            <v-btn icon @click.stop="action.handle(item)" v-on="on">
+          <template v-slot:activator="{ on }">
+            <v-btn icon @click.stop="action.handle(item)" v-on="on" v-show="!action.shown || action.shown(item)">
               <v-icon :color="action.color">{{ action.icon }}</v-icon>
             </v-btn>
           </template>
