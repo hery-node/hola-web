@@ -123,7 +123,7 @@ export default {
           width: this.headerWidth,
           align: this.headerAlign,
           class: this.headerClass,
-          sort: function(a, b) {
+          sort: function (a, b) {
             const a1 = isNaN(parseFloat(a)) ? 0 : parseFloat(a);
             const b1 = isNaN(parseFloat(b)) ? 0 : parseFloat(b);
             return a1 - b1;

@@ -2,7 +2,7 @@
   <div>
     <template v-if="dialog">
       <v-dialog v-model="dialog_show_inner" :max-width="dialogWidth">
-        <div style="overflow-x: hidden;">
+        <div style="overflow-x: hidden">
           <h-form v-bind="$attrs" v-on="$listeners" ref="form" v-model="form" :fields="edit_fields" :title="form_title" @submit="submit_form">
             <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
             <v-progress-linear v-if="loading" indeterminate :color="progressBarColor" class="mx-3"></v-progress-linear>

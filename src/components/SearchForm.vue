@@ -4,9 +4,7 @@
       <v-expansion-panel-header :class="searchToolbarClass">
         <span>{{ form_title }}</span>
         <template v-slot:actions>
-          <v-icon color="white">
-            $expand
-          </v-icon>
+          <v-icon color="white"> $expand </v-icon>
         </template>
       </v-expansion-panel-header>
       <v-expansion-panel-content>
