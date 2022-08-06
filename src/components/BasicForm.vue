@@ -8,30 +8,30 @@
         <v-row dense>
           <v-col v-for="(field, index) in fields" v-bind:key="index" cols="12" sm="12" xs="12" :md="field.cols ? field.cols : 12" :lg="field.cols ? field.cols : 12">
             <template v-if="field.input_type === 'combobox'">
-              <v-combobox v-model="form[field.name]" :autofocus="index == 0" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :multiple="field.multiple" chips deletable-chips :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-combobox>
+              <v-combobox v-model="form_data[field.name]" :autofocus="index == 0" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :multiple="field.multiple" chips deletable-chips :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-combobox>
             </template>
             <template v-else-if="field.input_type === 'password'">
-              <v-text-field v-model="form[field.name]" :autofocus="index == 0" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true" :type="show_password ? 'text' : 'password'" :append-icon="show_password ? 'visibility' : 'visibility_off'" @click:append="show_password = !show_password" />
+              <v-text-field v-model="form_data[field.name]" :autofocus="index == 0" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true" :type="show_password ? 'text' : 'password'" :append-icon="show_password ? 'visibility' : 'visibility_off'" @click:append="show_password = !show_password" />
             </template>
             <template v-else-if="field.input_type === 'date'">
               <v-menu v-model="show_date_picker" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y max-width="290px" min-width="290px">
                 <template v-slot:activator="{ on }">
-                  <v-text-field :label="field.label" :hint="field.hint" v-model="form[field.name]" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" readonly :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true" v-on="on"></v-text-field>
+                  <v-text-field :label="field.label" :hint="field.hint" v-model="form_data[field.name]" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" readonly :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true" v-on="on"></v-text-field>
                 </template>
-                <v-date-picker :first-day-of-week="0" v-model="form[field.name]" no-title scrollable @input="show_date_picker = false"></v-date-picker>
+                <v-date-picker :first-day-of-week="0" v-model="form_data[field.name]" no-title scrollable @input="show_date_picker = false"></v-date-picker>
               </v-menu>
             </template>
             <template v-else-if="field.items">
-              <v-autocomplete :items="field.items" :autofocus="index == 0" v-model="form[field.name]" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :multiple="field.multiple" chips :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-autocomplete>
+              <v-autocomplete :items="field.items" :autofocus="index == 0" v-model="form_data[field.name]" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :multiple="field.multiple" chips :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-autocomplete>
             </template>
             <template v-else-if="field.input_type === 'switch'">
-              <v-switch align="center" justify="center" v-model="form[field.name]" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-switch>
+              <v-switch align="center" justify="center" v-model="form_data[field.name]" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-switch>
             </template>
             <template v-else-if="field.input_type === 'textarea'">
-              <v-textarea v-model="form[field.name]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true" auto-grow></v-textarea>
+              <v-textarea v-model="form_data[field.name]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true" auto-grow></v-textarea>
             </template>
             <template v-else>
-              <v-text-field v-model="form[field.name]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-text-field>
+              <v-text-field v-model="form_data[field.name]" :autofocus="index == 0" :type="field.input_type ? field.input_type : 'text'" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-text-field>
             </template>
           </v-col>
         </v-row>
@@ -64,6 +64,7 @@ export default {
     return {
       show_date_picker: false,
       show_password: false,
+      form_data: this.form,
     };
   },
 
@@ -99,7 +100,7 @@ export default {
     },
 
     submit_form() {
-      this.$emit("submit");
+      this.$emit("submit", this.form_data);
     },
   },
 };
