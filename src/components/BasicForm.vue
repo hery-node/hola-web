@@ -68,6 +68,15 @@ export default {
     };
   },
 
+  watch: {
+    form: {
+      handler() {
+        this.form_data = this.form;
+      },
+      deep: true,
+    },
+  },
+
   computed: {
     form_title() {
       if (this.hideTitle) {

@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark dense>
+    <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
         <v-img alt="Vuetify Logo" class="shrink mr-2" contain src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png" transition="scale-transition" width="40" />
 
@@ -19,10 +19,11 @@
       <br />
       <br />
       <br />
-      <br />
-      <!-- <h-array :entity="entity" :id="id" field-name="memory" search-hint="Search Memory Configuration" show-toolbar toolbar-class="cyan darken-2" header-class="cyan lighten-4" :check="check" show-search header-uppcase no-results-text="no result"></h-array> -->
-      <!-- <h-compare :entity="entity" :ids="ids" label-key="name" search-hint="Search CPU Configuration" show-toolbar :recommend="recommend" toolbar-class="cyan darken-2" header-class="cyan lighten-4" header-uppcase :fields="fields"></h-compare> -->
-      <h-compare :objs="objs" :diff-threshold="10" :top-fields="top" label-key="tag" header-align="start" show-toolbar show-percentage dense></h-compare>
+      <!-- <h-property entity="user" entity-id="6071614ca73a602476c92d41"></h-property> -->
+      <!-- <h-search-form entity="user" :fields="search_fields" :cols="6" clear-label="reset" search-label="query" v-model="form" @search="do_search"></h-search-form> -->
+      <!-- <h-edit-form entity="user" v-model="form" hide-cancel :cols="6" :fields="search_fields" :success-hint="success_hint" submit-label="Save" @saved="saved"></h-edit-form> -->
+      <!-- <h-table searchable entity="user" :headers="headers" :sort-key="sort_key" :sort-desc="sort_desc" :search-fields="search_fields" :search-cols="6" clear-label="reset" search-label="query"></h-table> -->
+      <h-crud header-uppcase :mode="mode" :entity="entity" :searchable="searchable" :search-cols="search_cols" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc"> </h-crud>
     </v-main>
   </v-app>
 </template>
@@ -35,32 +36,14 @@ export default {
 
   data() {
     return {
-      objs: [
-        { aaa: 100, bbb: 200, tag: "aaa" },
-        { aaa: 110, bbb: 260, tag: "bbb" },
-      ],
-      top: ["Result", "Frontend_Bound(%)"],
-      id: "60757b831e482deace70b3df",
-      ids: ["622569e878ffccd5268880f9", "62256a2e78ffccd526888142"],
-      tmam_fields: [{ name: "tmam" }],
-      fields: [{ name: "cpu" }],
-      recommend: { "CPU family": 7, cpu_model: "Intel(R) Xeon(R) Gold 8080R CPU @ 2.70GHz" },
-      mode: "crud",
-      entity: "monitor",
-      label_key: "ip",
-      sort_key: ["ip"],
+      mode: "cruod",
+      entity: "application",
+      searchable: true,
+      search_cols: 6,
+      item_label_key: "name",
+      sort_key: ["name"],
       sort_desc: [false],
-      headers: [{ name: "cpu_model" }, { name: "disk_model", chip: true }, { name: "network_model" }, { name: "cpu" }],
-      actions: [{ color: "edit", icon: "mdi-refresh", tooltip: this.$t("host.refresh_host"), handle: this.refresh_host }],
-      toolbars: [{ color: "edit", icon: "mdi-compass-outline", tooltip: "compared", click: this.refresh_host }],
     };
-  },
-
-  methods: {
-    check() {
-      // return { success: true, msg: "This is balanced memory configuration." };
-      return { success: false, msg: "This is unbalanced memory configuration." };
-    },
   },
 };
 </script>
