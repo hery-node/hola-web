@@ -10,6 +10,7 @@
         <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
         <v-toolbar flat dense :class="toolbarClass" dark v-if="!hideToolbar">
           <span class="ml-3" v-if="!hideTitle">{{ table_title }}</span>
+          <span class="ml-3" v-if="infinite">{{ total_records_title }}</span>
           <v-spacer></v-spacer>
           <slot name="toolbar" />
         </v-toolbar>
@@ -233,6 +234,10 @@ export default {
         return this.title;
       }
       return this.$t("table.title", { entity: this.entity_label });
+    },
+
+    total_records_title() {
+      return this.$t("table.total_record", { total: this.total });
     },
   },
 

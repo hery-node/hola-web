@@ -23,7 +23,7 @@
       <!-- <h-search-form entity="user" :fields="search_fields" :cols="6" clear-label="reset" search-label="query" v-model="form" @search="do_search"></h-search-form> -->
       <!-- <h-edit-form entity="user" v-model="form" hide-cancel :cols="6" :fields="search_fields" :success-hint="success_hint" submit-label="Save" @saved="saved"></h-edit-form> -->
       <!-- <h-table searchable entity="user" :headers="headers" :sort-key="sort_key" :sort-desc="sort_desc" :search-fields="search_fields" :search-cols="6" clear-label="reset" search-label="query"></h-table> -->
-      <h-crud header-uppcase :mode="mode" :entity="entity" :searchable="searchable" :search-cols="search_cols" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc"> </h-crud>
+      <h-crud header-uppcase infinite :mode="mode" :entity="entity" :searchable="searchable" :search-cols="search_cols" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc"> </h-crud>
     </v-main>
   </v-app>
 </template>

@@ -64,7 +64,8 @@
     "confirm_yes": "Yes",
     "confirm_no": "No",
     "property_name": "Name",
-    "property_value": "Value"
+    "property_value": "Value",
+    "total_record":" ( {total} records )"
   },
 
   "compare": {
