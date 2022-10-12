@@ -326,7 +326,7 @@ export default {
       if (this.topFields.includes(attr)) {
         return "top_item";
       } else {
-        return this.is_diff_value(item) ? "diff_item" : "";
+        return this.is_diff_value(item) ? "diff_item" : "compare_item";
       }
     },
 
