@@ -41,7 +41,6 @@ export default {
     maxLineWords: { type: Number, default: 50 },
     diffThreshold: { type: Number, default: 0 },
     thresholdLabel: { type: String },
-    objDot: { type: String, default: "*" },
   },
 
   data() {
@@ -133,7 +132,7 @@ export default {
 
       const items = [];
       if (objs.length > 1) {
-        const property_objs = this.conver_obj_keys(objs);
+        const property_objs = objs;
         const merged_attributes = this.merge_attributes(property_objs);
         for (let i = 0; i < merged_attributes.length; i++) {
           const attribute = merged_attributes[i];
@@ -151,7 +150,7 @@ export default {
           }
         }
       } else {
-        const object = this.conver_obj_keys([objs[0]])[0];
+        const object = objs[0];
         const merged_attributes = this.recommend ? this.merge_attributes([object, this.recommend]) : this.merge_attributes([object]);
         for (let i = 0; i < merged_attributes.length; i++) {
           const attribute = merged_attributes[i];
@@ -228,37 +227,12 @@ export default {
       return attributes;
     },
 
-    conver_obj_keys(objs) {
-      const results = [];
-      objs.forEach((obj) => {
-        const converted = {};
-        for (const property in obj) {
-          const replaced_property = property.replaceAll(this.objDot, ".");
-          converted[replaced_property] = obj[property];
-        }
-        results.push(converted);
-      });
-      return results;
-    },
-
     is_diff_value(item) {
-      if (this.objs.length > 1) {
-        if (this.threshold > 0) {
-          if (item["percentage"]) {
-            return Math.abs(parseFloat(item["percentage"])) > this.threshold;
-          }
-          return false;
-        } else {
-          let value = item["value0"];
-          for (let i = 0; i < this.ids.length; i++) {
-            if (item["value" + i] != value) {
-              return true;
-            }
-          }
-          return false;
-        }
+      if (this.objs.length > 1 && this.threshold > 0 && item["percentage"]) {
+        return Math.abs(parseFloat(item["percentage"])) > this.threshold;
+      } else {
+        return false;
       }
-      return false;
     },
 
     get_item_class(item) {
