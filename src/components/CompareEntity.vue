@@ -26,17 +26,23 @@
         </v-list>
       </v-menu>
     </v-toolbar>
-    <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" disable-pagination hide-default-footer> </v-data-table>
+    <template v-if="regexSearch">
+      <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" :custom-filter="regex_search" disable-pagination hide-default-footer> </v-data-table>
+    </template>
+    <template v-else>
+      <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" disable-pagination hide-default-footer> </v-data-table>
+    </template>
   </v-card>
 </template>
 
 <script>
 import Meta from "../mixins/meta";
+import Regex from "../mixins/regex";
 import { read_entity_properties } from "../core/axios";
 
 export default {
   inheritAttrs: false,
-  mixins: [Meta],
+  mixins: [Meta, Regex],
 
   props: {
     //one is used to show, more than one is used to compare
