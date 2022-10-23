@@ -240,10 +240,7 @@ export default {
           this.refresh();
           this.reset_selected();
         } else if (is_been_referred(code)) {
-          const labels = items
-            .filter((item) => err.includes(item._id + ""))
-            .map((item) => item[this.label_key])
-            .join(",");
+          const labels = err ? err.join(",") : "";
           const msg = this.$t("table.has_ref", { entity: labels });
           this.$refs.table.show_error(msg);
         }
