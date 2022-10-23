@@ -169,8 +169,20 @@ export default {
     },
 
     press_key(event) {
+      if (this.is_creatable) {
+        if (event.key == "c" && event.ctrlKey == true) {
+          this.show_create_dialog();
+        }
+      }
+
       if (event.key == "b" && event.ctrlKey == true) {
         this.batch_mode == false && this.switch_to_batch();
+      }
+
+      if (this.is_refreshable) {
+        if (event.key == "r" && event.ctrlKey == true) {
+          this.refresh();
+        }
       }
     },
 
