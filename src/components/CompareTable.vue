@@ -235,19 +235,21 @@ export default {
 
       for (let i = 0; i < this.objs.length; i++) {
         const value = parseFloat(item["value" + i]);
-        let converted = 0;
-        if (value > trilion) {
-          converted = (value / trilion).toFixed(2) + "T";
-        } else if (value > billion) {
-          converted = (value / billion).toFixed(2) + "B";
-        } else if (value > million) {
-          converted = (value / million).toFixed(2) + "M";
-        } else if (value > thousand) {
-          converted = (value / thousand).toFixed(2) + "K";
-        } else {
-          converted = value;
+        if (!isNaN(value)) {
+          let converted = 0;
+          if (value > trilion) {
+            converted = (value / trilion).toFixed(2) + "T";
+          } else if (value > billion) {
+            converted = (value / billion).toFixed(2) + "B";
+          } else if (value > million) {
+            converted = (value / million).toFixed(2) + "M";
+          } else if (value > thousand) {
+            converted = (value / thousand).toFixed(2) + "K";
+          } else {
+            converted = value;
+          }
+          item["value" + i] = converted;
         }
-        item["value" + i] = converted;
       }
     },
 
