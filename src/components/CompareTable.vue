@@ -244,6 +244,8 @@ export default {
           converted = (value / million).toFixed(2) + "M";
         } else if (value > thousand) {
           converted = (value / thousand).toFixed(2) + "K";
+        } else {
+          converted = value;
         }
         item["value" + i] = converted;
       }
