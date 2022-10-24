@@ -41,6 +41,7 @@ export default {
     headerUppcase: { type: Boolean, default: false },
     showToolbar: { type: Boolean, default: false },
     showPercentage: { type: Boolean, default: false },
+    simpleValue: { type: Boolean, default: false },
     toolbarClass: { type: String, default: "app_bar subtitle-2" },
     searchHint: { type: String },
     showDiffLabel: { type: String },
@@ -183,6 +184,13 @@ export default {
         }
       }
 
+      if (this.simpleValue) {
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i];
+          this.convert_to_simple_value(item);
+        }
+      }
+
       this.table_headers = headers;
       this.all_items = items;
       this.threshold = this.diffThreshold;
@@ -216,6 +224,28 @@ export default {
         return (((max - min) * 100) / min).toFixed(2) + "%";
       } else {
         return "";
+      }
+    },
+
+    convert_to_simple_value(item) {
+      const thousand = 1000;
+      const million = thousand * 1000;
+      const billion = million * 1000;
+      const trilion = billion * 1000;
+
+      for (let i = 0; i < this.objs.length; i++) {
+        const value = parseFloat(item["value" + i]);
+        let converted = 0;
+        if (value > trilion) {
+          converted = (value / trilion).toFixed(2) + "T";
+        } else if (value > billion) {
+          converted = (value / billion).toFixed(2) + "B";
+        } else if (value > million) {
+          converted = (value / million).toFixed(2) + "M";
+        } else if (value > thousand) {
+          converted = (value / thousand).toFixed(2) + "K";
+        }
+        item["value" + i] = converted;
       }
     },
 
