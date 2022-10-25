@@ -93,7 +93,7 @@ export default {
     },
     reverse_order: {
       handler() {
-        this.items = items.reverse();
+        this.items = this.items.reverse();
       },
       deep: true,
     },
@@ -225,8 +225,6 @@ export default {
         return value;
       }
     },
-
-    calculate_percentage(item) {},
 
     uppcase_header(header_title) {
       return this.headerUppcase ? header_title.toUpperCase() : header_title;

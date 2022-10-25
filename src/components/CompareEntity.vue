@@ -2,7 +2,7 @@
   <v-card v-bind="$attrs">
     <v-toolbar :class="toolbarClass" dark v-if="showToolbar">
       <v-row>
-        <v-col cols="8">
+        <v-col cols="6">
           <v-text-field v-model="search" append-icon="mdi-magnify" class="mr-5" :label="search_hint" single-line hide-details clearable></v-text-field>
         </v-col>
         <v-col cols="2" v-if="show_threshold">
@@ -10,6 +10,9 @@
         </v-col>
         <v-col cols="2" v-if="show_only_show_diff">
           <v-checkbox v-model="only_show_diff" hide-details :label="show_diff_label"></v-checkbox>
+        </v-col>
+        <v-col cols="2" v-if="show_reverse_order">
+          <v-checkbox v-model="reverse_order" hide-details :label="reverse_order_label"></v-checkbox>
         </v-col>
       </v-row>
       <v-menu left bottom v-if="show_choose_fields">
@@ -59,6 +62,7 @@ export default {
     toolbarClass: { type: String, default: "app_bar subtitle-2" },
     searchHint: { type: String },
     showDiffLabel: { type: String },
+    reverseLabel: { type: String },
     recommend: { type: Object },
     topFields: { type: Array, default: () => [] },
     filterFields: { type: Array, default: () => [] },
@@ -70,6 +74,7 @@ export default {
   data() {
     return {
       only_show_diff: false,
+      reverse_order: false,
       search: "",
       threshold: 0,
       all_items: [],
@@ -213,6 +218,12 @@ export default {
       },
       deep: true,
     },
+    reverse_order: {
+      handler() {
+        this.items = this.items.reverse();
+      },
+      deep: true,
+    },
   },
 
   computed: {
@@ -224,12 +235,20 @@ export default {
       return this.recommend || this.ids.length > 1;
     },
 
+    show_reverse_order() {
+      return this.objs.length > 1;
+    },
+
     show_threshold() {
       return this.diffThreshold > 0 && this.ids.length > 1;
     },
 
     show_diff_label() {
       return this.showDiffLabel ? this.showDiffLabel : this.$t("compare.show_diff");
+    },
+
+    reverse_order_label() {
+      return this.reverseLabel ? this.reverseLabel : this.$t("compare.reverse_order");
     },
 
     threshold_label() {
@@ -255,20 +274,6 @@ export default {
         }
       } else {
         return value;
-      }
-    },
-
-    calculate_percentage(item) {
-      let values = [];
-      for (let i = 0; i < this.ids.length; i++) {
-        values.push(parseFloat(item["value" + i]));
-      }
-      let max = Math.max(...values);
-      let min = Math.min(...values);
-      if (!isNaN(max) && !isNaN(min) && max != min) {
-        return (((max - min) * 100) / min).toFixed(2) + "%";
-      } else {
-        return "";
       }
     },
 
