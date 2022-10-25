@@ -93,7 +93,7 @@ export default {
     },
     reverse_order: {
       handler() {
-        this.items = this.items.reverse();
+        this.parse_data();
       },
       deep: true,
     },
@@ -136,8 +136,14 @@ export default {
       headers.push({ text: this.uppcase_header(this.$t("table.attribute")), value: "attr", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
 
       if (objs.length > 1) {
-        for (let i = 0; i < objs.length; i++) {
-          headers.push({ text: this.uppcase_header(objs[i][this.labelKey]), value: "value" + i, width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
+        if (this.reverse_order) {
+          for (let i = objs.length - 1; i >= 0; i--) {
+            headers.push({ text: this.uppcase_header(objs[i][this.labelKey]), value: "value" + i, width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
+          }
+        } else {
+          for (let i = 0; i < objs.length; i++) {
+            headers.push({ text: this.uppcase_header(objs[i][this.labelKey]), value: "value" + i, width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
+          }
         }
       } else {
         headers.push({ text: this.uppcase_header(this.$t("table.value")), value: "value", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
@@ -204,8 +210,16 @@ export default {
         this.convert_to_simple_value(items, this.objs.length);
       }
 
+      const ordered_items = [];
+      if (this.filterFields && this.filterFields.length > 0 && items.length > 0) {
+        for (let i = 0; i < this.filterFields.length; i++) {
+          const attr = this.filterFields[i];
+          ordered_items.push(items.filter((o) => o.attr == attr)[0]);
+        }
+      }
+
       this.table_headers = headers;
-      this.all_items = items;
+      this.all_items = this.filterFields && this.filterFields.length > 0 ? ordered_items : items;
       this.threshold = this.diffThreshold;
       this.filter_fields();
     },
