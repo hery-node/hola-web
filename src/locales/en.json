@@ -71,6 +71,7 @@
   "compare": {
     "search": "Search",
     "show_diff": "Only Show Difference",
+    "reverse_order": "Reverse",
     "no_diff_result": "No Difference",
     "improve": "Improvement",
     "diff": "Diff"
