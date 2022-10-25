@@ -24,10 +24,12 @@
 
 <script>
 import Regex from "../mixins/regex";
+import Simple from "../mixins/simple";
+import Percentage from "../mixins/percentage";
 
 export default {
   inheritAttrs: false,
-  mixins: [Regex],
+  mixins: [Regex, Simple, Percentage],
 
   props: {
     //one is used to show, more than one is used to compare
@@ -40,8 +42,6 @@ export default {
     headerClass: { type: String, default: "table_header subtitle-2" },
     headerUppcase: { type: Boolean, default: false },
     showToolbar: { type: Boolean, default: false },
-    showPercentage: { type: Boolean, default: false },
-    simpleValue: { type: Boolean, default: false },
     toolbarClass: { type: String, default: "app_bar subtitle-2" },
     searchHint: { type: String },
     showDiffLabel: { type: String },
@@ -178,17 +178,11 @@ export default {
 
       //calculate the percentage
       if (this.showPercentage && objs.length >= 2) {
-        for (let i = 0; i < items.length; i++) {
-          const item = items[i];
-          item["percentage"] = this.calculate_percentage(item);
-        }
+        this.set_percentage(items, this.objs.length);
       }
 
       if (this.simpleValue) {
-        for (let i = 0; i < items.length; i++) {
-          const item = items[i];
-          this.convert_to_simple_value(item);
-        }
+        this.convert_to_simple_value(items, this.objs.length);
       }
 
       this.table_headers = headers;
@@ -213,45 +207,7 @@ export default {
       }
     },
 
-    calculate_percentage(item) {
-      let values = [];
-      for (let i = 0; i < this.objs.length; i++) {
-        values.push(parseFloat(item["value" + i]));
-      }
-      let max = Math.max(...values);
-      let min = Math.min(...values);
-      if (!isNaN(max) && !isNaN(min) && max != min) {
-        return (((max - min) * 100) / min).toFixed(2) + "%";
-      } else {
-        return "";
-      }
-    },
-
-    convert_to_simple_value(item) {
-      const thousand = 1000;
-      const million = thousand * 1000;
-      const billion = million * 1000;
-      const trilion = billion * 1000;
-
-      for (let i = 0; i < this.objs.length; i++) {
-        const value = parseFloat(item["value" + i]);
-        if (!isNaN(value)) {
-          let converted = 0;
-          if (value > trilion) {
-            converted = (value / trilion).toFixed(2) + "T";
-          } else if (value > billion) {
-            converted = (value / billion).toFixed(2) + "B";
-          } else if (value > million) {
-            converted = (value / million).toFixed(2) + "M";
-          } else if (value > thousand) {
-            converted = (value / thousand).toFixed(2) + "K";
-          } else {
-            converted = value;
-          }
-          item["value" + i] = converted;
-        }
-      }
-    },
+    calculate_percentage(item) {},
 
     uppcase_header(header_title) {
       return this.headerUppcase ? header_title.toUpperCase() : header_title;

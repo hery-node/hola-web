@@ -36,13 +36,14 @@
 </template>
 
 <script>
-import Meta from "../mixins/meta";
 import Regex from "../mixins/regex";
+import Simple from "../mixins/simple";
+import Percentage from "../mixins/percentage";
 import { read_entity_properties } from "../core/axios";
 
 export default {
   inheritAttrs: false,
-  mixins: [Meta, Regex],
+  mixins: [Regex, Simple, Percentage],
 
   props: {
     //one is used to show, more than one is used to compare
@@ -55,7 +56,6 @@ export default {
     headerClass: { type: String, default: "table_header subtitle-2" },
     headerUppcase: { type: Boolean, default: false },
     showToolbar: { type: Boolean, default: false },
-    showPercentage: { type: Boolean, default: false },
     toolbarClass: { type: String, default: "app_bar subtitle-2" },
     searchHint: { type: String },
     showDiffLabel: { type: String },
@@ -186,10 +186,11 @@ export default {
 
     //calculate the percentage
     if (this.showPercentage && objs.length >= 2) {
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-        item["percentage"] = this.calculate_percentage(item);
-      }
+      this.set_percentage(items, this.objs.length);
+    }
+
+    if (this.simpleValue) {
+      this.convert_to_simple_value(items, this.objs.length);
     }
 
     this.property_fields = property_fields;
