@@ -2,7 +2,7 @@
   <v-card v-bind="$attrs">
     <v-toolbar :class="toolbarClass" dark v-if="showToolbar">
       <v-row>
-        <v-col cols="6">
+        <v-col cols="4">
           <v-text-field v-model="search" append-icon="mdi-magnify" class="mr-5" :label="search_hint" single-line hide-details clearable></v-text-field>
         </v-col>
         <v-col cols="2" v-if="show_threshold">
@@ -13,6 +13,9 @@
         </v-col>
         <v-col cols="2" v-if="show_reverse_order">
           <v-checkbox v-model="reverse_order" hide-details :label="reverse_order_label"></v-checkbox>
+        </v-col>
+        <v-col cols="2" v-if="show_fuzzy_match">
+          <v-checkbox v-model="fuzzy_match" hide-details :label="show_fuzzy_label"></v-checkbox>
         </v-col>
       </v-row>
     </v-toolbar>
@@ -29,10 +32,11 @@
 import Regex from "../mixins/regex";
 import Simple from "../mixins/simple";
 import Percentage from "../mixins/percentage";
+import Fuzzy from "../mixins/fuzzy";
 
 export default {
   inheritAttrs: false,
-  mixins: [Regex, Simple, Percentage],
+  mixins: [Regex, Simple, Percentage, Fuzzy],
 
   props: {
     //one is used to show, more than one is used to compare
@@ -79,18 +83,21 @@ export default {
       },
       deep: true,
     },
+
     threshold: {
       handler() {
         this.filter_fields();
       },
       deep: true,
     },
+
     objs: {
       handler() {
         this.parse_data();
       },
       deep: true,
     },
+
     reverse_order: {
       handler() {
         this.parse_data();
@@ -167,14 +174,30 @@ export default {
       const items = [];
       if (objs.length > 1) {
         const property_objs = objs;
-        const merged_attributes = this.merge_attributes(property_objs);
+        const { merged_attributes, map } = this.merge_attributes(property_objs);
         for (let i = 0; i < merged_attributes.length; i++) {
           const attribute = merged_attributes[i];
           if (attribute != this.labelKey) {
             const obj = {};
             obj["attr"] = attribute;
-            for (let j = 0; j < objs.length; j++) {
-              obj["value" + j] = property_objs[j] && property_objs[j][attribute] ? this.convert_long_to_newline(property_objs[j][attribute]) : "";
+            if (this.show_fuzzy_match) {
+              obj["attrs"] = [];
+              for (let j = 0; j < objs.length; j++) {
+                let value = "";
+                if (property_objs[j]) {
+                  value = property_objs[j][attribute];
+                  if (!value && map[attribute]) {
+                    map[attribute] && obj["attrs"].push(map[attribute]);
+                    obj["attrs"].push(attribute);
+                    value = property_objs[j][map[attribute]];
+                  }
+                }
+                obj["value" + j] = value ? this.convert_long_to_newline(value) : "";
+              }
+            } else {
+              for (let j = 0; j < objs.length; j++) {
+                obj["value" + j] = property_objs[j] && property_objs[j][attribute] ? this.convert_long_to_newline(property_objs[j][attribute]) : "";
+              }
             }
             if (this.filterFields.length == 0) {
               items.push(obj);
@@ -185,7 +208,8 @@ export default {
         }
       } else {
         const object = objs[0];
-        const merged_attributes = this.recommend ? this.merge_attributes([object, this.recommend]) : this.merge_attributes([object]);
+        const { merged_attributes } = this.recommend ? this.merge_attributes([object, this.recommend]) : this.merge_attributes([object]);
+
         for (let i = 0; i < merged_attributes.length; i++) {
           const attribute = merged_attributes[i];
           if (attribute != this.labelKey) {
@@ -242,18 +266,6 @@ export default {
 
     uppcase_header(header_title) {
       return this.headerUppcase ? header_title.toUpperCase() : header_title;
-    },
-
-    merge_attributes(objs) {
-      const attributes = [];
-      objs.forEach((obj) => {
-        for (const property in obj) {
-          if (!attributes.includes(property)) {
-            attributes.push(property);
-          }
-        }
-      });
-      return attributes;
     },
 
     is_diff_value(item) {

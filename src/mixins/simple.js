@@ -13,7 +13,8 @@ export default {
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
         for (let j = 0; j < columes; j++) {
-          const value = parseFloat(item["value" + j]);
+          const value = columes == 1 ? parseFloat(item["value"]) : parseFloat(item["value" + j]);
+
           if (!isNaN(value)) {
             let converted = 0;
             if (value > trilion) {
@@ -27,7 +28,11 @@ export default {
             } else {
               converted = value;
             }
-            item["value" + j] = converted;
+            if (columes == 1) {
+              item["value"] = converted;
+            } else {
+              item["value" + j] = converted;
+            }
           }
         }
       }

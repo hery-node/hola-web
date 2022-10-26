@@ -23,7 +23,7 @@
       <!-- <h-search-form entity="user" :fields="search_fields" :cols="6" clear-label="reset" search-label="query" v-model="form" @search="do_search"></h-search-form> -->
       <!-- <h-edit-form entity="user" v-model="form" hide-cancel :cols="6" :fields="search_fields" :success-hint="success_hint" submit-label="Save" @saved="saved"></h-edit-form> -->
       <!-- <h-table searchable entity="user" :headers="headers" :sort-key="sort_key" :sort-desc="sort_desc" :search-fields="search_fields" :search-cols="6" clear-label="reset" search-label="query"></h-table> -->
-      <h-crud header-uppcase infinite :mode="mode" :entity="entity" :searchable="searchable" :search-cols="search_cols" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc"> </h-crud>
+      <h-compare :objs="objs" simple-value @dblclick:row="row_clicked" :diff-threshold="10" label-key="tag" header-align="start" show-toolbar show-percentage dense></h-compare>
     </v-main>
   </v-app>
 </template>
@@ -36,14 +36,24 @@ export default {
 
   data() {
     return {
-      mode: "cruod",
-      entity: "application",
-      searchable: true,
-      search_cols: 6,
-      item_label_key: "name",
-      sort_key: ["name"],
-      sort_desc: [false],
+      objs: [
+        {
+          tag: "obj1",
+          a: 123213213213123,
+          "Core power license 1": 34545,
+        },
+        {
+          tag: "obj2",
+          a: 334555,
+          "Core power other license 1": 35545,
+        },
+      ],
     };
+  },
+  methods: {
+    row_clicked(evt, item) {
+      console.log(item);
+    },
   },
 };
 </script>
