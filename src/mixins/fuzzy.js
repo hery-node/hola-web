@@ -80,7 +80,7 @@ export default {
       } else {
         const attributes = [];
         for (let i = 0; i < objs.length; i++) {
-          attributes.push(...(Object.keys(objs[i])));
+          objs[i] && attributes.push(...(Object.keys(objs[i])));
         }
         return { merged_attributes: [...new Set(attributes)], map: {} };
       }

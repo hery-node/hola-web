@@ -2,7 +2,7 @@
   <v-card v-bind="$attrs">
     <v-toolbar :class="toolbarClass" dark v-if="showToolbar">
       <v-row>
-        <v-col cols="4">
+        <v-col cols="6">
           <v-text-field v-model="search" append-icon="mdi-magnify" class="mr-5" :label="search_hint" single-line hide-details clearable></v-text-field>
         </v-col>
         <v-col cols="2" v-if="show_threshold">
@@ -10,9 +10,6 @@
         </v-col>
         <v-col cols="2" v-if="show_only_show_diff">
           <v-checkbox v-model="only_show_diff" hide-details :label="show_diff_label"></v-checkbox>
-        </v-col>
-        <v-col cols="2" v-if="show_reverse_order">
-          <v-checkbox v-model="reverse_order" hide-details :label="reverse_order_label"></v-checkbox>
         </v-col>
         <v-col cols="2" v-if="show_fuzzy_match">
           <v-checkbox v-model="fuzzy_match" hide-details :label="show_fuzzy_label"></v-checkbox>
@@ -52,7 +49,6 @@ export default {
     toolbarClass: { type: String, default: "app_bar subtitle-2" },
     searchHint: { type: String },
     showDiffLabel: { type: String },
-    reverseLabel: { type: String },
     topFields: { type: Array, default: () => [] },
     filterFields: { type: Array, default: () => [] },
     maxLineWords: { type: Number, default: 50 },
@@ -63,7 +59,6 @@ export default {
   data() {
     return {
       only_show_diff: false,
-      reverse_order: false,
       search: "",
       threshold: 0,
       all_items: [],
@@ -97,13 +92,6 @@ export default {
       },
       deep: true,
     },
-
-    reverse_order: {
-      handler() {
-        this.parse_data();
-      },
-      deep: true,
-    },
   },
 
   computed: {
@@ -115,20 +103,12 @@ export default {
       return this.objs.length > 1;
     },
 
-    show_reverse_order() {
-      return this.objs.length > 1;
-    },
-
     show_threshold() {
       return this.diffThreshold > 0 && this.objs.length > 1;
     },
 
     show_diff_label() {
       return this.showDiffLabel ? this.showDiffLabel : this.$t("compare.show_diff");
-    },
-
-    reverse_order_label() {
-      return this.reverseLabel ? this.reverseLabel : this.$t("compare.reverse_order");
     },
 
     threshold_label() {
@@ -143,14 +123,8 @@ export default {
       headers.push({ text: this.uppcase_header(this.$t("table.attribute")), value: "attr", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
 
       if (objs.length > 1) {
-        if (this.reverse_order) {
-          for (let i = objs.length - 1; i >= 0; i--) {
-            headers.push({ text: this.uppcase_header(objs[i][this.labelKey]), value: "value" + i, width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
-          }
-        } else {
-          for (let i = 0; i < objs.length; i++) {
-            headers.push({ text: this.uppcase_header(objs[i][this.labelKey]), value: "value" + i, width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
-          }
+        for (let i = 0; i < objs.length; i++) {
+          headers.push({ text: this.uppcase_header(objs[i][this.labelKey]), value: "value" + i, width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
         }
       } else {
         headers.push({ text: this.uppcase_header(this.$t("table.value")), value: "value", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
