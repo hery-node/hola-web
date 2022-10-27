@@ -33,10 +33,20 @@
         <template v-if="wrapLine">
           <v-row class="d-flex flex-nowrap" :justify="get_header_align(chip)" style="margin-top: 5px; margin-bottom: 5px" :align="get_header_align(chip)" v-bind:key="index">
             <template v-if="Array.isArray(item[chip])">
-              <v-chip dark v-for="(tag, tag_index) in item[chip]" :key="tag_index" :class="get_item_style(chip, item[chip], 'chip')" style="margin: 3px"> {{ tag }} </v-chip>
+              <template v-if="chipClickable">
+                <v-chip @click.stop="click_chip(item, chip)" dark v-for="(tag, tag_index) in item[chip]" :key="tag_index" :class="get_item_style(chip, item[chip], 'chip')" style="margin: 3px"> {{ tag }} </v-chip>
+              </template>
+              <template v-else>
+                <v-chip dark v-for="(tag, tag_index) in item[chip]" :key="tag_index" :class="get_item_style(chip, item[chip], 'chip')" style="margin: 3px"> {{ tag }} </v-chip>
+              </template>
             </template>
             <template v-else-if="item[chip]">
-              <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
+              <template v-if="chipClickable">
+                <v-chip @click.stop="click_chip(item, chip)" dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
+              </template>
+              <template v-else>
+                <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
+              </template>
             </template>
           </v-row>
         </template>
@@ -144,6 +154,8 @@ export default {
     mobile: { type: Boolean, default: false },
     //wrap array and chip as one line
     wrapLine: { type: Boolean, default: false },
+    //chip is clickable use to do refer entity edit form
+    chipClickable: { type: Boolean, default: false },
     interval: { type: Number, default: -1 },
 
     //infinite scroll or not
@@ -242,6 +254,10 @@ export default {
   },
 
   methods: {
+    click_chip(item, chip) {
+      this.$emit("chip", { id: item["_id"], chip: chip });
+    },
+
     is_expanded() {
       return this.expandField ? (this.showSelect == true ? false : true) : false;
     },
