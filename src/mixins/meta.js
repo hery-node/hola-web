@@ -20,7 +20,7 @@ export default {
 
   computed: {
     entity_label() {
-      return this.$t(this.entity + "._label");
+      return this.entity && this.entity.trim().length > 0 ? this.$t(this.entity + "._label") : "";
     },
   },
 
