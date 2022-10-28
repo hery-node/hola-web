@@ -188,10 +188,6 @@ export default {
         this.meta = await get_entity_meta(this.entity);
       }
 
-      if (this.edit_fields.length > 0) {
-        return;
-      }
-
       const edit_fields = this.clone ? await this.get_clone_fields() : await this.get_edit_fields();
       edit_fields.forEach((field) => {
         field.cols || (field.cols = this.cols);
