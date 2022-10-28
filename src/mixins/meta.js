@@ -60,7 +60,7 @@ export default {
 
         const type = this.get_field_type(field);
         field.input_type = type.search_input_type ? type.search_input_type : type.input_type;
-        this.set_field_type(field, type);
+        await this.set_field_type(field, type);
 
         form_fields.push(field);
       }
@@ -85,7 +85,7 @@ export default {
       return this.get_form_fields(server_fields);
     },
 
-    get_form_fields(server_fields) {
+    async get_form_fields(server_fields) {
       const form_fields = [];
       const meta_fields = this.get_meta_fields(server_fields);
 
@@ -98,7 +98,7 @@ export default {
 
         const type = this.get_field_type(field);
         field.input_type = type.input_type;
-        this.set_field_type(field, type);
+        await this.set_field_type(field, type);
 
         const rules = [];
         field.rules = rules;
