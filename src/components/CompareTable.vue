@@ -28,12 +28,11 @@
 <script>
 import Regex from "../mixins/regex";
 import Simple from "../mixins/simple";
-import Percentage from "../mixins/percentage";
 import Fuzzy from "../mixins/fuzzy";
 
 export default {
   inheritAttrs: false,
-  mixins: [Regex, Simple, Percentage, Fuzzy],
+  mixins: [Regex, Simple, Fuzzy],
 
   props: {
     //one is used to show, more than one is used to compare
@@ -52,6 +51,7 @@ export default {
     topFields: { type: Array, default: () => [] },
     filterFields: { type: Array, default: () => [] },
     maxLineWords: { type: Number, default: 50 },
+    showDiff: { type: Boolean, default: false },
     diffThreshold: { type: Number, default: 0 },
     thresholdLabel: { type: String },
   },
@@ -117,6 +117,27 @@ export default {
   },
 
   methods: {
+    set_diff_values(items, columes) {
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+
+        const values = [];
+        for (let j = 0; j < columes; j++) {
+          values.push(parseFloat(item["value" + j]));
+        }
+
+        const max = Math.max(...values);
+        const min = Math.min(...values);
+        if (!isNaN(max) && !isNaN(min) && max != min) {
+          item["diff1"] = min != 0 ? ((max * 100) / min).toFixed(2) + "%" : "";
+          item["diff2"] = max != 0 ? ((min * 100) / max).toFixed(2) + "%" : "";
+        } else {
+          item["diff1"] = "";
+          item["diff2"] = "";
+        }
+      }
+    },
+
     parse_data() {
       const objs = this.objs;
       const headers = [];
@@ -130,10 +151,22 @@ export default {
         headers.push({ text: this.uppcase_header(this.$t("table.value")), value: "value", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
       }
 
-      if (this.showPercentage && objs.length >= 2) {
+      if (this.showDiff && objs.length >= 2) {
         headers.push({
-          text: this.uppcase_header(this.$t("compare.diff")),
-          value: "percentage",
+          text: this.uppcase_header(this.$t("compare.diff1")),
+          value: "diff1",
+          width: this.headerWidth,
+          align: this.headerAlign,
+          class: this.headerClass,
+          sort: function (a, b) {
+            const a1 = isNaN(parseFloat(a)) ? 0 : parseFloat(a);
+            const b1 = isNaN(parseFloat(b)) ? 0 : parseFloat(b);
+            return a1 - b1;
+          },
+        });
+        headers.push({
+          text: this.uppcase_header(this.$t("compare.diff2")),
+          value: "diff2",
           width: this.headerWidth,
           align: this.headerAlign,
           class: this.headerClass,
@@ -199,9 +232,9 @@ export default {
         }
       }
 
-      //calculate the percentage
-      if (this.showPercentage && objs.length >= 2) {
-        this.set_percentage(items, this.objs.length);
+      //calculate the diff values
+      if (this.showDiff && objs.length >= 2) {
+        this.set_diff_values(items, this.objs.length);
       }
 
       if (this.simpleValue) {
@@ -243,8 +276,8 @@ export default {
     },
 
     is_diff_value(item) {
-      if (this.objs.length > 1 && this.threshold > 0 && item["percentage"]) {
-        return Math.abs(parseFloat(item["percentage"])) > this.threshold;
+      if (this.objs.length > 1 && this.threshold > 0 && item["diff1"]) {
+        return Math.abs(parseFloat(item["diff1"])) > this.threshold;
       } else {
         return false;
       }

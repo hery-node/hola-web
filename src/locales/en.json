@@ -75,7 +75,8 @@
     "reverse_order": "Reverse",
     "no_diff_result": "No Difference",
     "improve": "Improvement",
-    "diff": "Diff"
+    "diff1": "max*100/min",
+    "diff2": "min*100/max"
   },
 
   "user": {
