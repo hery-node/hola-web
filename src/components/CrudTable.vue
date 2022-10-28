@@ -1,5 +1,5 @@
 <template>
-  <h-table v-bind="$attrs" v-on="$listeners" ref="table" :entity="entity" :headers="headers" :search-fields="searchFields" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="batch_mode" :has-action-header="has_action_header" :item-actions="item_actions">
+  <h-table v-bind="$attrs" v-on="$listeners" ref="table" :entity="entity" :headers="headers" :search-fields="searchFields" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="batch_mode" :has-action-header="has_action_header" :item-actions="item_actions" @chip="click_chip">
     <template slot="toolbar" v-if="!$vuetify.breakpoint.xsOnly">
       <v-tooltip bottom v-for="(toolbar, index) in header_toolbars" v-bind:key="index">
         <template v-slot:activator="{ on }">
@@ -11,12 +11,13 @@
       </v-tooltip>
       <h-confirm ref="confirm" />
       <h-edit-form v-bind="$attrs" dialog :dialog-shown="dialog" :clone="clone_mode" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="close_dialog" @success="success_edit" :create-title="create_title" :update-title="update_title" :clone-title="clone_title"> </h-edit-form>
+      <h-edit-form dialog :dialog-shown="chip_dialog" hide-hint :entity="chip_entity" :entity-id="chip_entity_id" @cancel="close_chip_dialog" @success="success_chip_edit"> </h-edit-form>
     </template>
   </h-table>
 </template>
 
 <script>
-import { delete_entity, is_success_response, is_been_referred } from "../core/axios";
+import { delete_entity, is_success_response, is_been_referred, read_entity } from "../core/axios";
 import Keymap from "../mixins/keymap";
 
 export default {
@@ -66,6 +67,9 @@ export default {
       //used to pass id value to edit form
       edit_entity_id: null,
       dialog: false,
+      chip_dialog: false,
+      chip_entity: "",
+      chip_entity_id: "",
       clone_mode: false,
       has_action_header: false,
       header_toolbars: [],
@@ -278,8 +282,28 @@ export default {
       this.dialog = false;
     },
 
+    close_chip_dialog() {
+      this.chip_dialog = false;
+    },
+
+    async click_chip(chip) {
+      if (chip && chip["item"] && chip.ref) {
+        const entity = await read_entity(this.entity, chip["item"]["_id"], chip.field_name);
+        if (entity) {
+          this.chip_entity = chip.ref;
+          this.chip_entity_id = entity[chip.field_name];
+          this.chip_dialog = true;
+        }
+      }
+    },
+
     success_edit() {
       this.dialog = false;
+      this.refresh();
+    },
+
+    success_chip_edit() {
+      this.chip_dialog = false;
       this.refresh();
     },
   },

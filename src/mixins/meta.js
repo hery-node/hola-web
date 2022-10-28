@@ -1,4 +1,4 @@
-import { get_entity_meta, get_ref_labels } from "../core/axios";
+import { get_ref_labels } from "../core/axios";
 import { get_type } from "../core/type";
 
 export default {
@@ -6,6 +6,8 @@ export default {
     entity: { type: String, required: true },
     //this is used for search form and edit form,the fields of the entity
     fields: { type: Array, default: () => [] },
+    //merge the fields with server or not
+    mergeFields: { type: Boolean, default: true },
     //this is used for table headers, the headers of the table
     headers: { type: Array, default: () => [] },
   },
@@ -23,13 +25,6 @@ export default {
   },
 
   methods: {
-    async get_meta() {
-      if (!this.meta) {
-        this.meta = await get_entity_meta(this.entity);
-      }
-      return this.meta;
-    },
-
     async set_field_type(field, type) {
       type.multiple && (field.multiple = type.multiple);
       type.items && (field.items = type.items(this));
@@ -46,16 +41,19 @@ export default {
       field.icon = field.icon ? field.icon : type.icon ? type.icon : null;
     },
 
+    get_meta_fields(server_fields) {
+      return this.mergeFields ? (this.fields.length > 0 ? { ...server_fields, ...this.fields } : server_fields) : (this.fields.length > 0 ? this.fields : server_fields);
+    },
+
     async get_search_fields() {
-      const meta = await this.get_meta();
+      const meta = this.meta;
       if (!meta) {
         return [];
       }
 
       const form_fields = [];
       const server_fields = meta.fields.filter((field) => field.search != false && field.sys != true && field.name != meta.user_field);
-      const meta_fields = this.fields.length > 0 ? this.fields : server_fields;
-
+      const meta_fields = this.get_meta_fields(server_fields);
       for (let i = 0; i < meta_fields.length; i++) {
         const field = this.merge_with_server(meta_fields[i], server_fields);
         field.label = this.$t(this.entity + "." + field.name);
@@ -70,7 +68,7 @@ export default {
     },
 
     async get_edit_fields() {
-      const meta = await this.get_meta();
+      const meta = this.meta;
       if (!meta) {
         return [];
       }
@@ -79,7 +77,7 @@ export default {
     },
 
     async get_clone_fields() {
-      const meta = await this.get_meta();
+      const meta = this.meta;
       if (!meta) {
         return [];
       }
@@ -89,7 +87,7 @@ export default {
 
     get_form_fields(server_fields) {
       const form_fields = [];
-      const meta_fields = this.fields.length > 0 ? this.fields : server_fields;
+      const meta_fields = this.get_meta_fields(server_fields);
 
       for (let i = 0; i < meta_fields.length; i++) {
         const field = this.merge_with_server(meta_fields[i], server_fields);
@@ -114,14 +112,14 @@ export default {
     },
 
     async get_property_fields() {
-      const meta = await this.get_meta();
+      const meta = this.meta;
       if (!meta) {
         return [];
       }
 
       const form_fields = [];
       const server_fields = meta.fields.filter((field) => field.sys != true && field.name != meta.user_field);
-      const meta_fields = this.fields.length > 0 ? this.fields : server_fields;
+      const meta_fields = this.get_meta_fields(server_fields);
 
       for (let i = 0; i < meta_fields.length; i++) {
         const field = this.merge_with_server(meta_fields[i], server_fields);
@@ -137,14 +135,14 @@ export default {
     },
 
     async get_table_headers() {
-      const meta = await this.get_meta();
+      const meta = this.meta;
       if (!meta) {
         return [];
       }
 
       const table_headers = [];
       const server_fields = meta.fields.filter((field) => field.list != false && field.sys != true && field.name != meta.user_field);
-      const meta_fields = this.headers.length > 0 ? this.headers : server_fields;
+      const meta_fields = this.get_meta_fields(server_fields);
 
       for (let i = 0; i < meta_fields.length; i++) {
         const header = this.merge_header_with_server(meta_fields[i], server_fields);

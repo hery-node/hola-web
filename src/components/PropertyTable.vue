@@ -23,7 +23,7 @@
 
 <script>
 import Meta from "../mixins/meta";
-import { read_entity_properties } from "../core/axios";
+import { get_entity_meta, read_entity_properties } from "../core/axios";
 
 export default {
   inheritAttrs: false,
@@ -44,6 +44,10 @@ export default {
   },
 
   async created() {
+    if (this.entity && this.entity.trim().length > 0) {
+      this.meta = await get_entity_meta(this.entity);
+    }
+
     this.property_fields = await this.get_property_fields();
     this.read_entity();
   },

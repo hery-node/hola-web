@@ -11,9 +11,9 @@ setup_components();
 init_axios(
   { baseURL: "http://localhost:8089" },
   {
-    handle_response: (code, data) => {
-      console.log(code);
-      console.log(data);
+    handle_response: () => {
+      // console.log(code);
+      // console.log(data);
     },
   }
 );

@@ -46,7 +46,7 @@
 <script>
 import Meta from "../mixins/meta";
 import Alert from "../mixins/alert";
-import { read_entity, save_entity, is_success_response, has_invalid_params, is_duplicated } from "../core/axios";
+import { get_entity_meta, read_entity, save_entity, is_success_response, has_invalid_params, is_duplicated } from "../core/axios";
 
 export default {
   inheritAttrs: false,
@@ -79,7 +79,6 @@ export default {
     successHint: { type: String },
     //fail hint to shown
     failHint: { type: String },
-
     //control whether the form in dialog or not
     dialog: { type: Boolean, default: false },
     //control by outside to show or hidden
@@ -99,22 +98,11 @@ export default {
     };
   },
 
-  async created() {
-    if (this.edit_fields.length > 0) {
-      return;
-    }
-
-    const edit_fields = this.clone ? await this.get_clone_fields() : await this.get_edit_fields();
-    edit_fields.forEach((field) => {
-      field.cols || (field.cols = this.cols);
-    });
-    this.edit_fields = edit_fields;
-  },
-
   watch: {
     dialogShown: {
-      handler() {
+      async handler() {
         if (this.dialogShown) {
+          await this.load_meta();
           this.init_form();
         } else {
           this.dialog_show_inner = false;
@@ -193,6 +181,22 @@ export default {
     cancel() {
       this.reset_form();
       this.$emit("cancel");
+    },
+
+    async load_meta() {
+      if (this.entity && this.entity.trim().length > 0) {
+        this.meta = await get_entity_meta(this.entity);
+      }
+
+      if (this.edit_fields.length > 0) {
+        return;
+      }
+
+      const edit_fields = this.clone ? await this.get_clone_fields() : await this.get_edit_fields();
+      edit_fields.forEach((field) => {
+        field.cols || (field.cols = this.cols);
+      });
+      this.edit_fields = edit_fields;
     },
 
     async init_form() {

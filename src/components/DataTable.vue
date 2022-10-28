@@ -54,11 +54,11 @@
           <span v-bind:key="index">
             <template v-if="Array.isArray(item[chip])">
               <v-row class="d-flex flex-nowrap my-3" :justify="get_header_align(chip)" :align="get_header_align(chip)" v-for="(tag, tag_index) in item[chip]" :key="tag_index">
-                <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')"> {{ tag }} </v-chip>
+                <v-chip @click.stop="click_chip(item, chip)" dark :class="get_item_style(chip, item[chip], 'chip ma-1')"> {{ tag }} </v-chip>
               </v-row>
             </template>
             <template v-else-if="item[chip]">
-              <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
+              <v-chip @click.stop="click_chip(item, chip)" dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
             </template>
           </span>
         </template>
@@ -107,7 +107,7 @@
 <script>
 import Meta from "../mixins/meta";
 import Alert from "../mixins/alert";
-import { is_success_response, list_entity } from "../core/axios";
+import { get_entity_meta, is_success_response, list_entity } from "../core/axios";
 
 export default {
   inheritAttrs: false,
@@ -185,6 +185,9 @@ export default {
   },
 
   async created() {
+    if (this.entity && this.entity.trim().length > 0) {
+      this.meta = await get_entity_meta(this.entity);
+    }
     const table_headers = await this.get_table_headers();
 
     for (let i = 0; i < table_headers.length; i++) {
@@ -254,8 +257,13 @@ export default {
   },
 
   methods: {
-    click_chip(item, chip) {
-      this.$emit("chip", { id: item["_id"], chip: chip });
+    click_chip(item, field_name) {
+      const [field] = this.table_headers.filter((f) => f.name === field_name);
+      if (field && field.click) {
+        field.click(item, field_name);
+      } else if (field && field.ref) {
+        this.$emit("chip", { item: item, ref: field.ref, field_name: field_name });
+      }
     },
 
     is_expanded() {
