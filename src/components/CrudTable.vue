@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { delete_entity, is_success_response, is_been_referred, read_entity } from "../core/axios";
+import { delete_entity, is_success_response, is_been_referred } from "../core/axios";
 import Keymap from "../mixins/keymap";
 
 export default {
@@ -287,13 +287,10 @@ export default {
     },
 
     async click_chip(chip) {
-      if (chip && chip["item"] && chip.ref) {
-        const entity = await read_entity(this.entity, chip["item"]["_id"], chip.field_name);
-        if (entity) {
-          this.chip_entity = chip.ref;
-          this.chip_entity_id = entity[chip.field_name];
-          this.chip_dialog = true;
-        }
+      if (chip && chip.ref) {
+        this.chip_entity = chip.ref;
+        this.chip_entity_id = chip.id;
+        this.chip_dialog = true;
       }
     },
 

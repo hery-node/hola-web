@@ -34,7 +34,7 @@
           <v-row class="d-flex flex-nowrap" :justify="get_header_align(chip)" style="margin-top: 5px; margin-bottom: 5px" :align="get_header_align(chip)" v-bind:key="index">
             <template v-if="Array.isArray(item[chip])">
               <template v-if="chipClickable">
-                <v-chip @click.stop="click_chip(item, chip)" dark v-for="(tag, tag_index) in item[chip]" :key="tag_index" :class="get_item_style(chip, item[chip], 'chip')" style="margin: 3px"> {{ tag }} </v-chip>
+                <v-chip @click.stop="click_chip(item, chip, tag_index)" dark v-for="(tag, tag_index) in item[chip]" :key="tag_index" :class="get_item_style(chip, item[chip], 'chip')" style="margin: 3px"> {{ tag }} </v-chip>
               </template>
               <template v-else>
                 <v-chip dark v-for="(tag, tag_index) in item[chip]" :key="tag_index" :class="get_item_style(chip, item[chip], 'chip')" style="margin: 3px"> {{ tag }} </v-chip>
@@ -54,11 +54,21 @@
           <span v-bind:key="index">
             <template v-if="Array.isArray(item[chip])">
               <v-row class="d-flex flex-nowrap my-3" :justify="get_header_align(chip)" :align="get_header_align(chip)" v-for="(tag, tag_index) in item[chip]" :key="tag_index">
-                <v-chip @click.stop="click_chip(item, chip)" dark :class="get_item_style(chip, item[chip], 'chip ma-1')"> {{ tag }} </v-chip>
+                <template v-if="chipClickable">
+                  <v-chip @click.stop="click_chip(item, chip, tag_index)" dark :class="get_item_style(chip, item[chip], 'chip ma-1')"> {{ tag }} </v-chip>
+                </template>
+                <template v-else>
+                  <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')"> {{ tag }} </v-chip>
+                </template>
               </v-row>
             </template>
             <template v-else-if="item[chip]">
-              <v-chip @click.stop="click_chip(item, chip)" dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
+              <template v-if="chipClickable">
+                <v-chip @click.stop="click_chip(item, chip)" dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
+              </template>
+              <template v-else>
+                <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
+              </template>
             </template>
           </span>
         </template>
@@ -107,7 +117,7 @@
 <script>
 import Meta from "../mixins/meta";
 import Alert from "../mixins/alert";
-import { get_entity_meta, is_success_response, list_entity } from "../core/axios";
+import { get_entity_meta, is_success_response, list_entity, read_entity } from "../core/axios";
 
 export default {
   inheritAttrs: false,
@@ -257,12 +267,21 @@ export default {
   },
 
   methods: {
-    click_chip(item, field_name) {
+    async click_chip(item, field_name, index) {
       const [field] = this.table_headers.filter((f) => f.name === field_name);
-      if (field && field.click) {
-        field.click(item, field_name);
-      } else if (field && field.ref) {
-        this.$emit("chip", { item: item, ref: field.ref, field_name: field_name });
+      if (field && field.ref) {
+        const entity = await read_entity(this.entity, item["_id"], field_name);
+        if (entity) {
+          const id = Array.isArray(entity[field_name]) ? entity[field_name][index] : entity[field_name];
+          const label = Array.isArray(item[field_name]) ? item[field_name][index] : item[field_name];
+          if (field.click) {
+            field.click(id, field.ref, label);
+          } else {
+            this.$emit("chip", { id: id, ref: field.ref, label: label });
+          }
+        }
+      } else if (field && field.click) {
+        field.click(item, field_name, index);
       }
     },
 

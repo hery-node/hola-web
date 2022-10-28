@@ -24,7 +24,7 @@
       <!-- <h-edit-form entity="user" v-model="form" hide-cancel :cols="6" :fields="search_fields" :success-hint="success_hint" submit-label="Save" @saved="saved"></h-edit-form> -->
       <!-- <h-table searchable entity="user" :headers="headers" :sort-key="sort_key" :sort-desc="sort_desc" :search-fields="search_fields" :search-cols="6" clear-label="reset" search-label="query"></h-table> -->
       <!-- <h-compare :objs="objs" simple-value @dblclick:row="row_clicked" :diff-threshold="110" label-key="tag" header-align="start" show-toolbar show-diff dense></h-compare> -->
-      <h-crud header-uppcase chip-clickable :mode="mode" :entity="entity" :searchable="searchable" :search-cols="search_cols" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc"> </h-crud>
+      <h-crud header-uppcase chip-clickable wrap-line :mode="mode" :entity="entity" :searchable="searchable" :search-cols="search_cols" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc"> </h-crud>
     </v-main>
   </v-app>
 </template>
