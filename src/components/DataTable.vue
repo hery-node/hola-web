@@ -30,48 +30,24 @@
       </template>
 
       <template v-for="(chip, index) in chips" v-slot:[`item.${chip}`]="{ item }">
-        <template v-if="wrapLine">
-          <v-row class="d-flex flex-nowrap" :justify="get_header_align(chip)" style="margin-top: 5px; margin-bottom: 5px" :align="get_header_align(chip)" v-bind:key="index">
-            <template v-if="Array.isArray(item[chip])">
-              <template v-if="chipClickable">
-                <v-chip @click.stop="click_chip(item, chip, tag_index)" dark v-for="(tag, tag_index) in item[chip]" :key="tag_index" :class="get_item_style(chip, item[chip], 'chip')" style="margin: 3px"> {{ tag }} </v-chip>
-              </template>
-              <template v-else>
-                <v-chip dark v-for="(tag, tag_index) in item[chip]" :key="tag_index" :class="get_item_style(chip, item[chip], 'chip')" style="margin: 3px"> {{ tag }} </v-chip>
-              </template>
+        <v-row class="d-flex flex-nowrap" :justify="get_header_align(chip)" style="margin-top: 5px; margin-bottom: 5px" :align="get_header_align(chip)" v-bind:key="index">
+          <template v-if="Array.isArray(item[chip])">
+            <template v-if="chipClickable">
+              <v-chip @click.stop="click_chip(item, chip, tag_index)" dark v-for="(tag, tag_index) in item[chip]" :key="tag_index" :class="get_item_style(chip, item[chip], 'chip')" style="margin: 3px"> {{ tag }} </v-chip>
             </template>
-            <template v-else-if="item[chip]">
-              <template v-if="chipClickable">
-                <v-chip @click.stop="click_chip(item, chip)" dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
-              </template>
-              <template v-else>
-                <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
-              </template>
+            <template v-else>
+              <v-chip dark v-for="(tag, tag_index) in item[chip]" :key="tag_index" :class="get_item_style(chip, item[chip], 'chip')" style="margin: 3px"> {{ tag }} </v-chip>
             </template>
-          </v-row>
-        </template>
-        <template v-else>
-          <span v-bind:key="index">
-            <template v-if="Array.isArray(item[chip])">
-              <v-row class="d-flex flex-nowrap my-3" :justify="get_header_align(chip)" :align="get_header_align(chip)" v-for="(tag, tag_index) in item[chip]" :key="tag_index">
-                <template v-if="chipClickable">
-                  <v-chip @click.stop="click_chip(item, chip, tag_index)" dark :class="get_item_style(chip, item[chip], 'chip ma-1')"> {{ tag }} </v-chip>
-                </template>
-                <template v-else>
-                  <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')"> {{ tag }} </v-chip>
-                </template>
-              </v-row>
+          </template>
+          <template v-else-if="item[chip]">
+            <template v-if="chipClickable">
+              <v-chip @click.stop="click_chip(item, chip)" dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
             </template>
-            <template v-else-if="item[chip]">
-              <template v-if="chipClickable">
-                <v-chip @click.stop="click_chip(item, chip)" dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
-              </template>
-              <template v-else>
-                <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
-              </template>
+            <template v-else>
+              <v-chip dark :class="get_item_style(chip, item[chip], 'chip ma-1')">{{ item[chip] }}</v-chip>
             </template>
-          </span>
-        </template>
+          </template>
+        </v-row>
       </template>
 
       <template v-for="(array, index) in arrays" v-slot:[`item.${array}`]="{ item }">
@@ -162,8 +138,6 @@ export default {
 
     //turn off table in mobile list mode
     mobile: { type: Boolean, default: false },
-    //wrap array and chip as one line
-    wrapLine: { type: Boolean, default: false },
     //chip is clickable use to do refer entity edit form
     chipClickable: { type: Boolean, default: false },
     interval: { type: Number, default: -1 },
@@ -206,7 +180,7 @@ export default {
       header.class || (header.class = this.headerClass);
       header.chip && this.chips.push(header.name);
       !header.chip && this.refAsChip && header.ref && this.chips.push(header.name);
-      !header.chip && header.type == "array" && this.wrapLine == false && this.arrays.push(header.name);
+      !header.chip && header.type == "array" && this.arrays.push(header.name);
       header.style && !header.chip && this.styles.push(header.name);
     }
 
