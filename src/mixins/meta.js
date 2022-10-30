@@ -58,7 +58,7 @@ export default {
         }
         return server_fields;
       } else {
-        return this.fields.length > 0 ? this.fields : server_fields;
+        return custom_fields && custom_fields.length > 0 ? custom_fields : server_fields;
       }
     },
 
