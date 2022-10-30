@@ -7,7 +7,7 @@ export default {
     //this is used for search form and edit form,the fields of the entity
     fields: { type: Array, default: () => [] },
     //merge the fields with server or not
-    mergeFields: { type: Boolean, default: false },
+    mergeWithServer: { type: Boolean, default: false },
     //this is used for table headers, the headers of the table
     headers: { type: Array, default: () => [] },
   },
@@ -48,7 +48,7 @@ export default {
     },
 
     get_meta_fields(custom_fields, server_fields) {
-      if (server_fields && this.mergeFields && custom_fields && custom_fields.length > 0) {
+      if (server_fields && this.mergeWithServer && custom_fields && custom_fields.length > 0) {
         for (let i = 0; i < server_fields.length; i++) {
           const field = server_fields[i];
           const [found] = custom_fields.filter(f => f.name == field.name);
