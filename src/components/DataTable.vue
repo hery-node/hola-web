@@ -180,7 +180,7 @@ export default {
       header.class || (header.class = this.headerClass);
       header.chip && this.chips.push(header.name);
       !header.chip && this.refAsChip && header.ref && this.chips.push(header.name);
-      !header.chip && header.type == "array" && this.arrays.push(header.name);
+      !header.chip && header.type == "array" && ((this.refAsChip && !header.ref) || (!this.refAsChip && header.ref)) && this.arrays.push(header.name);
       header.style && !header.chip && this.styles.push(header.name);
     }
 
