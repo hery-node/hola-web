@@ -46,7 +46,7 @@
 <script>
 import Meta from "../mixins/meta";
 import Alert from "../mixins/alert";
-import { get_entity_meta, read_property, save_entity, is_success_response, has_invalid_params, is_duplicated } from "../core/axios";
+import { read_property, save_entity, is_success_response, has_invalid_params, is_duplicated } from "../core/axios";
 
 export default {
   inheritAttrs: false,
@@ -102,7 +102,7 @@ export default {
     dialogShown: {
       async handler() {
         if (this.dialogShown) {
-          await this.load_meta();
+          await this.load_form_meta();
           this.init_form();
         } else {
           this.dialog_show_inner = false;
@@ -183,11 +183,8 @@ export default {
       this.$emit("cancel");
     },
 
-    async load_meta() {
-      if (this.entity && this.entity.trim().length > 0) {
-        this.meta = await get_entity_meta(this.entity);
-      }
-
+    async load_form_meta() {
+      await this.load_meta();
       const edit_fields = this.clone ? await this.get_clone_fields() : await this.get_edit_fields();
       edit_fields.forEach((field) => {
         field.cols || (field.cols = this.cols);

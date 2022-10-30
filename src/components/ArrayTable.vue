@@ -21,7 +21,6 @@ export default {
     //required attr
     id: { type: String, required: true },
     fieldName: { type: String, required: true },
-
     headerWidth: { type: String, default: "120px" },
     //Available options are start, center, end, baseline and stretch.
     headerAlign: { type: String, default: "center" },

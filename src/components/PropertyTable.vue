@@ -44,6 +44,7 @@ export default {
   },
 
   async created() {
+    await this.load_meta();
     this.property_fields = await this.get_property_fields();
     this.load();
   },

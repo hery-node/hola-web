@@ -1,4 +1,4 @@
-import { get_ref_labels } from "../core/axios";
+import { get_ref_labels, get_entity_meta } from "../core/axios";
 import { get_type } from "../core/type";
 
 export default {
@@ -18,12 +18,6 @@ export default {
     };
   },
 
-  async created() {
-    if (this.entity && this.entity.trim().length > 0) {
-      this.meta = await get_entity_meta(this.entity);
-    }
-  },
-
   computed: {
     entity_label() {
       return this.entity && this.entity.trim().length > 0 ? this.$t(this.entity + "._label") : "";
@@ -31,6 +25,12 @@ export default {
   },
 
   methods: {
+    async load_meta() {
+      if (this.entity && this.entity.trim().length > 0) {
+        this.meta = await get_entity_meta(this.entity);
+      }
+    },
+
     async set_field_type(field, type) {
       type.multiple && (field.multiple = type.multiple);
       type.items && (field.items = type.items(this));

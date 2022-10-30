@@ -82,6 +82,7 @@ export default {
   },
 
   async created() {
+    await this.load_meta();
     const property_fields = await this.get_property_fields();
     const attr_names = property_fields.map((h) => h.name).join(",");
 

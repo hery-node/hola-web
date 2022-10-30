@@ -28,7 +28,6 @@
 </template>
 
 <script>
-import { get_entity_meta } from "../core/axios";
 import Meta from "../mixins/meta";
 
 export default {
@@ -52,14 +51,7 @@ export default {
   },
 
   async created() {
-    if (this.entity && this.entity.trim().length > 0) {
-      this.meta = await get_entity_meta(this.entity);
-    }
-
-    if (this.search_fields.length > 0) {
-      return;
-    }
-
+    await this.load_meta();
     const search_fields = await this.get_search_fields();
     search_fields.forEach((field) => {
       field.cols || (field.cols = this.cols);
