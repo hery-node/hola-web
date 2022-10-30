@@ -11,7 +11,7 @@
 <script>
 import Alert from "../mixins/alert";
 import Meta from "../mixins/meta";
-import { get_entity_meta, read_entity_properties } from "../core/axios";
+import { read_entity } from "../core/axios";
 
 export default {
   inheritAttrs: false,
@@ -42,11 +42,7 @@ export default {
   },
 
   async created() {
-    if (this.entity && this.entity.trim().length > 0) {
-      this.meta = await get_entity_meta(this.entity);
-    }
-
-    const obj = await read_entity_properties(this.entity, this.id, this.fieldName);
+    const obj = await read_entity(this.entity, this.id, this.fieldName);
     const headers = [];
     const array = obj[this.fieldName];
 

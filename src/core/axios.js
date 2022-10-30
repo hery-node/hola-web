@@ -6,8 +6,8 @@ axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
 
 const META = "/meta";
 const CREATE = "/create";
-const READ = "/read";
-const READ_PROPERTIES = "/read_properties";
+const READ_ENTITY = "/read_entity";
+const READ_PROPERTY = "/read_property";
 const LIST = "/list";
 const UPDATE = "/update";
 const CLONE = "/clone";
@@ -190,8 +190,15 @@ const get_ref_labels = (entity) => {
   });
 };
 
+/**
+ * This is used to read the entity properties and will convert ref attributes and link attributes
+ * @param {entity name} entity 
+ * @param {entity objectid} id 
+ * @param {attr names of the entity} attr_names 
+ * @returns 
+ */
 const read_entity = (entity, id, attr_names) => {
-  const url = "/" + entity + READ;
+  const url = "/" + entity + READ_ENTITY;
   const params = { _id: id, attr_names: attr_names };
 
   return axios_post(url, params).then((result) => {
@@ -203,8 +210,15 @@ const read_entity = (entity, id, attr_names) => {
   });
 };
 
-const read_entity_properties = (entity, id, attr_names) => {
-  const url = "/" + entity + READ_PROPERTIES;
+/**
+ * Read entity properties and will keep ref entity to objectid and willnot read link properties.
+ * @param {entity name} entity 
+ * @param {entity objectid} id 
+ * @param {attr names of the entity} attr_names 
+ * @returns 
+ */
+const read_property = (entity, id, attr_names) => {
+  const url = "/" + entity + READ_PROPERTY;
   const params = { _id: id, attr_names: attr_names };
 
   return axios_post(url, params).then((result) => {
@@ -242,4 +256,4 @@ const get_url = (url) => {
   return `${base}${url}`;
 };
 
-export { init_axios, get_url, axios_get, axios_post, axios_cached_get, axios_download, axios_upload, is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params, is_no_session, save_entity, read_entity, read_entity_properties, list_entity, delete_entity, get_ref_labels, get_entity_meta };
+export { init_axios, get_url, axios_get, axios_post, axios_cached_get, axios_download, axios_upload, is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params, is_no_session, save_entity, read_entity, read_property, list_entity, delete_entity, get_ref_labels, get_entity_meta };

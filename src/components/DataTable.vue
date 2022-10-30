@@ -117,7 +117,7 @@
 <script>
 import Meta from "../mixins/meta";
 import Alert from "../mixins/alert";
-import { get_entity_meta, is_success_response, list_entity, read_entity } from "../core/axios";
+import { is_success_response, list_entity } from "../core/axios";
 
 export default {
   inheritAttrs: false,
@@ -195,9 +195,6 @@ export default {
   },
 
   async created() {
-    if (this.entity && this.entity.trim().length > 0) {
-      this.meta = await get_entity_meta(this.entity);
-    }
     const table_headers = await this.get_table_headers();
 
     for (let i = 0; i < table_headers.length; i++) {
@@ -270,15 +267,13 @@ export default {
     async click_chip(item, field_name, index) {
       const [field] = this.table_headers.filter((f) => f.name === field_name);
       if (field && field.ref) {
-        const entity = await read_entity(this.entity, item["_id"], field_name);
-        if (entity) {
-          const id = Array.isArray(entity[field_name]) ? entity[field_name][index] : entity[field_name];
-          const label = Array.isArray(item[field_name]) ? item[field_name][index] : item[field_name];
-          if (field.click) {
-            field.click(id, field.ref, label);
-          } else {
-            this.$emit("chip", { id: id, ref: field.ref, label: label });
-          }
+        const field_name_id = field_name + "_id";
+        const id = Array.isArray(item[field_name_id]) ? item[field_name_id][index] : item[field_name_id];
+        const label = Array.isArray(item[field_name]) ? item[field_name][index] : item[field_name];
+        if (field.click) {
+          field.click(id, field.ref, label);
+        } else {
+          this.$emit("chip", { id: id, ref: field.ref, label: label });
         }
       } else if (field && field.click) {
         field.click(item, field_name, index);

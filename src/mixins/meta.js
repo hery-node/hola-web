@@ -18,6 +18,12 @@ export default {
     };
   },
 
+  async created() {
+    if (this.entity && this.entity.trim().length > 0) {
+      this.meta = await get_entity_meta(this.entity);
+    }
+  },
+
   computed: {
     entity_label() {
       return this.entity && this.entity.trim().length > 0 ? this.$t(this.entity + "._label") : "";
@@ -41,8 +47,19 @@ export default {
       field.icon = field.icon ? field.icon : type.icon ? type.icon : null;
     },
 
-    get_meta_fields(server_fields) {
-      return this.mergeFields ? (this.fields.length > 0 ? { ...server_fields, ...this.fields } : server_fields) : (this.fields.length > 0 ? this.fields : server_fields);
+    get_meta_fields(custom_fields, server_fields) {
+      if (server_fields && this.mergeFields && custom_fields && custom_fields.length > 0) {
+        for (let i = 0; i < server_fields.length; i++) {
+          const field = server_fields[i];
+          const [found] = custom_fields.filter(f => f.name == field.name);
+          if (found) {
+            server_fields[i] = { ...found, ...field };
+          }
+        }
+        return server_fields;
+      } else {
+        return this.fields.length > 0 ? this.fields : server_fields;
+      }
     },
 
     async get_search_fields() {
@@ -53,7 +70,7 @@ export default {
 
       const form_fields = [];
       const server_fields = meta.fields.filter((field) => field.search != false && field.sys != true && field.name != meta.user_field);
-      const meta_fields = this.get_meta_fields(server_fields);
+      const meta_fields = this.get_meta_fields(this.fields, server_fields);
       for (let i = 0; i < meta_fields.length; i++) {
         const field = this.merge_with_server(meta_fields[i], server_fields);
         field.label = this.$t(this.entity + "." + field.name);
@@ -87,7 +104,7 @@ export default {
 
     async get_form_fields(server_fields) {
       const form_fields = [];
-      const meta_fields = this.get_meta_fields(server_fields);
+      const meta_fields = this.get_meta_fields(this.fields, server_fields);
 
       for (let i = 0; i < meta_fields.length; i++) {
         const field = this.merge_with_server(meta_fields[i], server_fields);
@@ -119,7 +136,7 @@ export default {
 
       const form_fields = [];
       const server_fields = meta.fields.filter((field) => field.sys != true && field.name != meta.user_field);
-      const meta_fields = this.get_meta_fields(server_fields);
+      const meta_fields = this.get_meta_fields(this.fields, server_fields);
 
       for (let i = 0; i < meta_fields.length; i++) {
         const field = this.merge_with_server(meta_fields[i], server_fields);
@@ -142,8 +159,7 @@ export default {
 
       const table_headers = [];
       const server_fields = meta.fields.filter((field) => field.list != false && field.sys != true && field.name != meta.user_field);
-      const meta_fields = this.get_meta_fields(server_fields);
-
+      const meta_fields = this.get_meta_fields(this.headers, server_fields);
       for (let i = 0; i < meta_fields.length; i++) {
         const header = this.merge_header_with_server(meta_fields[i], server_fields);
         header.text = this.$t(this.entity + "." + header.name);

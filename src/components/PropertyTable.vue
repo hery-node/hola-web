@@ -23,7 +23,7 @@
 
 <script>
 import Meta from "../mixins/meta";
-import { get_entity_meta, read_entity_properties } from "../core/axios";
+import { read_entity } from "../core/axios";
 
 export default {
   inheritAttrs: false,
@@ -44,18 +44,14 @@ export default {
   },
 
   async created() {
-    if (this.entity && this.entity.trim().length > 0) {
-      this.meta = await get_entity_meta(this.entity);
-    }
-
     this.property_fields = await this.get_property_fields();
-    this.read_entity();
+    this.load();
   },
 
   methods: {
-    async read_entity() {
+    async load() {
       const attr_names = this.property_fields.map((h) => h.name).join(",");
-      const obj = await read_entity_properties(this.entity, this.entityId, attr_names);
+      const obj = await read_entity(this.entity, this.entityId, attr_names);
       for (let j = 0; j < this.property_fields.length; j++) {
         const field = this.property_fields[j];
         const value = field.format ? field.format(obj[field.name], this) : obj[field.name];

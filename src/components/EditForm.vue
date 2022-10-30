@@ -46,7 +46,7 @@
 <script>
 import Meta from "../mixins/meta";
 import Alert from "../mixins/alert";
-import { get_entity_meta, read_entity, save_entity, is_success_response, has_invalid_params, is_duplicated } from "../core/axios";
+import { get_entity_meta, read_property, save_entity, is_success_response, has_invalid_params, is_duplicated } from "../core/axios";
 
 export default {
   inheritAttrs: false,
@@ -205,7 +205,7 @@ export default {
 
       if (this.update_mode) {
         const attr_names = this.edit_fields.map((h) => h.name).join(",");
-        this.form = await read_entity(this.entity, this.entityId, attr_names);
+        this.form = await read_property(this.entity, this.entityId, attr_names);
       }
 
       if (this.dialog) {

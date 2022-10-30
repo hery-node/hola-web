@@ -39,7 +39,7 @@
 import Meta from "../mixins/meta";
 import Regex from "../mixins/regex";
 import Simple from "../mixins/simple";
-import { get_entity_meta, read_entity_properties } from "../core/axios";
+import { read_entity } from "../core/axios";
 
 export default {
   inheritAttrs: false,
@@ -82,17 +82,13 @@ export default {
   },
 
   async created() {
-    if (this.entity && this.entity.trim().length > 0) {
-      this.meta = await get_entity_meta(this.entity);
-    }
-
     const property_fields = await this.get_property_fields();
     const attr_names = property_fields.map((h) => h.name).join(",");
 
     const objs = [];
     for (let i = 0; i < this.ids.length; i++) {
       const entityId = this.ids[i];
-      const obj = await read_entity_properties(this.entity, entityId, attr_names + "," + this.labelKey);
+      const obj = await read_entity(this.entity, entityId, attr_names + "," + this.labelKey);
       objs.push(obj);
     }
 
