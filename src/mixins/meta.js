@@ -7,7 +7,7 @@ export default {
     //this is used for search form and edit form,the fields of the entity
     fields: { type: Array, default: () => [] },
     //merge the fields with server or not
-    mergeFields: { type: Boolean, default: true },
+    mergeFields: { type: Boolean, default: false },
     //this is used for table headers, the headers of the table
     headers: { type: Array, default: () => [] },
   },
