@@ -50,26 +50,37 @@ export default {
     get_meta_fields(custom_fields, server_fields) {
       if (custom_fields && custom_fields.length > 0) {
         if (this.mergeWithServer) {
+          const merge_fields = [];
           for (let i = 0; i < server_fields.length; i++) {
             const field = server_fields[i];
             const [found] = custom_fields.filter(f => f.name == field.name);
             if (found) {
-              server_fields[i] = { ...found, ...field };
+              merge_fields.push({ ...found, ...field });
+            } else {
+              merge_fields.push({ ...field });
             }
           }
-          return server_fields;
+          return merge_fields;
         } else {
+          const merge_fields = [];
           for (let i = 0; i < custom_fields.length; i++) {
             const field = custom_fields[i];
             const [found] = server_fields.filter(f => f.name == field.name);
             if (found) {
-              custom_fields[i] = { ...field, ...found };
+              merge_fields.push({ ...field, ...found });
+            } else {
+              console.log("err field not found in server side:" + JSON.stringify(field));
             }
           }
-          return custom_fields;
+          return merge_fields;
         }
       } else {
-        return server_fields;
+        //deep copy server_fields
+        const merge_fields = [];
+        for (let i = 0; i < server_fields.length; i++) {
+          merge_fields.push({ ...server_fields[i] });
+        }
+        return merge_fields;
       }
     },
 
