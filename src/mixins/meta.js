@@ -116,7 +116,7 @@ export default {
       if (!this.meta) {
         return [];
       }
-      return this.get_form_fields(this.meta.fields.filter((field) => field.clone != false && field.sys != true && field.name != this.meta.user_field));
+      return this.get_form_fields(this.meta.fields.filter((field) => field.create != false && field.clone != false && field.sys != true && field.name != this.meta.user_field));
     },
 
     async get_form_fields(server_fields) {
