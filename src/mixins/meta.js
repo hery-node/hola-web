@@ -48,31 +48,41 @@ export default {
     },
 
     get_meta_fields(custom_fields, server_fields) {
-      if (server_fields && this.mergeWithServer && custom_fields && custom_fields.length > 0) {
-        for (let i = 0; i < server_fields.length; i++) {
-          const field = server_fields[i];
-          const [found] = custom_fields.filter(f => f.name == field.name);
-          if (found) {
-            server_fields[i] = { ...found, ...field };
+      if (custom_fields && custom_fields.length > 0) {
+        if (this.mergeWithServer) {
+          for (let i = 0; i < server_fields.length; i++) {
+            const field = server_fields[i];
+            const [found] = custom_fields.filter(f => f.name == field.name);
+            if (found) {
+              server_fields[i] = { ...found, ...field };
+            }
           }
+          return server_fields;
+        } else {
+          for (let i = 0; i < custom_fields.length; i++) {
+            const field = custom_fields[i];
+            const [found] = server_fields.filter(f => f.name == field.name);
+            if (found) {
+              custom_fields[i] = { ...field, ...found };
+            }
+          }
+          return custom_fields;
         }
-        return server_fields;
       } else {
-        return custom_fields && custom_fields.length > 0 ? custom_fields : server_fields;
+        return server_fields;
       }
     },
 
     async get_search_fields() {
-      const meta = this.meta;
-      if (!meta) {
+      if (!this.meta) {
         return [];
       }
 
       const form_fields = [];
-      const server_fields = meta.fields.filter((field) => field.search != false && field.sys != true && field.name != meta.user_field);
+      const server_fields = this.meta.fields.filter((field) => field.search != false && field.sys != true && field.name != meta.user_field);
       const meta_fields = this.get_meta_fields(this.fields, server_fields);
       for (let i = 0; i < meta_fields.length; i++) {
-        const field = this.merge_with_server(meta_fields[i], server_fields);
+        const field = meta_fields[i];
         field.label = this.$t(this.entity + "." + field.name);
 
         const type = this.get_field_type(field);
@@ -85,21 +95,17 @@ export default {
     },
 
     async get_edit_fields() {
-      const meta = this.meta;
-      if (!meta) {
+      if (!this.meta) {
         return [];
       }
-      const server_fields = meta.fields.filter((field) => field.create != false && field.sys != true && field.name != meta.user_field);
-      return this.get_form_fields(server_fields);
+      return this.get_form_fields(this.meta.fields.filter((field) => field.create != false && field.sys != true && field.name != meta.user_field));
     },
 
     async get_clone_fields() {
-      const meta = this.meta;
-      if (!meta) {
+      if (!this.meta) {
         return [];
       }
-      const server_fields = meta.fields.filter((field) => field.create != false && field.clone != false && field.sys != true && field.name != meta.user_field);
-      return this.get_form_fields(server_fields);
+      return this.get_form_fields(this.meta.fields.filter((field) => field.clone != false && field.sys != true && field.name != meta.user_field));
     },
 
     async get_form_fields(server_fields) {
@@ -107,7 +113,7 @@ export default {
       const meta_fields = this.get_meta_fields(this.fields, server_fields);
 
       for (let i = 0; i < meta_fields.length; i++) {
-        const field = this.merge_with_server(meta_fields[i], server_fields);
+        const field = meta_fields[i];
         const label_i18n_key = this.entity + "." + field.name;
         const hint_i18n_key = label_i18n_key + "_hint";
         field.label = this.$t(label_i18n_key);
@@ -129,39 +135,37 @@ export default {
     },
 
     async get_property_fields() {
-      const meta = this.meta;
-      if (!meta) {
+      if (!this.meta) {
         return [];
       }
 
-      const form_fields = [];
-      const server_fields = meta.fields.filter((field) => field.sys != true && field.name != meta.user_field);
+      const property_fields = [];
+      const server_fields = this.meta.fields.filter((field) => field.sys != true && field.name != meta.user_field);
       const meta_fields = this.get_meta_fields(this.fields, server_fields);
 
       for (let i = 0; i < meta_fields.length; i++) {
-        const field = this.merge_with_server(meta_fields[i], server_fields);
+        const field = meta_fields[i];
         const label_i18n_key = this.entity + "." + field.name;
         field.label = this.$t(label_i18n_key);
 
         const type = this.get_field_type(field);
         this.set_field_prefix_suffix(field, type);
         type.format && (field.format = type.format);
-        form_fields.push(field);
+        property_fields.push(field);
       }
-      return form_fields;
+      return property_fields;
     },
 
     async get_table_headers() {
-      const meta = this.meta;
-      if (!meta) {
+      if (!this.meta) {
         return [];
       }
 
       const table_headers = [];
-      const server_fields = meta.fields.filter((field) => field.list != false && field.sys != true && field.name != meta.user_field);
+      const server_fields = this.meta.fields.filter((field) => field.list != false && field.sys != true && field.name != meta.user_field);
       const meta_fields = this.get_meta_fields(this.headers, server_fields);
       for (let i = 0; i < meta_fields.length; i++) {
-        const header = this.merge_header_with_server(meta_fields[i], server_fields);
+        const header = meta_fields[i];
         header.text = this.$t(this.entity + "." + header.name);
         header.value = header.name;
 
@@ -170,30 +174,6 @@ export default {
         table_headers.push(header);
       }
       return table_headers;
-    },
-
-    merge_with_server(field, server_fields) {
-      if (this.fields.length > 0) {
-        const [server_field] = server_fields.filter((f) => f.name === field.name);
-        if (!server_field) {
-          throw new Error("entity:" + this.entity + ", and field name:" + field.name + " not found matched server field");
-        }
-        return { ...field, ...server_field };
-      } else {
-        return { ...field };
-      }
-    },
-
-    merge_header_with_server(field, server_fields) {
-      if (this.headers.length > 0) {
-        const [server_field] = server_fields.filter((f) => f.name === field.name);
-        if (!server_field) {
-          throw new Error("entity:" + this.entity + ", and field name:" + field.name + " not found matched server field");
-        }
-        return { ...field, ...server_field };
-      } else {
-        return { ...field };
-      }
     },
 
     get_field_type(field) {
