@@ -136,6 +136,12 @@ export default {
     headerClass: { type: String, default: "table_header subtitle-2" },
     headerUppcase: { type: Boolean, default: false },
 
+    // This setting is used for action
+    actionWidth: { type: String, default: "120px" },
+    //Available options are start, center, end, baseline and stretch.
+    actionAlign: { type: String, default: "start" },
+    actionClass: { type: String, default: "table_header subtitle-2" },
+
     //turn off table in mobile list mode
     mobile: { type: Boolean, default: false },
     //chip is clickable use to do refer entity edit form
@@ -186,9 +192,9 @@ export default {
 
     if (this.hasActionHeader) {
       const action = { text: this.uppcase_header(this.$t("table.action_header")), value: "_action", sortable: false };
-      action.width = this.headerWidth;
-      action.align = this.headerAlign;
-      action.class = this.headerClass;
+      action.width = this.actionWidth;
+      action.align = this.actionAlign;
+      action.class = this.actionClass;
       table_headers.push(action);
     }
 
