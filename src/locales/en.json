@@ -75,6 +75,7 @@
     "reverse_order": "Reverse",
     "no_diff_result": "No Difference",
     "improve": "Improvement",
+    "ratio": "right*100/left",
     "diff1": "max*100/min",
     "diff2": "min*100/max"
   },

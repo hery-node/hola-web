@@ -51,6 +51,7 @@ export default {
     topFields: { type: Array, default: () => [] },
     filterFields: { type: Array, default: () => [] },
     maxLineWords: { type: Number, default: 50 },
+    showRatio: { type: Boolean, default: false },
     showDiff: { type: Boolean, default: false },
     diffThreshold: { type: Number, default: 0 },
     thresholdLabel: { type: String },
@@ -117,6 +118,20 @@ export default {
   },
 
   methods: {
+    set_ratio_values(items) {
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+
+        const left = parseFloat(item["value0"]);
+        const right = parseFloat(item["value1"]);
+        if (!isNaN(left) && !isNaN(right) && left != right) {
+          item["ratio"] = left != 0 ? ((right * 100) / left).toFixed(2) + "%" : "";
+        } else {
+          item["ratio"] = "";
+        }
+      }
+    },
+
     set_diff_values(items, columes) {
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
@@ -149,6 +164,21 @@ export default {
         }
       } else {
         headers.push({ text: this.uppcase_header(this.$t("table.value")), value: "value", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
+      }
+
+      if (this.showRatio && objs.length == 2) {
+        headers.push({
+          text: this.uppcase_header(this.$t("compare.ratio")),
+          value: "ratio",
+          width: this.headerWidth,
+          align: this.headerAlign,
+          class: this.headerClass,
+          sort: function (a, b) {
+            const a1 = isNaN(parseFloat(a)) ? 0 : parseFloat(a);
+            const b1 = isNaN(parseFloat(b)) ? 0 : parseFloat(b);
+            return a1 - b1;
+          },
+        });
       }
 
       if (this.showDiff && objs.length >= 2) {
@@ -230,6 +260,10 @@ export default {
             }
           }
         }
+      }
+
+      if (this.showRatio && objs.length == 2) {
+        this.set_ratio_values(items, this.objs.length);
       }
 
       //calculate the diff values
