@@ -16,15 +16,15 @@
         </v-toolbar>
       </template>
 
-      <template v-if="!pagination" v-slot:[`item._id`]="{ item }">
-        <v-row justify="center" align="center">
+      <template v-if="!pagination" v-slot:[`item.${first_column}`]="{ item }">
+        <v-row :justify="get_header_align(first_column)" :align="get_header_align(first_column)" class="my-3">
           <template v-if="item._last === true">
             <span class="ma-1" v-intersect="infinite_scroll">
-              {{ item["_id"] }}
+              {{ item[first_column] }}
             </span>
           </template>
           <template v-else>
-            {{ item["_id"] }}
+            {{ item[first_column] }}
           </template>
         </v-row>
       </template>
@@ -171,6 +171,7 @@ export default {
       expanded: [],
       search_form: {},
       options: {},
+      first_column: "",
     };
   },
 
@@ -198,6 +199,7 @@ export default {
       table_headers.push(action);
     }
 
+    this.first_column = table_headers[0].value;
     this.table_headers = table_headers;
     this.load_data();
   },
