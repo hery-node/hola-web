@@ -36,7 +36,8 @@
     "err_duplicate": "The {entity} already exist.",
     "clone_title": "Clone {entity}",
     "clone_success_hint": "Clone {entity} Successful",
-    "clone_fail_hint": "Clone {entity} Failed"
+    "clone_fail_hint": "Clone {entity} Failed",
+    "error": ",Error:{error}"
   },
   "confirm": {
     "yes": "Yes",

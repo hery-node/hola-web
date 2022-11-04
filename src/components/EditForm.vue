@@ -241,7 +241,8 @@ export default {
       } else {
         const update_info = this.clone ? this.$t("form.clone_fail_hint", { entity: this.entity_label }) : this.$t("form.update_fail_hint", { entity: this.entity_label });
         const error_info = this.failHint ? this.failHint : this.update_mode ? update_info : this.$t("form.create_fail_hint", { entity: this.entity_label });
-        this.show_error(error_info);
+        const error = this.$t("form.error", { error: err });
+        this.show_error(error_info + error);
       }
     },
   },
