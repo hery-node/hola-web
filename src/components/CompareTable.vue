@@ -162,8 +162,8 @@ export default {
         for (let i = 0; i < objs.length; i++) {
           headers.push({ text: this.uppcase_header(objs[i][this.labelKey]), value: "value" + i, width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
         }
-      } else {
-        headers.push({ text: this.uppcase_header(this.$t("table.value")), value: "value", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
+      } else if (objs.length == 1) {
+        headers.push({ text: this.uppcase_header(objs[0][this.labelKey]), value: "value", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
       }
 
       if (this.showRatio && objs.length == 2) {

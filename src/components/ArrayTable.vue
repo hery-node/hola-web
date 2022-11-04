@@ -51,6 +51,12 @@ export default {
         headers.push({ text: this.headerUppcase ? property.toUpperCase() : property, value: property, width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
       }
       this.table_headers = headers;
+
+      for (const obj of array) {
+        for (const property in obj) {
+          obj[property] && (obj[property] = JSON.stringify(obj[property]));
+        }
+      }
       this.items = array;
     }
 
