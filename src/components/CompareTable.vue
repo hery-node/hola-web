@@ -252,7 +252,7 @@ export default {
           if (attribute != this.labelKey) {
             const obj = {};
             obj["attr"] = attribute;
-            obj["value"] = object[attribute] ? this.convert_long_to_newline(object[attribute] + "") : "";
+            obj["value"] = object[attribute] ? this.convert_long_to_newline(object[attribute]) : "";
             if (this.filterFields.length == 0) {
               items.push(obj);
             } else if (this.filterFields.includes(attribute)) {
@@ -300,6 +300,8 @@ export default {
         } else {
           return value.replaceAll(",", "\n");
         }
+      } else if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+        return JSON.stringify(value);
       } else {
         return value;
       }

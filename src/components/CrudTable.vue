@@ -11,7 +11,7 @@
       </v-tooltip>
       <h-confirm ref="confirm" />
       <h-edit-form v-bind="$attrs" dialog :dialog-shown="dialog" :clone="clone_mode" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="close_dialog" @success="success_edit" :create-title="create_title" :update-title="update_title" :clone-title="clone_title"> </h-edit-form>
-      <h-edit-form dialog :dialog-shown="chip_dialog" hide-hint :entity="chip_entity" :entity-id="chip_entity_id" @cancel="close_chip_dialog" @success="success_chip_edit"> </h-edit-form>
+      <h-edit-form v-bind="$attrs" dialog :dialog-shown="chip_dialog" hide-hint :entity="chip_entity" :entity-id="chip_entity_id" @cancel="close_chip_dialog" @success="success_chip_edit"> </h-edit-form>
     </template>
   </h-table>
 </template>

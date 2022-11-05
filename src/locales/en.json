@@ -37,7 +37,8 @@
     "clone_title": "Clone {entity}",
     "clone_success_hint": "Clone {entity} Successful",
     "clone_fail_hint": "Clone {entity} Failed",
-    "error": ".Please check log for detail error information."
+    "check_log": ".Please check log for detail error information.",
+    "error": ".Error is {err}."
   },
   "confirm": {
     "yes": "Yes",

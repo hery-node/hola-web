@@ -79,6 +79,8 @@ export default {
     successHint: { type: String },
     //fail hint to shown
     failHint: { type: String },
+    //show detailed error message
+    showDetailError: { type: String, default: false },
     //control whether the form in dialog or not
     dialog: { type: Boolean, default: false },
     //control by outside to show or hidden
@@ -241,7 +243,7 @@ export default {
       } else {
         const update_info = this.clone ? this.$t("form.clone_fail_hint", { entity: this.entity_label }) : this.$t("form.update_fail_hint", { entity: this.entity_label });
         const error_info = this.failHint ? this.failHint : this.update_mode ? update_info : this.$t("form.create_fail_hint", { entity: this.entity_label });
-        const error = this.$t("form.error");
+        const error = this.showDetailError ? this.$t("form.error", { err: err }) : this.$t("form.check_log");
         this.show_error(error_info + error);
       }
     },
