@@ -80,7 +80,7 @@ export default {
     //fail hint to shown
     failHint: { type: String },
     //show detailed error message
-    showDetailError: { type: String, default: false },
+    showDetailError: { type: Boolean, default: false },
     //control whether the form in dialog or not
     dialog: { type: Boolean, default: false },
     //control by outside to show or hidden
@@ -181,6 +181,8 @@ export default {
     },
 
     cancel() {
+      this.alert.shown = false;
+
       this.reset_form();
       this.$emit("cancel");
     },
@@ -214,6 +216,8 @@ export default {
     },
 
     async submit_form(form_data) {
+      this.alert.shown = false;
+
       if (!this.is_validate()) {
         return;
       }

@@ -21,7 +21,7 @@ export default {
     },
 
     show_alert(type, msg, delay) {
-      const time = delay ? delay : 5000;
+      const time = delay ? delay : 15000;
       this.alert.shown = true;
       this.alert.type = type;
       this.alert.msg = msg ? msg.replace(/\n/g, "<br />") : "";

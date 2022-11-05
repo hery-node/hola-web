@@ -34,7 +34,7 @@ export default {
     async set_field_type(field, type) {
       type.multiple && (field.multiple = type.multiple);
       type.items && (field.items = type.items(this));
-      field.ref && (field.items = await get_ref_labels(field.ref));
+      field.ref && (field.items = await get_ref_labels(field.ref, this.entity));
 
       this.set_field_prefix_suffix(field, type);
     },

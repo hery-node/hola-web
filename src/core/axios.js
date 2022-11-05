@@ -179,9 +179,9 @@ const get_entity_meta = (entity) => {
   });
 };
 
-const get_ref_labels = (entity) => {
+const get_ref_labels = (entity, ref_by_entity) => {
   const url = "/" + entity + REF;
-  return axios_get(url).then((result) => {
+  return axios_get(url, { ref_by_entity: ref_by_entity }).then((result) => {
     if (is_success_response(result.code)) {
       return result.data;
     } else {
