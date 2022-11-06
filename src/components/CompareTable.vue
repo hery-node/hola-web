@@ -2,7 +2,7 @@
   <v-card v-bind="$attrs">
     <v-toolbar :class="toolbarClass" dark v-if="showToolbar">
       <v-row>
-        <v-col cols="6">
+        <v-col :cols="search_cols">
           <v-text-field v-model="search" append-icon="mdi-magnify" class="mr-5" :label="search_hint" single-line hide-details clearable></v-text-field>
         </v-col>
         <v-col cols="2" v-if="show_threshold">
@@ -114,6 +114,14 @@ export default {
 
     threshold_label() {
       return this.thresholdLabel;
+    },
+
+    search_cols() {
+      let cols = 6;
+      !this.show_threshold && (cols += 2);
+      !this.show_only_show_diff && (cols += 2);
+      !this.show_fuzzy_match && (cols += 2);
+      return cols;
     },
   },
 
@@ -289,6 +297,15 @@ export default {
       this.filter_fields();
     },
 
+    split_to_multiline(str, leng) {
+      const arr = [];
+      let index = 0;
+      while (index < str.length) {
+        arr.push(str.slice(index, (index += leng)));
+      }
+      return arr.join("\n");
+    },
+
     convert_long_to_newline(value) {
       if (!value) {
         return "";
@@ -298,10 +315,10 @@ export default {
         if (value.length < this.maxLineWords) {
           return value;
         } else {
-          return value.replaceAll(",", "\n");
+          return this.split_to_multiline(value, this.maxLineWords);
         }
       } else if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-        return JSON.stringify(value);
+        return this.split_to_multiline(JSON.stringify(value), this.maxLineWords);
       } else {
         return value;
       }

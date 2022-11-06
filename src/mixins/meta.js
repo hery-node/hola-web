@@ -198,5 +198,16 @@ export default {
       }
       return type;
     },
+
+    format_field_value(field, value, ctx) {
+      const format_value = field.format ? field.format(value, ctx) : value;
+      if (format_value) {
+        const prefix = field.prefix && !format_value.toString().includes(field.prefix) ? field.prefix : "";
+        const suffix = field.suffix && !format_value.toString().includes(field.suffix) ? field.suffix : "";
+        return `${prefix} ${format_value} ${suffix}`.trim();
+      } else {
+        return "";
+      }
+    },
   },
 };

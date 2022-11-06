@@ -1,6 +1,7 @@
 export default {
   props: {
     similar: { type: Number, default: 80 },
+    showFuzzyMatch: { type: Boolean, default: false },
     fuzzyLabel: { type: String },
   },
 
@@ -89,7 +90,7 @@ export default {
 
   computed: {
     show_fuzzy_match() {
-      return this.objs.length == 2;
+      return this.showFuzzyMatch && this.objs.length == 2;
     },
 
     show_fuzzy_label() {
