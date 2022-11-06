@@ -58,6 +58,7 @@ export default {
         }
       }
       this.items = array;
+      this.$emit("complete", { name: this.fieldName, array: array });
     }
 
     if (this.check) {
