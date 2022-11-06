@@ -4,6 +4,7 @@ import { register_type, get_type, no_value, is_int } from "../core/type";
 
 import ConfirmDialog from "./ConfirmDialog.vue";
 import BasicForm from "./BasicForm.vue";
+import ObjectTable from "./ObjectTable.vue";
 import ArrayTable from "./ArrayTable.vue";
 import CompareTable from "./CompareTable.vue";
 import CompareEntity from "./CompareEntity.vue";
@@ -17,6 +18,7 @@ import NavBar from "./NavBar.vue";
 function setup_components() {
   Vue.component("h-confirm", ConfirmDialog);
   Vue.component("h-form", BasicForm);
+  Vue.component("h-object", ObjectTable);
   Vue.component("h-array", ArrayTable);
   Vue.component("h-compare", CompareTable);
   Vue.component("h-compare-entity", CompareEntity);
