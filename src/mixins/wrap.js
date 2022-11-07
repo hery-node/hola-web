@@ -14,7 +14,7 @@ export default {
     },
 
     convert_long_to_newline(value) {
-      if (!value) {
+      if (!value && value != 0) {
         return "";
       }
 
