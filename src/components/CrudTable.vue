@@ -32,8 +32,8 @@ export default {
     //show delete name in batch delete dialog
     itemLabelKey: { type: String, required: true },
     //end
-    //c stands for create, r: read, u:update, o:clone, d:delete, i:import ,e:export, f:refresh
-    mode: { type: String, default: "crudie" },
+    //b:batch mode, c:create, r: read, u:update, o:clone, d:delete, i:import ,e:export, f:refresh
+    mode: { type: String, default: "bcruodief" },
     //add more actions to item actions
     actions: { type: Array, default: () => [] },
     //add more toolbars for single mode
@@ -45,7 +45,6 @@ export default {
     editFields: { type: Array, default: () => [] },
     headers: { type: Array, default: () => [] },
 
-    showBatchSwitch: { type: Boolean, default: true },
     //title related setting
     noSelectLabel: { type: String },
     createLabel: { type: String },
@@ -82,6 +81,10 @@ export default {
   },
 
   computed: {
+    is_batchable() {
+      return this.mode.includes("b");
+    },
+
     is_creatable() {
       return this.mode.includes("c");
     },
@@ -163,8 +166,8 @@ export default {
       this.batch_mode && this.is_deletable && header_toolbars.push({ color: "toolbar_icon", icon: this.deleteIcon, tooltip: this.batch_delete_title, click: this.batch_delete });
       !this.batch_mode && header_toolbars.push(...this.toolbars);
       this.batch_mode && header_toolbars.push(...this.batchToolbars);
-      !this.batch_mode && this.showBatchSwitch && header_toolbars.push({ color: "toolbar_icon", icon: "mdi-checkbox-multiple-marked", tooltip: this.$t("table.switch_to_batch"), click: this.switch_to_batch });
-      this.batch_mode && this.showBatchSwitch && header_toolbars.push({ color: "toolbar_icon", icon: "mdi-close-circle-multiple", tooltip: this.$t("table.switch_to_single"), click: this.switch_to_single });
+      !this.batch_mode && this.is_batchable && header_toolbars.push({ color: "toolbar_icon", icon: "mdi-checkbox-multiple-marked", tooltip: this.$t("table.switch_to_batch"), click: this.switch_to_batch });
+      this.batch_mode && this.is_batchable && header_toolbars.push({ color: "toolbar_icon", icon: "mdi-close-circle-multiple", tooltip: this.$t("table.switch_to_single"), click: this.switch_to_single });
       this.header_toolbars = header_toolbars;
       this.has_action_header = this.is_updatable || this.is_deletable;
     },
