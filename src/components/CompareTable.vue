@@ -29,10 +29,11 @@
 import Regex from "../mixins/regex";
 import Simple from "../mixins/simple";
 import Fuzzy from "../mixins/fuzzy";
+import Wrap from "../mixins/wrap";
 
 export default {
   inheritAttrs: false,
-  mixins: [Regex, Simple, Fuzzy],
+  mixins: [Regex, Simple, Fuzzy, Wrap],
 
   props: {
     //one is used to show, more than one is used to compare
@@ -50,7 +51,6 @@ export default {
     showDiffLabel: { type: String },
     topFields: { type: Array, default: () => [] },
     filterFields: { type: Array, default: () => [] },
-    maxLineWords: { type: Number, default: 50 },
     showRatio: { type: Boolean, default: false },
     showDiff: { type: Boolean, default: false },
     diffThreshold: { type: Number, default: 0 },
@@ -295,33 +295,6 @@ export default {
       this.all_items = this.filterFields && this.filterFields.length > 0 ? ordered_items : items;
       this.threshold = this.diffThreshold;
       this.filter_fields();
-    },
-
-    split_to_multiline(str, leng) {
-      const arr = [];
-      let index = 0;
-      while (index < str.length) {
-        arr.push(str.slice(index, (index += leng)));
-      }
-      return arr.join("\n");
-    },
-
-    convert_long_to_newline(value) {
-      if (!value) {
-        return "";
-      }
-
-      if (typeof value === "string" || value instanceof String) {
-        if (value.length < this.maxLineWords) {
-          return value;
-        } else {
-          return this.split_to_multiline(value, this.maxLineWords);
-        }
-      } else if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-        return this.split_to_multiline(JSON.stringify(value), this.maxLineWords);
-      } else {
-        return value;
-      }
     },
 
     uppcase_header(header_title) {
