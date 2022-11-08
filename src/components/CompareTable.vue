@@ -237,11 +237,11 @@ export default {
                     value = property_objs[j][map[attribute]];
                   }
                 }
-                obj["value" + j] = value ? this.convert_long_to_newline(value) : "";
+                obj["value" + j] = this.has_value(value) ? this.convert_long_to_newline(value) : "";
               }
             } else {
               for (let j = 0; j < objs.length; j++) {
-                obj["value" + j] = property_objs[j] && property_objs[j][attribute] ? this.convert_long_to_newline(property_objs[j][attribute]) : "";
+                obj["value" + j] = property_objs[j] && this.has_value(property_objs[j][attribute]) ? this.convert_long_to_newline(property_objs[j][attribute]) : "";
               }
             }
             if (this.filterFields.length == 0) {
@@ -260,7 +260,7 @@ export default {
           if (attribute != this.labelKey) {
             const obj = {};
             obj["attr"] = attribute;
-            obj["value"] = object[attribute] ? this.convert_long_to_newline(object[attribute]) : "";
+            obj["value"] = this.has_value(object[attribute]) ? this.convert_long_to_newline(object[attribute]) : "";
             if (this.filterFields.length == 0) {
               items.push(obj);
             } else if (this.filterFields.includes(attribute)) {
@@ -302,8 +302,16 @@ export default {
     },
 
     is_diff_value(item) {
-      if (this.objs.length > 1 && this.threshold > 0 && item["diff1"]) {
+      if (this.objs.length > 1 && this.threshold > 0 && this.has_value(item["diff1"])) {
         return Math.abs(parseFloat(item["diff1"])) > this.threshold;
+      } else if (this.objs.length > 1) {
+        let value = item["value0"];
+        for (let i = 0; i < this.objs.length; i++) {
+          if (item["value" + i] != value) {
+            return true;
+          }
+        }
+        return false;
       } else {
         return false;
       }

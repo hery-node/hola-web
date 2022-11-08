@@ -13,8 +13,21 @@ export default {
       return arr.join("\n");
     },
 
+    has_value(value) {
+      if (value === undefined || value === null) {
+        return false;
+      }
+      if (typeof value == "undefined") {
+        return false;
+      }
+      if (typeof value === "string" && value.trim().length === 0) {
+        return false;
+      }
+      return true;
+    },
+
     convert_long_to_newline(value) {
-      if (!value && value != 0) {
+      if (!this.has_value(value)) {
         return "";
       }
 
@@ -22,7 +35,7 @@ export default {
         return value.length <= this.maxLineWords ? value : this.split_to_multiline(value);
       }
 
-      if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+      if (typeof value === "object" && value !== null) {
         const str = JSON.stringify(value);
         return str.length <= this.maxLineWords ? str : this.split_to_multiline(str);
       }

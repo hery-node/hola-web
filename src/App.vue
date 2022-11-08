@@ -19,24 +19,7 @@
       <br />
       <br />
       <br />
-      <v-card flat>
-        <v-card-title class="text-h6"><p v-text="titles['knobs_os']"></p></v-card-title>
-        <v-card-text>
-          <h-array dense :entity="entity" header-uppcase :id="id" field-name="knobs_os"></h-array>
-        </v-card-text>
-      </v-card>
-      <v-card flat>
-        <v-card-title class="text-h6"><p v-text="titles['knobs_app']"></p></v-card-title>
-        <v-card-text>
-          <h-array dense :entity="entity" header-uppcase :id="id" field-name="knobs_app"></h-array>
-        </v-card-text>
-      </v-card>
-      <v-card flat>
-        <v-card-title class="text-h6"><p v-text="titles['knobs_benchmark']"></p></v-card-title>
-        <v-card-text>
-          <h-array dense :entity="entity" header-uppcase :id="id" field-name="knobs_benchmark"></h-array>
-        </v-card-text>
-      </v-card>
+      <h-compare-entity dense :entity="entity" show-toolbar header-uppcase label-key="tag" :ids="ids" :fields="fields"></h-compare-entity>
     </v-main>
   </v-app>
 </template>
@@ -49,8 +32,10 @@ export default {
 
   data() {
     return {
-      entity: "benchmarking",
+      entity: "inspection",
       id: "635c7e6aecf2f40bf70feca9",
+      ids: "6369ea4e3390832603c8d45f,636758c12056563416b9db26".split(","),
+      fields: [{ name: "bios" }],
       titles: { knobs_os: "", knobs_app: "", knobs_benchmark: "" },
     };
   },
