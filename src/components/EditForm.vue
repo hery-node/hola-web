@@ -83,8 +83,6 @@ export default {
     showDetailError: { type: Boolean, default: false },
     //control whether the form in dialog or not
     dialog: { type: Boolean, default: false },
-    //control by outside to show or hidden
-    dialogShown: { type: Boolean, default: false },
     //dialog setting
     dialogWidth: { type: String, default: "800px" },
     progressBarColor: { type: String, default: "indigo" },
@@ -96,20 +94,6 @@ export default {
       form: {},
       edit_fields: [],
     };
-  },
-
-  watch: {
-    dialogShown: {
-      async handler() {
-        if (this.dialogShown) {
-          await this.load_form_meta();
-          this.init_form();
-        } else {
-          this.$refs.win.close();
-        }
-      },
-      deep: true,
-    },
   },
 
   computed: {
@@ -180,6 +164,8 @@ export default {
 
     cancel() {
       this.alert.shown = false;
+      this.loading = false;
+      this.dialog && this.$refs.win.close();
 
       this.reset_form();
       this.$emit("cancel");
@@ -195,6 +181,8 @@ export default {
     },
 
     async init_form() {
+      await this.load_form_meta();
+
       //change readonly property every time (update or create mode switch)
       if (this.clone != true) {
         this.edit_fields.forEach((field) => {
@@ -207,10 +195,7 @@ export default {
         this.form = await read_property(this.entity, this.entityId, attr_names);
       }
 
-      if (this.dialog) {
-        //show dialog after init
-        this.$refs.win.show();
-      }
+      this.dialog && this.$refs.win.show();
     },
 
     async submit_form(form_data) {
@@ -230,6 +215,7 @@ export default {
         const update_info = this.clone ? this.$t("form.clone_success_hint", { entity: this.entity_label }) : this.$t("form.update_success_hint", { entity: this.entity_label });
         const success_info = this.successHint ? this.successHint : this.update_mode ? update_info : this.$t("form.create_success_hint", { entity: this.entity_label });
         this.hideHint || this.show_success(success_info);
+        this.dialog && this.$refs.win.close();
         this.$emit("success");
       } else if (has_invalid_params(code)) {
         const field_names = err;

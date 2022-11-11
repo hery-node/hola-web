@@ -10,8 +10,8 @@
         <span>{{ toolbar.tooltip }}</span>
       </v-tooltip>
       <h-confirm ref="confirm" />
-      <h-edit-form v-bind="$attrs" dialog :dialog-shown="dialog" :clone="clone_mode" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="close_dialog" @success="success_edit" :create-title="create_title" :update-title="update_title" :clone-title="clone_title"> </h-edit-form>
-      <h-edit-form v-bind="$attrs" dialog :dialog-shown="chip_dialog" hide-hint :entity="chip_entity" :entity-id="chip_entity_id" @cancel="close_chip_dialog" @success="success_chip_edit"> </h-edit-form>
+      <h-edit-form ref="form" v-bind="$attrs" dialog :clone="clone_mode" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @success="refresh" :create-title="create_title" :update-title="update_title" :clone-title="clone_title"> </h-edit-form>
+      <h-edit-form ref="form_chip" v-bind="$attrs" dialog hide-hint :entity="chip_entity" :entity-id="chip_entity_id" @success="refresh"> </h-edit-form>
     </template>
   </h-table>
 </template>
@@ -217,10 +217,6 @@ export default {
       table.show_error(msg);
     },
 
-    get_table() {
-      return this.$refs.table;
-    },
-
     reset_selected() {
       const table = this.$refs.table;
       table.selected = [];
@@ -267,45 +263,27 @@ export default {
 
     show_create_dialog() {
       this.edit_entity_id = null;
-      this.dialog = true;
+      this.$refs.form.init_form();
     },
 
     async update_entity(item) {
       this.clone_mode = false;
       this.edit_entity_id = item["_id"];
-      this.dialog = true;
+      this.$refs.form.init_form();
     },
 
     async clone_entity(item) {
       this.clone_mode = true;
       this.edit_entity_id = item["_id"];
-      this.dialog = true;
-    },
-
-    close_dialog() {
-      this.dialog = false;
-    },
-
-    close_chip_dialog() {
-      this.chip_dialog = false;
+      this.$refs.form.init_form();
     },
 
     async click_chip(chip) {
       if (chip && chip.ref) {
         this.chip_entity = chip.ref;
         this.chip_entity_id = chip.id;
-        this.chip_dialog = true;
+        this.$refs.form_chip.init_form();
       }
-    },
-
-    success_edit() {
-      this.dialog = false;
-      this.refresh();
-    },
-
-    success_chip_edit() {
-      this.chip_dialog = false;
-      this.refresh();
     },
   },
 };
