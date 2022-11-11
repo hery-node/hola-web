@@ -5,6 +5,7 @@ import { register_type, get_type, no_value, is_int } from "../core/type";
 import ArrayEntity from "./ArrayEntity.vue";
 import ArrayTable from "./ArrayTable.vue";
 import BasicForm from "./BasicForm.vue";
+import BasicWindow from "./BasicWindow.vue";
 import ConfirmDialog from "./ConfirmDialog.vue";
 import CompareTable from "./CompareTable.vue";
 import CompareEntity from "./CompareEntity.vue";
@@ -20,6 +21,7 @@ function setup_components() {
   Vue.component("h-array-entity", ArrayEntity);
   Vue.component("h-confirm", ConfirmDialog);
   Vue.component("h-form", BasicForm);
+  Vue.component("h-window", BasicWindow);
   Vue.component("h-compare", CompareTable);
   Vue.component("h-compare-entity", CompareEntity);
   Vue.component("h-search-form", SearchForm);

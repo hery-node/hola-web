@@ -16,10 +16,7 @@
     </v-app-bar>
 
     <v-main>
-      <br />
-      <br />
-      <br />
-      <h-compare-entity dense :entity="entity" show-toolbar header-uppcase label-key="tag" :ids="ids" :fields="fields"></h-compare-entity>
+      <h-crud ref="table" :searchable="searchable" :mode="mode" :entity="entity" :actions="actions" :headers="headers" :hidden-fields="hidden_fields" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc"></h-crud>
     </v-main>
   </v-app>
 </template>
@@ -32,17 +29,30 @@ export default {
 
   data() {
     return {
-      entity: "inspection",
-      id: "635c7e6aecf2f40bf70feca9",
-      ids: "6369ea4e3390832603c8d45f,636758c12056563416b9db26".split(","),
-      fields: [{ name: "bios" }],
-      titles: { knobs_os: "", knobs_app: "", knobs_benchmark: "" },
+      dialog: false,
+      space_name: "",
+      to_space_id: "",
+      spaces: [],
+      searchable: true,
+      mode: "cruodf",
+      entity: "user",
+      item_label_key: "name",
+      sort_key: ["name"],
+      sort_desc: [false],
+      hidden_fields: ["root"],
+      headers: [{ name: "name" }],
+      actions: [
+        { color: "delete", icon: "mdi-content-cut", tooltip: this.$t("user.cut_relation_hint"), handle: this.cut_relation, shown: (item) => !item["root"] },
+        { color: "edit", icon: "mdi-transfer-right", tooltip: this.$t("user.transfer_hint"), handle: this.show_transfer_space, shown: (item) => !item["root"] },
+      ],
     };
   },
 
   methods: {
-    row_clicked(evt, item) {
-      console.log(item);
+    expand() {
+      this.width = "100%";
+      this.height = window.innerHeight - 300;
+      console.log(this.height);
     },
   },
 };

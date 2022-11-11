@@ -1,9 +1,9 @@
 <template>
   <div>
     <template v-if="dialog">
-      <v-dialog v-model="dialog_show_inner" :max-width="dialogWidth">
+      <h-window ref="win" :title="form_title" :width="dialogWidth">
         <div style="overflow-x: hidden">
-          <h-form v-bind="$attrs" v-on="$listeners" ref="form" v-model="form" :fields="edit_fields" :title="form_title" @submit="submit_form">
+          <h-form v-bind="$attrs" v-on="$listeners" ref="form" v-model="form" :fields="edit_fields" @submit="submit_form">
             <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
             <v-progress-linear v-if="loading" indeterminate :color="progressBarColor" class="mx-3"></v-progress-linear>
             <v-card-actions>
@@ -20,7 +20,7 @@
             </v-card-actions>
           </h-form>
         </div>
-      </v-dialog>
+      </h-window>
     </template>
     <template v-else>
       <h-form v-bind="$attrs" v-on="$listeners" ref="form" v-model="form" :fields="edit_fields" :title="form_title" @submit="submit_form">
@@ -92,8 +92,6 @@ export default {
 
   data() {
     return {
-      //control dialog shown or hidden inner
-      dialog_show_inner: false,
       loading: false,
       form: {},
       edit_fields: [],
@@ -107,7 +105,7 @@ export default {
           await this.load_form_meta();
           this.init_form();
         } else {
-          this.dialog_show_inner = false;
+          this.$refs.win.close();
         }
       },
       deep: true,
@@ -211,7 +209,7 @@ export default {
 
       if (this.dialog) {
         //show dialog after init
-        this.dialog_show_inner = true;
+        this.$refs.win.show();
       }
     },
 

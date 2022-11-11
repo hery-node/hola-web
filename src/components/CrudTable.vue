@@ -178,12 +178,12 @@ export default {
 
     press_key(event) {
       if (this.is_creatable) {
-        if (event.key == "a" && event.ctrlKey == true) {
+        if (event.key == "a" && event.altKey == true) {
           this.show_create_dialog();
         }
       }
 
-      if (event.key == "b" && event.ctrlKey == true) {
+      if (event.key == "b" && event.altKey == true) {
         this.batch_mode == false && this.switch_to_batch();
       }
     },
