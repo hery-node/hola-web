@@ -16,7 +16,7 @@
     </v-app-bar>
 
     <v-main>
-      <h-crud ref="table" :searchable="searchable" :mode="mode" :entity="entity" :actions="actions" :headers="headers" :hidden-fields="hidden_fields" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc"></h-crud>
+      <h-crud header-uppcase chip-clickable merge-with-server :mode="mode" :entity="entity" :headers="headers" :searchable="searchable" :search-cols="search_cols" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc"> </h-crud>
     </v-main>
   </v-app>
 </template>
@@ -29,21 +29,29 @@ export default {
 
   data() {
     return {
-      dialog: false,
-      space_name: "",
-      to_space_id: "",
-      spaces: [],
+      server: process.env.VUE_APP_SOCKET_SERVER,
+      mode: "bcruodf",
+      entity: "workload",
       searchable: true,
-      mode: "cruodf",
-      entity: "user",
+      search_cols: 6,
       item_label_key: "name",
       sort_key: ["name"],
       sort_desc: [false],
-      hidden_fields: ["root"],
-      headers: [{ name: "name" }],
-      actions: [
-        { color: "delete", icon: "mdi-content-cut", tooltip: this.$t("user.cut_relation_hint"), handle: this.cut_relation, shown: (item) => !item["root"] },
-        { color: "edit", icon: "mdi-transfer-right", tooltip: this.$t("user.transfer_hint"), handle: this.show_transfer_space, shown: (item) => !item["root"] },
+      headers: [
+        {
+          name: "client",
+          click: (id, entity, name) => {
+            const terminal = this.$refs.terminal;
+            terminal.show({ _id: id, name: name });
+          },
+        },
+        {
+          name: "hosts",
+          click: (id, entity, name) => {
+            const terminal = this.$refs.terminal;
+            terminal.show({ _id: id, name: name });
+          },
+        },
       ],
     };
   },

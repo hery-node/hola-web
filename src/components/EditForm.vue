@@ -96,6 +96,17 @@ export default {
     };
   },
 
+  watch: {
+    entityId: {
+      async handler() {
+        if (this.entityId != "") {
+          await this.init_form();
+        }
+      },
+      deep: true,
+    },
+  },
+
   computed: {
     update_mode() {
       return this.entityId != null;
@@ -171,17 +182,13 @@ export default {
       this.$emit("cancel");
     },
 
-    async load_form_meta() {
+    async init_form() {
       await this.load_meta();
       const edit_fields = this.clone ? await this.get_clone_fields() : await this.get_edit_fields();
       edit_fields.forEach((field) => {
         field.cols || (field.cols = this.cols);
       });
       this.edit_fields = edit_fields;
-    },
-
-    async init_form() {
-      await this.load_form_meta();
 
       //change readonly property every time (update or create mode switch)
       if (this.clone != true) {

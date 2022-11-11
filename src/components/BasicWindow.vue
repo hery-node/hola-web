@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="dialog" persistent :fullscreen="fullscreen" hide-overlay :max-width="window_width" :style="{ zIndex: zIndex }" @keydown.esc="close">
-    <v-app-bar color="primary" dark>
+    <v-app-bar color="secondary" dark>
       <v-app-bar-nav-icon></v-app-bar-nav-icon>
       <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer></v-spacer>
