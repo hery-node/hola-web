@@ -15,7 +15,7 @@
           <v-checkbox v-model="fuzzy_match" hide-details :label="show_fuzzy_label"></v-checkbox>
         </v-col>
         <v-col cols="2" v-if="show_download_icon">
-          <v-btn color="title_button" @click="download_result"> {{ $t("compare.download") }} </v-btn>
+          <v-btn color="title_button" @click="download_result"><v-icon left>mdi-microsoft-excel</v-icon>{{ $t("compare.download") }} </v-btn>
         </v-col>
       </v-row>
     </v-toolbar>
