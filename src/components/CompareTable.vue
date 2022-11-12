@@ -111,7 +111,7 @@ export default {
     },
 
     show_download_icon() {
-      return this.downloadExcelName.length > 0 && this.objs.length > 1;
+      return this.downloadExcelName.length > 0 && this.objs.length > 0;
     },
 
     show_threshold() {
