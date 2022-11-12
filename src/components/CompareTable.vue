@@ -14,13 +14,16 @@
         <v-col cols="2" v-if="show_fuzzy_match">
           <v-checkbox v-model="fuzzy_match" hide-details :label="show_fuzzy_label"></v-checkbox>
         </v-col>
+        <v-col cols="2" v-if="show_download_icon">
+          <v-btn color="title_button" @click="download_result"> {{ $t("compare.download") }} </v-btn>
+        </v-col>
       </v-row>
     </v-toolbar>
     <template v-if="regexSearch">
-      <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" :custom-filter="regex_search" disable-pagination hide-default-footer> </v-data-table>
+      <v-data-table ref="table" v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" :custom-filter="regex_search" disable-pagination hide-default-footer> </v-data-table>
     </template>
     <template v-else>
-      <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" disable-pagination hide-default-footer> </v-data-table>
+      <v-data-table ref="table" v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" disable-pagination hide-default-footer> </v-data-table>
     </template>
   </v-card>
 </template>
@@ -30,6 +33,7 @@ import Regex from "../mixins/regex";
 import Simple from "../mixins/simple";
 import Fuzzy from "../mixins/fuzzy";
 import Wrap from "../mixins/wrap";
+import { utils, writeFileXLSX } from "xlsx";
 
 export default {
   inheritAttrs: false,
@@ -53,6 +57,7 @@ export default {
     filterFields: { type: Array, default: () => [] },
     showRatio: { type: Boolean, default: false },
     showDiff: { type: Boolean, default: false },
+    downloadExcelName: { type: String, default: "" },
     diffThreshold: { type: Number, default: 0 },
     thresholdLabel: { type: String },
   },
@@ -60,6 +65,7 @@ export default {
   data() {
     return {
       only_show_diff: false,
+      simple_value: this.simpleValue,
       search: "",
       threshold: 0,
       all_items: [],
@@ -104,6 +110,10 @@ export default {
       return this.objs.length > 1;
     },
 
+    show_download_icon() {
+      return this.downloadExcelName.length > 0 && this.objs.length > 1;
+    },
+
     show_threshold() {
       return this.diffThreshold > 0 && this.objs.length > 1;
     },
@@ -117,15 +127,33 @@ export default {
     },
 
     search_cols() {
-      let cols = 6;
+      let cols = 4;
       !this.show_threshold && (cols += 2);
       !this.show_only_show_diff && (cols += 2);
       !this.show_fuzzy_match && (cols += 2);
+      !this.show_download_icon && (cols += 2);
       return cols;
     },
   },
 
   methods: {
+    download_result() {
+      const tables = this.$el.getElementsByTagName("table");
+      if (tables.length == 1) {
+        const original_simple_value = this.simple_value;
+
+        this.simple_value = false;
+        this.parse_data();
+
+        setTimeout(() => {
+          const workbook = utils.table_to_book(tables[0]);
+          writeFileXLSX(workbook, this.downloadExcelName);
+          this.simple_value = original_simple_value;
+          this.parse_data();
+        }, 2000);
+      }
+    },
+
     set_ratio_values(items) {
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
@@ -162,7 +190,8 @@ export default {
     },
 
     parse_data() {
-      const objs = this.objs;
+      const objs = JSON.parse(JSON.stringify(this.objs));
+
       const headers = [];
       headers.push({ text: this.uppcase_header(this.$t("table.attribute")), value: "attr", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
 
@@ -271,16 +300,16 @@ export default {
       }
 
       if (this.showRatio && objs.length == 2) {
-        this.set_ratio_values(items, this.objs.length);
+        this.set_ratio_values(items, objs.length);
       }
 
       //calculate the diff values
       if (this.showDiff && objs.length >= 2) {
-        this.set_diff_values(items, this.objs.length);
+        this.set_diff_values(items, objs.length);
       }
 
-      if (this.simpleValue) {
-        this.convert_to_simple_value(items, this.objs.length);
+      if (this.simple_value) {
+        this.convert_to_simple_value(items, objs.length);
       }
 
       const ordered_items = [];

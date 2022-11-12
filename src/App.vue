@@ -16,7 +16,14 @@
     </v-app-bar>
 
     <v-main>
-      <h-crud header-uppcase chip-clickable merge-with-server :mode="mode" :entity="entity" :headers="headers" :searchable="searchable" :search-cols="search_cols" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc"> </h-crud>
+      <br />
+      <br />
+      <br />
+      <!-- <h-property entity="user" entity-id="6071614ca73a602476c92d41"></h-property> -->
+      <!-- <h-search-form entity="user" :fields="search_fields" :cols="6" clear-label="reset" search-label="query" v-model="form" @search="do_search"></h-search-form> -->
+      <!-- <h-edit-form entity="user" v-model="form" hide-cancel :cols="6" :fields="search_fields" :success-hint="success_hint" submit-label="Save" @saved="saved"></h-edit-form> -->
+      <!-- <h-table searchable entity="user" :headers="headers" :sort-key="sort_key" :sort-desc="sort_desc" :search-fields="search_fields" :search-cols="6" clear-label="reset" search-label="query"></h-table> -->
+      <h-compare download-excel-name="download.xlsx" show-fuzzy-match :objs="objs" simple-value @dblclick:row="row_clicked" :diff-threshold="110" label-key="tag" header-align="start" show-toolbar show-diff dense></h-compare>
     </v-main>
   </v-app>
 </template>
@@ -29,38 +36,23 @@ export default {
 
   data() {
     return {
-      server: process.env.VUE_APP_SOCKET_SERVER,
-      mode: "bcruodf",
-      entity: "workload",
-      searchable: true,
-      search_cols: 6,
-      item_label_key: "name",
-      sort_key: ["name"],
-      sort_desc: [false],
-      headers: [
+      objs: [
         {
-          name: "client",
-          click: (id, entity, name) => {
-            const terminal = this.$refs.terminal;
-            terminal.show({ _id: id, name: name });
-          },
+          tag: "obj1",
+          a: 345,
+          "Core power license 1": 34545,
         },
         {
-          name: "hosts",
-          click: (id, entity, name) => {
-            const terminal = this.$refs.terminal;
-            terminal.show({ _id: id, name: name });
-          },
+          tag: "obj2",
+          a: 567,
+          "Core power other license 1": 35545,
         },
       ],
     };
   },
-
   methods: {
-    expand() {
-      this.width = "100%";
-      this.height = window.innerHeight - 300;
-      console.log(this.height);
+    row_clicked(evt, item) {
+      console.log(item);
     },
   },
 };

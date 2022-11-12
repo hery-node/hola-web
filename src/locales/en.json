@@ -73,6 +73,7 @@
   "compare": {
     "search": "Search",
     "show_diff": "Only Show Difference",
+    "download": "Download",
     "fuzzy_label": "Fuzzy Match",
     "reverse_order": "Reverse",
     "no_diff_result": "No Difference",
