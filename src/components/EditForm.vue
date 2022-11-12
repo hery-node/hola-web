@@ -1,7 +1,7 @@
 <template>
   <div>
     <template v-if="dialog">
-      <h-window ref="win" :title="form_title" :width="dialogWidth">
+      <h-window ref="win" :title="form_title" :width="dialogWidth" @close="close_window">
         <div style="overflow-x: hidden">
           <h-form v-bind="$attrs" v-on="$listeners" ref="form" v-model="form" :fields="edit_fields" @submit="submit_form">
             <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
@@ -178,6 +178,13 @@ export default {
       this.loading = false;
       this.dialog && this.$refs.win.close();
 
+      this.reset_form();
+      this.$emit("cancel");
+    },
+
+    close_window() {
+      this.alert.shown = false;
+      this.loading = false;
       this.reset_form();
       this.$emit("cancel");
     },
