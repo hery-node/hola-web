@@ -1,5 +1,5 @@
 <template>
-  <h-table v-bind="$attrs" v-on="$listeners" ref="table" :entity="entity" :headers="headers" :search-fields="searchFields" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="batch_mode" :has-action-header="has_action_header" :item-actions="item_actions" @chip="click_chip">
+  <h-table v-bind="$attrs" v-on="$listeners" ref="table" :entity="entity" :headers="headers" :searchable="is_searchable" :infinite="!is_paginable" :search-fields="searchFields" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="batch_mode" :has-action-header="has_action_header" :item-actions="item_actions" @chip="click_chip">
     <template slot="toolbar" v-if="!$vuetify.breakpoint.xsOnly">
       <v-tooltip bottom v-for="(toolbar, index) in header_toolbars" v-bind:key="index">
         <template v-slot:activator="{ on }">
@@ -32,8 +32,8 @@ export default {
     //show delete name in batch delete dialog
     itemLabelKey: { type: String, required: true },
     //end
-    //b:batch mode, c:create, r: read, u:update, o:clone, d:delete, i:import ,e:export, f:refresh
-    mode: { type: String, default: "bcruodief" },
+    //b:batch mode, c:create, d:delete, e:export, i:import, o:clone, p:page, r: refresh, s:search, u:update
+    mode: { type: String, default: "bcdeiorsu" },
     //add more actions to item actions
     actions: { type: Array, default: () => [] },
     //add more toolbars for single mode
@@ -87,10 +87,6 @@ export default {
       return this.mode.includes("c");
     },
 
-    is_updatable() {
-      return this.mode.includes("u");
-    },
-
     is_deletable() {
       return this.mode.includes("d");
     },
@@ -99,8 +95,20 @@ export default {
       return this.mode.includes("o");
     },
 
+    is_paginable() {
+      return this.mode.includes("p");
+    },
+
     is_refreshable() {
-      return this.mode.includes("f");
+      return this.mode.includes("r");
+    },
+
+    is_searchable() {
+      return this.mode.includes("s");
+    },
+
+    is_updatable() {
+      return this.mode.includes("u");
     },
 
     entity_label() {
