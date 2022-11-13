@@ -212,6 +212,14 @@ export default {
       },
       deep: true,
     },
+
+    filter: {
+      handler() {
+        this.reset_values();
+        this.load_data();
+      },
+      deep: true,
+    },
   },
 
   mounted() {
