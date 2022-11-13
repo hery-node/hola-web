@@ -140,17 +140,21 @@ export default {
     download_result() {
       const tables = this.$el.getElementsByTagName("table");
       if (tables.length == 1) {
-        const original_simple_value = this.simple_value;
-
-        this.simple_value = false;
-        this.parse_data();
-
-        setTimeout(() => {
+        if (this.simple_value) {
+          //use raw data to download, so convert data to raw format
+          this.simple_value = false;
+          this.parse_data();
+          setTimeout(() => {
+            const workbook = utils.table_to_book(tables[0]);
+            writeFileXLSX(workbook, this.downloadExcelName);
+            this.simple_value = true;
+            this.parse_data();
+          }, 2000);
+        } else {
+          //raw format, download directly
           const workbook = utils.table_to_book(tables[0]);
           writeFileXLSX(workbook, this.downloadExcelName);
-          this.simple_value = original_simple_value;
-          this.parse_data();
-        }, 2000);
+        }
       }
     },
 
