@@ -259,6 +259,8 @@ export default {
           const labels = err ? err.join(",") : "";
           const msg = this.$t("table.has_ref", { entity: labels });
           this.$refs.table.show_error(msg);
+        } else if (err) {
+          this.$refs.table.show_error(err);
         }
       }
     },
