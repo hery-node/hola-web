@@ -1,23 +1,19 @@
 <template>
   <v-card v-bind="$attrs">
     <v-toolbar :class="toolbarClass" dark v-if="showToolbar">
-      <v-row>
-        <v-col :cols="search_cols">
-          <v-text-field v-model="search" append-icon="mdi-magnify" class="mr-5" :label="search_hint" single-line hide-details clearable></v-text-field>
-        </v-col>
-        <v-col cols="2" v-if="show_threshold">
-          <v-text-field v-model="threshold" :prefix="threshold_label" suffix="%" class="mr-5" single-line hide-details></v-text-field>
-        </v-col>
-        <v-col cols="2" v-if="show_only_show_diff">
-          <v-checkbox v-model="only_show_diff" hide-details :label="show_diff_label"></v-checkbox>
-        </v-col>
-        <v-col cols="2" v-if="show_fuzzy_match">
-          <v-checkbox v-model="fuzzy_match" hide-details :label="show_fuzzy_label"></v-checkbox>
-        </v-col>
-        <v-col cols="2" v-if="show_download_icon">
-          <v-btn color="title_button" @click="download_result"><v-icon left>mdi-microsoft-excel</v-icon>{{ $t("compare.download") }} </v-btn>
-        </v-col>
-      </v-row>
+      <v-text-field v-model="search" append-icon="mdi-magnify" :label="search_hint" single-line hide-details clearable></v-text-field>
+      <template v-if="show_threshold">
+        <v-text-field v-model="threshold" :prefix="threshold_label" suffix="%" class="ml-5" single-line hide-details></v-text-field>
+      </template>
+      <template v-if="show_only_show_diff">
+        <v-checkbox class="ml-5" v-model="only_show_diff" hide-details :label="show_diff_label"></v-checkbox>
+      </template>
+      <template v-if="show_fuzzy_match">
+        <v-checkbox class="ml-5" v-model="fuzzy_match" hide-details :label="show_fuzzy_label"></v-checkbox>
+      </template>
+      <template v-if="show_download_icon">
+        <v-btn class="ml-2" color="title_button" plain @click="download_result"> <v-icon class="mr-3">mdi-cloud-download</v-icon>{{ $t("compare.download") }} </v-btn>
+      </template>
     </v-toolbar>
     <template v-if="regexSearch">
       <v-data-table ref="table" v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" :custom-filter="regex_search" disable-pagination hide-default-footer> </v-data-table>
@@ -124,15 +120,6 @@ export default {
 
     threshold_label() {
       return this.thresholdLabel;
-    },
-
-    search_cols() {
-      let cols = 4;
-      !this.show_threshold && (cols += 2);
-      !this.show_only_show_diff && (cols += 2);
-      !this.show_fuzzy_match && (cols += 2);
-      !this.show_download_icon && (cols += 2);
-      return cols;
     },
   },
 
