@@ -322,8 +322,8 @@ export default {
     },
 
     is_diff_value(item) {
-      if (this.objs.length > 1 && this.threshold > 0 && this.has_value(item["diff1"])) {
-        return Math.abs(parseFloat(item["diff1"])) > this.threshold;
+      if (this.objs.length > 1 && this.threshold > 0) {
+        return this.has_value(item["diff1"]) ? Math.abs(parseFloat(item["diff1"])) > this.threshold : false;
       } else if (this.objs.length > 1) {
         let value = item["value0"];
         for (let i = 0; i < this.objs.length; i++) {
