@@ -130,7 +130,7 @@ const float_type = {
     if (no_value(value)) {
       return "";
     }
-    return value ? value.toFixed(2) + "" : "";
+    return value.toFixed ? value.toFixed(2) : value;
   },
 };
 
@@ -151,7 +151,7 @@ const percentage_type = {
     if (no_value(value)) {
       return "";
     }
-    return value ? value.toFixed(2) + "%" : "0%";
+    return value.toFixed ? value.toFixed(2) + "%" : value + "%";
   },
 };
 
@@ -171,7 +171,7 @@ const ufloat_type = {
     if (no_value(value)) {
       return "";
     }
-    return value ? value.toFixed(2) + "" : "";
+    return value.toFixed ? value.toFixed(2) : value;
   },
 };
 
@@ -191,7 +191,7 @@ const number_type = {
     if (no_value(value)) {
       return "";
     }
-    return value ? value.toFixed(2) + "" : "";
+    return value.toFixed ? value.toFixed(2) : value;
   },
 };
 
@@ -212,7 +212,7 @@ const currency_type = {
     if (no_value(value)) {
       return "";
     }
-    return value ? value.toFixed(2) + "" : "";
+    return value.toFixed ? value.toFixed(2) : value;
   },
 };
 
