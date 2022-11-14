@@ -2,9 +2,9 @@
   <v-card v-bind="$attrs">
     <v-toolbar :class="toolbarClass" dark v-if="showToolbar">
       <v-text-field v-model="search" append-icon="mdi-magnify" :label="search_hint" single-line hide-details clearable></v-text-field>
-      <template v-if="show_threshold">
-        <v-text-field v-model="threshold" :prefix="threshold_label" suffix="%" class="ml-5" single-line hide-details></v-text-field>
-      </template>
+      <div v-if="show_threshold">
+        <v-text-field v-model="threshold" prefix="max*100/min > " suffix="%" class="ml-5" single-line hide-details></v-text-field>
+      </div>
       <template v-if="show_only_show_diff">
         <v-checkbox class="ml-5" v-model="only_show_diff" hide-details :label="show_diff_label"></v-checkbox>
       </template>
@@ -55,7 +55,6 @@ export default {
     showDiff: { type: Boolean, default: false },
     downloadExcelName: { type: String, default: "" },
     diffThreshold: { type: Number, default: 0 },
-    thresholdLabel: { type: String },
   },
 
   data() {
