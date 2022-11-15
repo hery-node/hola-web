@@ -239,7 +239,7 @@ const list_entity = (entity, form, params, list_action) => {
 const query_entity = (entity, attrs, query, list_action) => {
   const form = query ? { ...query } : {};
   const url = "/" + entity + ((list_action && list_action.trim().length > 0) ? list_action : LIST);
-  form["_query"] = { attr_names: attrs.join(","), sort_by: ["_id"], desc: [true], page: 1, limit: 10000 };
+  form["_query"] = { attr_names: attrs.join(","), sort_by: "_id", desc: "false", page: 1, limit: 10000 };
   return axios_post(url, form);
 };
 
