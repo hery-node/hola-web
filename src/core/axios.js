@@ -236,6 +236,13 @@ const list_entity = (entity, form, params, list_action) => {
   return axios_post(url, form);
 };
 
+const query_entity = (entity, attrs, query, list_action) => {
+  const form = query ? { ...query } : {};
+  const url = "/" + entity + ((list_action && list_action.trim().length > 0) ? list_action : LIST);
+  form["_query"] = { attr_names: attrs.join(","), sort_by: ["_id"], desc: [true], page: 1, limit: 10000 };
+  return axios_post(url, form);
+};
+
 const save_entity = (entity, form, edit_mode, clone) => {
   const url = edit_mode ? (clone ? "/" + entity + CLONE : "/" + entity + UPDATE) : "/" + entity + CREATE;
   if (form._has_file) {
@@ -256,4 +263,4 @@ const get_url = (url) => {
   return `${base}${url}`;
 };
 
-export { init_axios, get_url, axios_get, axios_post, axios_cached_get, axios_download, axios_upload, is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params, is_no_session, save_entity, read_entity, read_property, list_entity, delete_entity, get_ref_labels, get_entity_meta };
+export { init_axios, get_url, axios_get, axios_post, axios_cached_get, axios_download, axios_upload, is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params, is_no_session, save_entity, read_entity, read_property, query_entity, list_entity, delete_entity, get_ref_labels, get_entity_meta };
