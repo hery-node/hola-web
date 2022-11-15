@@ -19,12 +19,14 @@
       <template v-if="!pagination" v-slot:[`item.${first_column}`]="{ item }">
         <v-row :justify="get_header_align(first_column)" :align="get_header_align(first_column)" class="my-3">
           <template v-if="item._last === true">
-            <span class="ma-1" v-intersect="infinite_scroll">
+            <span :class="first_column_style" v-intersect="infinite_scroll">
               {{ item[first_column] }}
             </span>
           </template>
           <template v-else>
-            {{ item[first_column] }}
+            <span :class="first_column_style">
+              {{ item[first_column] }}
+            </span>
           </template>
         </v-row>
       </template>
@@ -251,6 +253,10 @@ export default {
 
     total_records_title() {
       return this.$t("table.total_record", { total: this.total });
+    },
+
+    first_column_style() {
+      return this.headerAlign == "start" ? "ml-3" : "";
     },
   },
 
