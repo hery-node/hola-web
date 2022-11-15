@@ -1,5 +1,5 @@
 import Vue from "vue";
-import { init_axios, get_url, axios_get, axios_post, axios_cached_get, axios_download, axios_upload, is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params, is_no_session, save_entity, read_entity, read_property, list_entity, delete_entity, get_ref_labels, get_entity_meta } from "../core/axios";
+import { init_axios, get_url, axios_get, axios_post, axios_cached_get, axios_download, axios_upload, is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params, is_no_session, save_entity, read_entity, query_entity, read_property, list_entity, delete_entity, get_ref_labels, get_entity_meta } from "../core/axios";
 import { register_type, get_type, no_value, is_int } from "../core/type";
 
 import ArrayEntity from "./ArrayEntity.vue";
@@ -32,4 +32,4 @@ function setup_components() {
   Vue.component("h-nav-bar", NavBar);
 }
 
-export { setup_components, init_axios, get_url, axios_get, axios_post, axios_cached_get, axios_download, axios_upload, is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params, is_no_session, save_entity, read_entity, read_property, list_entity, delete_entity, get_ref_labels, get_entity_meta, register_type, get_type, no_value, is_int };
+export { setup_components, init_axios, get_url, axios_get, axios_post, axios_cached_get, axios_download, axios_upload, is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params, is_no_session, save_entity, read_entity, read_property, list_entity, query_entity, delete_entity, get_ref_labels, get_entity_meta, register_type, get_type, no_value, is_int };
