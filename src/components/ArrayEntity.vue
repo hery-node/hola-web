@@ -23,7 +23,7 @@ export default {
 
   async created() {
     const obj = await read_entity(this.entity, this.id, this.fieldName);
-    this.items = obj[this.fieldName];
+    obj[this.fieldName] && (this.items = obj[this.fieldName]);
   },
 };
 </script>
