@@ -175,7 +175,7 @@ export default {
       !this.batch_mode && this.is_batchable && header_toolbars.push({ color: "toolbar_icon", icon: "mdi-checkbox-multiple-marked", tooltip: this.$t("table.switch_to_batch"), click: this.switch_to_batch });
       this.batch_mode && this.is_batchable && header_toolbars.push({ color: "toolbar_icon", icon: "mdi-close-circle-multiple", tooltip: this.$t("table.switch_to_single"), click: this.switch_to_single });
       this.header_toolbars = header_toolbars;
-      this.has_action_header = this.is_updatable || this.is_deletable;
+      this.has_action_header = this.item_actions ? true : false;
     },
 
     press_esc() {
