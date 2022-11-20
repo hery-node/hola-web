@@ -19,7 +19,57 @@
       <br />
       <br />
       <br />
-      <h-crud :entity="entity" :headers="headers" :search-cols="search_cols" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc" header-uppcase chip-clickable merge-with-server></h-crud>
+      <h-window ref="win">
+        <h-crud :entity="entity" :headers="headers" :search-cols="search_cols" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc" header-uppcase chip-clickable merge-with-server></h-crud>
+      </h-window>
+      <v-button @click="show">click</v-button>
+      sdfds<br />
+      dsfdsf <br />
+      dsfdsfdsf<br />
+      dsfdsfdsfds<br />
+      dsfdsfdsf<br />
+
+      sdfds<br />
+      dsfdsf <br />
+      dsfdsfdsf<br />
+      dsfdsfdsfds<br />
+      dsfdsfdsf<br />
+      sdfds<br />
+      dsfdsf <br />
+      dsfdsfdsf<br />
+      dsfdsfdsfds<br />
+      dsfdsfdsf<br />
+      sdfds<br />
+      dsfdsf <br />
+      dsfdsfdsf<br />
+      dsfdsfdsfds<br />
+      dsfdsfdsf<br />
+      sdfds<br />
+      dsfdsf <br />
+      dsfdsfdsf<br />
+      dsfdsfdsfds<br />
+      dsfdsfdsf<br />
+      sdfds<br />
+      dsfdsf <br />
+      dsfdsfdsf<br />
+      dsfdsfdsfds<br />
+      dsfdsfdsf<br />
+      sdfds<br />
+      dsfdsf <br />
+      dsfdsfdsf<br />
+      dsfdsfdsfds<br />
+      dsfdsfdsf<br />
+      sdfds<br />
+      dsfdsf <br />
+      dsfdsfdsf<br />
+      dsfdsfdsfds<br />
+      dsfdsfdsf<br />
+      dsfdsfdsf<br />
+      dsfdsfdsf<br />
+      dsfdsfdsf<br />
+      dsfdsfdsf<br />
+      dsfdsfdsf<br />
+      dsfdsfdsf<br />
     </v-main>
   </v-app>
 </template>
@@ -59,6 +109,9 @@ export default {
   methods: {
     row_clicked(evt, item) {
       console.log(item);
+    },
+    show() {
+      this.$refs.win.show();
     },
   },
 };

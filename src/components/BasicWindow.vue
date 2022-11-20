@@ -14,7 +14,9 @@
         <v-icon>mdi-close-box-outline</v-icon>
       </v-btn>
     </v-app-bar>
-    <slot />
+    <div ref="content" style="width: 100%; height: 100%; display: block; background-color: white">
+      <slot />
+    </div>
   </v-dialog>
 </template>
 
@@ -33,6 +35,7 @@ export default {
       dialog: false,
       fullscreen: false,
       window_width: this.width,
+      original_height: "",
     };
   },
 
@@ -40,16 +43,22 @@ export default {
     collapse() {
       this.window_width = this.width;
       this.fullscreen = false;
+      this.$refs["content"].style.height = this.original_height + "px";
       this.$emit("resize", this.fullscreen);
     },
 
     expand() {
       this.fullscreen = true;
+      const height = window.innerHeight - 66;
+      this.$refs["content"].style.height = height + "px";
       this.$emit("resize", this.fullscreen);
     },
 
     show() {
       this.dialog = true;
+      setTimeout(() => {
+        this.original_height = this.$refs["content"].offsetHeight;
+      }, 2000);
     },
 
     close() {
