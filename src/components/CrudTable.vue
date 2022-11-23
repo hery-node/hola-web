@@ -269,6 +269,10 @@ export default {
       this.$refs.table.refresh();
     },
 
+    set_data(items) {
+      this.$refs.table.set_data(items);
+    },
+
     show_create_dialog() {
       this.edit_entity_id = null;
     },

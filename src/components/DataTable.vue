@@ -315,6 +315,10 @@ export default {
       this.load_data();
     },
 
+    set_data(items) {
+      this.items = items;
+    },
+
     do_search(form) {
       this.search_form = form;
       this.reset_values();
@@ -384,6 +388,8 @@ export default {
               this.items.push(...data);
             }
           }
+
+          this.$emit("loaded", this.items);
           this.next_page++;
         }
       }
