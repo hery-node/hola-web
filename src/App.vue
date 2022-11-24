@@ -19,57 +19,7 @@
       <br />
       <br />
       <br />
-      <h-window ref="win">
-        <h-crud :entity="entity" :headers="headers" :search-cols="search_cols" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc" header-uppcase chip-clickable merge-with-server></h-crud>
-      </h-window>
-      <v-button @click="show">click</v-button>
-      sdfds<br />
-      dsfdsf <br />
-      dsfdsfdsf<br />
-      dsfdsfdsfds<br />
-      dsfdsfdsf<br />
-
-      sdfds<br />
-      dsfdsf <br />
-      dsfdsfdsf<br />
-      dsfdsfdsfds<br />
-      dsfdsfdsf<br />
-      sdfds<br />
-      dsfdsf <br />
-      dsfdsfdsf<br />
-      dsfdsfdsfds<br />
-      dsfdsfdsf<br />
-      sdfds<br />
-      dsfdsf <br />
-      dsfdsfdsf<br />
-      dsfdsfdsfds<br />
-      dsfdsfdsf<br />
-      sdfds<br />
-      dsfdsf <br />
-      dsfdsfdsf<br />
-      dsfdsfdsfds<br />
-      dsfdsfdsf<br />
-      sdfds<br />
-      dsfdsf <br />
-      dsfdsfdsf<br />
-      dsfdsfdsfds<br />
-      dsfdsfdsf<br />
-      sdfds<br />
-      dsfdsf <br />
-      dsfdsfdsf<br />
-      dsfdsfdsfds<br />
-      dsfdsfdsf<br />
-      sdfds<br />
-      dsfdsf <br />
-      dsfdsfdsf<br />
-      dsfdsfdsfds<br />
-      dsfdsfdsf<br />
-      dsfdsfdsf<br />
-      dsfdsfdsf<br />
-      dsfdsfdsf<br />
-      dsfdsfdsf<br />
-      dsfdsfdsf<br />
-      dsfdsfdsf<br />
+      <h-crud ref="table" :entity="entity" :mode="mode" :item-label-key="item_label_key" :headers="headers" :update-label="update_label" update-icon="mdi-tag-outline" :expand-fields="expand_fields" :search-cols="search_cols" :sort-key="sort_key" :sort-desc="sort_desc" :actions="actions" :hidden-fields="hidden_fields" :batch-toolbars="batch_toolbars" chip-clickable @dblclick:row="row_clicked" :item-class="get_item_class" action-width="230px"></h-crud>
     </v-main>
   </v-app>
 </template>
@@ -83,35 +33,60 @@ export default {
   data() {
     return {
       server: process.env.VUE_APP_SOCKET_SERVER,
-      entity: "workload",
       search_cols: 6,
-      item_label_key: "name",
-      sort_key: ["name"],
-      sort_desc: [false],
+      entity: "monitor",
+      mode: "bdrsu",
+      item_label_key: "tag",
+      sort_key: ["time"],
+      sort_desc: [true],
+      expand_fields: ["param_str", "extra", "result_txt"],
+      hidden_fields: ["app_baseline", "has_emon"],
       headers: [
+        { name: "time" },
+        { name: "tag" },
+        { name: "benchmarking" },
         {
-          name: "client",
+          name: "host",
           click: (id, entity, name) => {
             const terminal = this.$refs.terminal;
             terminal.show({ _id: id, name: name });
           },
         },
-        {
-          name: "hosts",
-          click: (id, entity, name) => {
-            const terminal = this.$refs.terminal;
-            terminal.show({ _id: id, name: name });
-          },
-        },
+        { name: "sla_result" },
+        { name: "sla" },
+        { name: "result" },
+        { name: "improve" },
+      ],
+      batch_toolbars: [{ color: "white", icon: "insights", tooltip: this.$t("monitor.compare"), click: this.monitor_compare }],
+      actions: [
+        { color: "edit", icon: "mdi-eye", tooltip: this.$t("monitor.mark_as_baseline"), handle: this.mark_as_baseline },
+        { color: "edit", icon: "mdi-microsoft-excel", tooltip: this.$t("monitor.download_emon"), handle: this.download_emon, shown: (item) => item["has_emon"] == true },
       ],
     };
   },
-  methods: {
-    row_clicked(evt, item) {
-      console.log(item);
+
+  computed: {
+    update_label() {
+      return this.$t("monitor.tag_monitor");
     },
-    show() {
-      this.$refs.win.show();
+  },
+
+  methods: {
+    get_item_class(item) {
+      return item["app_baseline"] == true ? "red lighten-4" : "";
+    },
+
+    monitor_compare() {
+      const table = this.$refs.table;
+      const items = table.get_selected_items();
+      if (items != null) {
+        this.$router.push({ path: "/monitor_all_compare/" + items.map((item) => item["_id"]).join(",") });
+      }
+    },
+
+    row_clicked(evt, obj) {
+      const item = obj["item"];
+      this.$router.push({ path: "/monitor_all_detail/" + item["_id"] });
     },
   },
 };

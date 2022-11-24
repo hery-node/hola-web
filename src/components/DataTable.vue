@@ -77,7 +77,7 @@
         </v-tooltip>
       </template>
 
-      <template v-slot:expanded-item="{ headers, item }" v-if="expandField">
+      <template v-slot:expanded-item="{ headers, item }" v-if="expandFields && expandFields.length > 0">
         <td :colspan="headers.length" style="white-space: pre-wrap; word-wrap: break-word" flat>
           <div style="margin: 15px">
             {{ get_expanded(item) }}
@@ -154,7 +154,7 @@ export default {
     infinite: { type: Boolean, default: false },
     //this is to control the page size for infinite scroll mode
     itemPerPage: { type: Number, default: 30 },
-    expandField: { type: String },
+    expandFields: { type: Array, default: () => [] },
     hiddenFields: { type: Array, default: () => [] },
   },
 
@@ -278,11 +278,25 @@ export default {
     },
 
     is_expanded() {
-      return this.expandField ? (this.showSelect == true ? false : true) : false;
+      return this.expandFields && this.expandFields.length > 0 ? (this.showSelect == true ? false : true) : false;
     },
 
     get_expanded(item) {
-      return item[this.expandField] ? item[this.expandField] : "";
+      const field_names = this.expandFields;
+      const values = [];
+      for (let i = 0; i < field_names.length; i++) {
+        const field_name = field_names[i];
+        const value = item[field_name] ? item[field_name] : "";
+        values.push(this.get_field_label_by_name(field_name) + ":");
+        values.push(value.includes("\n") ? "\n" : "\t\t");
+        values.push(value);
+        if (i != field_names.length - 1) {
+          values.push("\n");
+          values.push("===================================================================================================================================");
+          values.push("\n");
+        }
+      }
+      return values.join("");
     },
 
     uppcase_header(header_title) {
@@ -350,7 +364,7 @@ export default {
       const sort_by = sortBy && sortBy.length > 0 ? sortBy.join(",") : this.sortKey.join(",");
       const desc = sortDesc && sortDesc.length > 0 ? sortDesc.join(",") : this.sortDesc.join(",");
       let attrs = this.table_headers.filter((h) => h.name && h.name.length > 0).map((h) => h.name);
-      this.expandField && attrs.push(this.expandField);
+      this.expandFields && attrs.push(...this.expandFields);
       attrs = attrs.concat([this.hiddenFields]);
       const attr_names = attrs.join(",");
       const params = { attr_names: attr_names, sort_by: sort_by, desc: desc };

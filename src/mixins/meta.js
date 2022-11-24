@@ -119,15 +119,22 @@ export default {
       return this.get_form_fields(this.meta.fields.filter((field) => field.create != false && field.clone != false && field.sys != true && field.name != this.meta.user_field));
     },
 
+    get_field_label(field) {
+      return this.get_field_label_by_name(field.name);
+    },
+
+    get_field_label_by_name(name) {
+      return this.$t(this.entity + "." + name);
+    },
+
     async get_form_fields(server_fields) {
       const form_fields = [];
       const meta_fields = this.get_meta_fields(this.fields, server_fields);
 
       for (let i = 0; i < meta_fields.length; i++) {
         const field = meta_fields[i];
-        const label_i18n_key = this.entity + "." + field.name;
-        const hint_i18n_key = label_i18n_key + "_hint";
-        field.label = this.$t(label_i18n_key);
+        const hint_i18n_key = this.entity + "." + field.name + "_hint";
+        field.label = this.get_field_label(field);
         field.hint = this.$te(hint_i18n_key) ? this.$t(hint_i18n_key) : "";
 
         const type = this.get_field_type(field);
@@ -156,9 +163,7 @@ export default {
 
       for (let i = 0; i < meta_fields.length; i++) {
         const field = meta_fields[i];
-        const label_i18n_key = this.entity + "." + field.name;
-        field.label = this.$t(label_i18n_key);
-
+        field.label = this.get_field_label(field);
         const type = this.get_field_type(field);
         this.set_field_prefix_suffix(field, type);
         type.format && (field.format = type.format);
@@ -177,7 +182,7 @@ export default {
       const meta_fields = this.get_meta_fields(this.headers, server_fields);
       for (let i = 0; i < meta_fields.length; i++) {
         const header = meta_fields[i];
-        header.text = this.$t(this.entity + "." + header.name);
+        header.text = this.get_field_label(header);
         header.value = header.name;
 
         const type = this.get_field_type(header);
