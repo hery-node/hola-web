@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import { axios_post, is_success_response } from "./core/axios";
 export default {
   name: "App",
 
@@ -46,7 +47,14 @@ export default {
     };
   },
   methods: {
-    async refresh_host() {},
+    async refresh_host(item) {
+      const url = "/host/batch_update";
+      const { code } = await axios_post(url, { _ids: [item["_id"]] });
+      if (is_success_response(code) && this.$refs.table) {
+        this.$refs.table.show_success(this.$t("host.refresh_host_success"));
+        this.$refs.table.refresh();
+      }
+    },
 
     setup_host() {},
 

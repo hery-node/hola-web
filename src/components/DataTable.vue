@@ -102,10 +102,6 @@ import Meta from "../mixins/meta";
 import Alert from "../mixins/alert";
 import { is_success_response, list_entity } from "../core/axios";
 
-function is_promise(promise) {
-  return !!promise && typeof promise.then === "function";
-}
-
 export default {
   inheritAttrs: false,
   mixins: [Alert, Meta],
@@ -294,7 +290,7 @@ export default {
     async click_action(action, item) {
       if (action.animate) {
         this.icon_loading[item._id] = true;
-        is_promise(action.handle) ? await action.handle(item) : action.handle(item);
+        await action.handle(item);
         this.icon_loading[item._id] = false;
       } else {
         action.handle(item);
