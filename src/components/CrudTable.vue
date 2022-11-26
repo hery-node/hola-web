@@ -11,7 +11,7 @@
       </v-tooltip>
       <h-confirm ref="confirm" />
       <h-edit-form ref="form" v-bind="$attrs" dialog :clone="clone_mode" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="after_cancel" @success="after_close" :create-title="create_title" :update-title="update_title" :clone-title="clone_title"> </h-edit-form>
-      <h-edit-form ref="form_chip" v-bind="$attrs" dialog hide-hint :entity="chip_entity" :entity-id="chip_entity_id" @cancel="after_cancel_chip" @success="after_close_chip"> </h-edit-form>
+      <h-edit-form ref="form_chip" v-bind="$attrs" dialog hide-hint :entity="chip_entity" :entity-id="chip_entity_id" :fields="chip_edit_fields" @cancel="after_cancel_chip" @success="after_close_chip"> </h-edit-form>
     </template>
   </h-table>
 </template>
@@ -44,6 +44,7 @@ export default {
     searchFields: { type: Array, default: () => [] },
     editFields: { type: Array, default: () => [] },
     headers: { type: Array, default: () => [] },
+    chipFieldsMap: { type: Object },
 
     //title related setting
     noSelectLabel: { type: String },
@@ -68,6 +69,7 @@ export default {
       edit_entity_id: "",
       chip_entity: "",
       chip_entity_id: "",
+      chip_edit_fields: [],
       clone_mode: false,
       has_action_header: false,
       header_toolbars: [],
@@ -223,6 +225,21 @@ export default {
       table.show_error(msg);
     },
 
+    show_success(msg) {
+      const table = this.$refs.table;
+      table.show_success(msg);
+    },
+
+    show_info(msg) {
+      const table = this.$refs.table;
+      table.show_info(msg);
+    },
+
+    show_warning(msg) {
+      const table = this.$refs.table;
+      table.show_warning(msg);
+    },
+
     reset_selected() {
       const table = this.$refs.table;
       table.selected = [];
@@ -291,6 +308,9 @@ export default {
       if (chip && chip.ref) {
         this.chip_entity = chip.ref;
         this.chip_entity_id = chip.id;
+        if (this.chipFieldsMap) {
+          this.chip_edit_fields = this.chipFieldsMap[chip.ref];
+        }
       }
     },
 

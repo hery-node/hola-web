@@ -18,8 +18,7 @@
     <v-main>
       <br />
       <br />
-      <br />
-      <h-crud ref="table" :entity="entity" :mode="mode" :item-label-key="item_label_key" :headers="headers" :update-label="update_label" update-icon="mdi-tag-outline" :expand-fields="expand_fields" :search-cols="search_cols" :sort-key="sort_key" :sort-desc="sort_desc" :actions="actions" :hidden-fields="hidden_fields" :batch-toolbars="batch_toolbars" chip-clickable @dblclick:row="row_clicked" :item-class="get_item_class" action-width="230px"></h-crud>
+      <h-crud ref="table" @dblclick:row="row_clicked" :headers="headers" header-uppcase :entity="entity" :item-label-key="item_label_key" :actions="actions" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols" :batch-toolbars="toolbars" action-width="200px"> </h-crud>
     </v-main>
   </v-app>
 </template>
@@ -32,62 +31,36 @@ export default {
 
   data() {
     return {
-      server: process.env.VUE_APP_SOCKET_SERVER,
-      search_cols: 6,
-      entity: "monitor",
-      mode: "bdrsu",
-      item_label_key: "tag",
-      sort_key: ["time"],
-      sort_desc: [true],
-      expand_fields: ["param_str", "extra", "result_txt"],
-      hidden_fields: ["app_baseline", "has_emon"],
-      headers: [
-        { name: "time" },
-        { name: "tag" },
-        { name: "benchmarking" },
-        {
-          name: "host",
-          click: (id, entity, name) => {
-            const terminal = this.$refs.terminal;
-            terminal.show({ _id: id, name: name });
-          },
-        },
-        { name: "sla_result" },
-        { name: "sla" },
-        { name: "result" },
-        { name: "improve" },
-      ],
-      batch_toolbars: [{ color: "white", icon: "insights", tooltip: this.$t("monitor.compare"), click: this.monitor_compare }],
+      search_cols: 4,
+      entity: "host",
+      item_label_key: "name",
+      sort_key: ["name"],
+      sort_desc: [false],
+      headers: [{ name: "name" }],
       actions: [
-        { color: "edit", icon: "mdi-eye", tooltip: this.$t("monitor.mark_as_baseline"), handle: this.mark_as_baseline },
-        { color: "edit", icon: "mdi-microsoft-excel", tooltip: this.$t("monitor.download_emon"), handle: this.download_emon, shown: (item) => item["has_emon"] == true },
+        { color: "edit", icon: "mdi-cloud-upload-outline", tooltip: this.$t("host.setup_host"), handle: this.setup_host },
+        { color: "edit", icon: "mdi-refresh", animate: true, tooltip: this.$t("host.refresh_host"), handle: this.refresh_host },
+        { color: "edit", icon: "mdi-console", tooltip: this.$t("host.terminal"), handle: this.show_terminal },
       ],
+      toolbars: [{ color: "white", icon: "fingerprint", tooltip: this.$t("host.compare"), click: this.compare }],
     };
   },
-
-  computed: {
-    update_label() {
-      return this.$t("monitor.tag_monitor");
-    },
-  },
-
   methods: {
-    get_item_class(item) {
-      return item["app_baseline"] == true ? "red lighten-4" : "";
-    },
+    async refresh_host() {},
 
-    monitor_compare() {
-      const table = this.$refs.table;
-      const items = table.get_selected_items();
-      if (items != null) {
-        this.$router.push({ path: "/monitor_all_compare/" + items.map((item) => item["_id"]).join(",") });
-      }
-    },
+    setup_host() {},
 
     row_clicked(evt, obj) {
       const item = obj["item"];
-      this.$router.push({ path: "/monitor_all_detail/" + item["_id"] });
+      this.$router.push({ path: "/inspection/" + item["_id"] });
     },
+
+    show_terminal(item) {
+      const terminal = this.$refs.terminal;
+      terminal.show(item);
+    },
+
+    async compare() {},
   },
 };
 </script>

@@ -69,9 +69,14 @@
       <template v-slot:[`item._action`]="{ item }">
         <v-tooltip v-for="(action, index) in itemActions" bottom v-bind:key="index">
           <template v-slot:activator="{ on }">
-            <v-btn icon @click.stop="action.handle(item)" v-on="on" v-show="!action.shown || action.shown(item)">
+            <v-btn icon @click.stop="click_action(action, item)" v-on="on" v-show="!action.shown || action.shown(item)" :loading="icon_loading[item._id]" :disabled="icon_loading[item._id]">
               <v-icon :color="action.color">{{ action.icon }}</v-icon>
             </v-btn>
+          </template>
+          <template v-slot:loader>
+            <span class="custom-loader">
+              <v-icon light>mdi-cached</v-icon>
+            </span>
           </template>
           <span>{{ action.tooltip }}</span>
         </v-tooltip>
@@ -96,6 +101,10 @@
 import Meta from "../mixins/meta";
 import Alert from "../mixins/alert";
 import { is_success_response, list_entity } from "../core/axios";
+
+function is_promise(promise) {
+  return !!promise && typeof promise.then === "function";
+}
 
 export default {
   inheritAttrs: false,
@@ -174,6 +183,7 @@ export default {
       search_form: {},
       options: {},
       first_column: "",
+      icon_loading: {},
     };
   },
 
@@ -279,6 +289,16 @@ export default {
 
     is_expanded() {
       return this.expandFields && this.expandFields.length > 0 ? (this.showSelect == true ? false : true) : false;
+    },
+
+    async click_action(action, item) {
+      if (action.animate) {
+        this.icon_loading[item._id] = true;
+        is_promise(action.handle) ? await action.handle(item) : action.handle(item);
+        this.icon_loading[item._id] = false;
+      } else {
+        action.handle(item);
+      }
     },
 
     get_expanded(item) {
