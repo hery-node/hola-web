@@ -58,7 +58,7 @@ export default {
       this.dialog = true;
       setTimeout(() => {
         this.original_height = this.$refs["content"].offsetHeight;
-      }, 2000);
+      }, 500);
     },
 
     close() {
