@@ -33,7 +33,7 @@ export default {
     return {
       dialog: true,
       search_cols: 4,
-      entity: "host",
+      entity: "service",
       item_label_key: "name",
       sort_key: ["name"],
       sort_desc: [false],

@@ -11,7 +11,7 @@
               <v-combobox v-model="form_data[field.name]" :autofocus="index == 0" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :multiple="field.multiple" chips deletable-chips :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true"></v-combobox>
             </template>
             <template v-else-if="field.input_type === 'password'">
-              <v-text-field v-model="form_data[field.name]" :autofocus="index == 0" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true" :type="show_password ? 'text' : 'password'" :append-icon="show_password ? 'visibility' : 'visibility_off'" @click:append="show_password = !show_password" />
+              <v-text-field v-model="form_data[field.name]" :autofocus="index == 0" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ? field.rules : []" :disabled="field.disabled ? true : false" dense outlined :clearable="field.disabled ? false : true" :type="show_password ? 'text' : 'password'" :append-icon="show_password ? 'mdi-eye' : 'mdi-eye-off'" @click:append="show_password = !show_password" />
             </template>
             <template v-else-if="field.input_type === 'date'">
               <v-menu v-model="show_date_picker" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y max-width="290px" min-width="290px">
