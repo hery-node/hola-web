@@ -14,7 +14,6 @@
         <v-icon>mdi-open-in-new</v-icon>
       </v-btn>
     </v-app-bar>
-
     <v-main>
       <br />
       <br />
@@ -32,6 +31,7 @@ export default {
 
   data() {
     return {
+      dialog: true,
       search_cols: 4,
       entity: "host",
       item_label_key: "name",
