@@ -4,10 +4,10 @@
       <v-app-bar-nav-icon></v-app-bar-nav-icon>
       <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click.stop="expand" v-show="!fullscreen">
+      <v-btn icon @click.stop="expand" v-show="!fullscreen" :disabled="button_disabled">
         <v-icon>mdi-arrow-expand</v-icon>
       </v-btn>
-      <v-btn icon @click.stop="collapse" v-show="fullscreen">
+      <v-btn icon @click.stop="collapse" v-show="fullscreen" :disabled="button_disabled">
         <v-icon>mdi-arrow-collapse</v-icon>
       </v-btn>
       <v-btn icon @click.stop="close">
@@ -34,8 +34,9 @@ export default {
     return {
       dialog: false,
       fullscreen: false,
+      button_disabled: false,
       window_width: this.width,
-      original_height: "",
+      original_height: 0,
     };
   },
 
@@ -44,21 +45,23 @@ export default {
       this.window_width = this.width;
       this.fullscreen = false;
       this.$refs["content"].style.height = this.original_height + "px";
-      this.$emit("resize", this.fullscreen);
+      this.$emit("resize", { width: this.width, height: this.original_height });
     },
 
     expand() {
       this.fullscreen = true;
       const height = window.innerHeight - 66;
       this.$refs["content"].style.height = height + "px";
-      this.$emit("resize", this.fullscreen);
+      this.$emit("resize", { width: "100%", height: height });
     },
 
     show() {
       this.dialog = true;
+      this.button_disabled = true;
       setTimeout(() => {
         this.original_height = this.$refs["content"].offsetHeight;
-      }, 500);
+        this.button_disabled = false;
+      }, 1000);
     },
 
     close() {
