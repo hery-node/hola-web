@@ -17,7 +17,17 @@
     <v-main>
       <br />
       <br />
-      <h-crud ref="table" @dblclick:row="row_clicked" :headers="headers" header-uppcase :entity="entity" :item-label-key="item_label_key" :actions="actions" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols" :batch-toolbars="toolbars" action-width="200px"> </h-crud>
+      <h-window title="hello" ref="terminal">
+        This is window content<br />
+        This is window content<br />
+        This is window content<br />
+        This is window content<br />
+        This is window content<br />
+        This is window content<br />
+      </h-window>
+
+      <v-btn elevation="2" @click="show_terminal">Show window</v-btn>
+      <!-- <h-crud ref="table" @dblclick:row="row_clicked" :headers="headers" header-uppcase :entity="entity" :item-label-key="item_label_key" :actions="actions" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols" :batch-toolbars="toolbars" action-width="200px"> </h-crud> -->
     </v-main>
   </v-app>
 </template>
@@ -63,9 +73,9 @@ export default {
       this.$router.push({ path: "/inspection/" + item["_id"] });
     },
 
-    show_terminal(item) {
+    show_terminal() {
       const terminal = this.$refs.terminal;
-      terminal.show(item);
+      terminal.show();
     },
 
     async compare() {},
