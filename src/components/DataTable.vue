@@ -69,7 +69,7 @@
       <template v-slot:[`item._action`]="{ item }">
         <v-tooltip v-for="(action, index) in itemActions" bottom v-bind:key="index">
           <template v-slot:activator="{ on }">
-            <v-btn icon @click.stop="click_action(action, item)" v-on="on" v-show="!action.shown || action.shown(item)" :loading="icon_loading[item._id]" :disabled="icon_loading[item._id]">
+            <v-btn icon @click.stop="click_action(action, item)" v-on="on" v-show="!action.shown || action.shown(item)" :loading="icon_loading[item._id + action.icon]" :disabled="icon_loading[item._id + action.icon]">
               <v-icon :color="action.color">{{ action.icon }}</v-icon>
             </v-btn>
           </template>
@@ -289,9 +289,9 @@ export default {
 
     async click_action(action, item) {
       if (action.animate) {
-        this.icon_loading[item._id] = true;
+        this.icon_loading[item._id + action.icon] = true;
         await action.handle(item);
-        this.icon_loading[item._id] = false;
+        this.icon_loading[item._id + action.icon] = false;
       } else {
         action.handle(item);
       }
