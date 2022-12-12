@@ -50,6 +50,7 @@ export default {
     searchHint: { type: String },
     showDiffLabel: { type: String },
     topFields: { type: Array, default: () => [] },
+    colors: { type: Object, default: () => {} },
     filterFields: { type: Array, default: () => [] },
     showRatio: { type: Boolean, default: false },
     showDiff: { type: Boolean, default: false },
@@ -338,11 +339,16 @@ export default {
 
     get_item_class(item) {
       const attr = item["attr"];
+
+      if (this.colors && this.colors[attr]) {
+        return this.colors[attr];
+      }
+
       if (this.topFields.includes(attr)) {
         return "top_item";
-      } else {
-        return this.is_diff_value(item) ? "diff_item" : "compare_item";
       }
+
+      return this.is_diff_value(item) ? "diff_item" : "compare_item";
     },
 
     filter_fields() {
