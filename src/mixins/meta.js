@@ -172,13 +172,13 @@ export default {
       return property_fields;
     },
 
-    async get_table_headers() {
+    async get_table_headers(expand_fields) {
       if (!this.meta) {
         return [];
       }
 
       const table_headers = [];
-      const server_fields = this.meta.fields.filter((field) => field.list != false && field.sys != true && field.name != this.meta.user_field);
+      const server_fields = this.meta.fields.filter((field) => field.list != false && field.sys != true && field.name != this.meta.user_field && !expand_fields.includes(field.name));
       const meta_fields = this.get_meta_fields(this.headers, server_fields);
       for (let i = 0; i < meta_fields.length; i++) {
         const header = meta_fields[i];

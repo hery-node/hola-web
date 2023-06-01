@@ -185,7 +185,7 @@ export default {
 
   async created() {
     await this.load_meta();
-    const table_headers = await this.get_table_headers();
+    const table_headers = await this.get_table_headers(this.expandFields);
 
     for (let i = 0; i < table_headers.length; i++) {
       const header = table_headers[i];
