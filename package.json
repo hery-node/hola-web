@@ -1,6 +1,6 @@
 {
   "name": "hola-web",
-  "version": "0.9.2",
+  "version": "0.9.4",
   "description": "vue components using with hola-server",
   "author": "hery1979 <hery1979@qq.com>",
   "scripts": {
