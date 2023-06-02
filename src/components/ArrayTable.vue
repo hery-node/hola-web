@@ -127,7 +127,7 @@ export default {
       for (const obj of this.objs) {
         const item = {};
         for (const property in obj) {
-          item[property] = this.convert_long_to_newline(obj[property]);
+          item[property] = property == "_id" ? obj[property] : this.convert_long_to_newline(obj[property]);
         }
         items.push(item);
       }
