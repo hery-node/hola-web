@@ -1,6 +1,15 @@
 import Vue from "vue";
-import { init_axios, get_url, axios_get, axios_post, axios_cached_get, axios_download, axios_upload, is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params, is_no_session, save_entity, read_entity, query_entity, read_property, list_entity, delete_entity, get_ref_labels, get_entity_meta } from "../core/axios";
+import Vuex from "vuex";
+import VueI18n from "vue-i18n";
+import VueRouter from "vue-router";
+
+// Vuetify's related
+import Vuetify from 'vuetify/lib';
+import colors from 'vuetify/lib/util/colors';
+import "vuetify/dist/vuetify.min.css";
+
 import { register_type, get_type, no_value, is_int } from "../core/type";
+import { init_axios, get_url, axios_get, axios_post, axios_cached_get, axios_download, axios_upload, is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params, is_no_session, save_entity, read_entity, query_entity, read_property, list_entity, delete_entity, get_ref_labels, get_entity_meta } from "../core/axios";
 
 import ArrayEntity from "./ArrayEntity.vue";
 import ArrayTable from "./ArrayTable.vue";
@@ -16,6 +25,39 @@ import CrudTable from "./CrudTable.vue";
 import PropertyTable from "./PropertyTable.vue";
 import NavBar from "./NavBar.vue";
 
+//mobile
+import OffsetView from "./OffsetView.vue";
+import CardView from "./CardView.vue";
+import MobileMenu from "./MobileMenu.vue";
+
+//chart related views
+import ChartSimpleView from "./ChartSimpleView.vue";
+import ChartLineView from "./ChartLineView.vue";
+import ChartBarView from "./ChartBarView.vue";
+import ChartPieView from "./ChartPieView.vue";
+import ChartComboView from "./ChartComboView.vue";
+import ChartDashboardView from "./ChartDashboardView.vue";
+import DashboardTableView from "./DashboardTable.vue";
+
+function load_locale_messages(locales) {
+  const messages = {};
+  locales.keys().forEach(key => {
+    const matched = key.match(/([A-Za-z0-9-_]+)\./i);
+    if (matched && matched.length > 1) {
+      const locale = matched[1];
+      messages[locale] = locales(key);
+    }
+  });
+  return messages
+}
+
+function setup_plugins() {
+  Vue.use(Vuex);
+  Vue.use(VueI18n);
+  Vue.use(VueRouter);
+  Vue.use(Vuetify);
+}
+
 function setup_components() {
   Vue.component("h-array", ArrayTable);
   Vue.component("h-array-entity", ArrayEntity);
@@ -30,6 +72,99 @@ function setup_components() {
   Vue.component("h-crud", CrudTable);
   Vue.component("h-property", PropertyTable);
   Vue.component("h-nav-bar", NavBar);
+  Vue.component('h-offset', OffsetView);
+  Vue.component('h-card', CardView);
+  Vue.component('h-mobile-menu', MobileMenu);
+  Vue.component('h-chart', ChartSimpleView);
+  Vue.component('h-line-chart', ChartLineView);
+  Vue.component('h-bar-chart', ChartBarView);
+  Vue.component('h-pie-chart', ChartPieView);
+  Vue.component('h-combo-chart', ChartComboView);
+  Vue.component('h-dash-chart', ChartDashboardView);
+  Vue.component('h-dash-table', DashboardTableView);
 }
 
-export { setup_components, init_axios, get_url, axios_get, axios_post, axios_cached_get, axios_download, axios_upload, is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params, is_no_session, save_entity, read_entity, read_property, list_entity, query_entity, delete_entity, get_ref_labels, get_entity_meta, register_type, get_type, no_value, is_int };
+function make_dialog_movable() {
+  // make vuetify dialogs movable
+  const d = {};
+  document.addEventListener("mousedown", (e) => {
+    const closestDialog = e.target.closest(".v-dialog.v-dialog--active");
+    if (e.button === 0 && closestDialog != null && e.target.classList.contains("v-toolbar__content")) {
+      // element which can be used to move element
+      d.el = closestDialog; // element which should be moved
+      d.mouseStartX = e.clientX;
+      d.mouseStartY = e.clientY;
+      d.elStartX = d.el.getBoundingClientRect().left;
+      d.elStartY = d.el.getBoundingClientRect().top;
+      d.el.style.position = "fixed";
+      d.el.style.margin = 0;
+      d.oldTransition = d.el.style.transition;
+      d.el.style.transition = "none";
+    }
+  });
+  document.addEventListener("mousemove", (e) => {
+    if (d.el === undefined) return;
+    d.el.style.left = Math.min(Math.max(d.elStartX + e.clientX - d.mouseStartX, 0), window.innerWidth - d.el.getBoundingClientRect().width) + "px";
+    d.el.style.top = Math.min(Math.max(d.elStartY + e.clientY - d.mouseStartY, 0), window.innerHeight - d.el.getBoundingClientRect().height) + "px";
+  });
+  document.addEventListener("mouseup", () => {
+    if (d.el === undefined) return;
+    d.el.style.transition = d.oldTransition;
+    d.el = undefined;
+  });
+  setInterval(() => {
+    // prevent out of bounds
+    const dialog = document.querySelector(".v-dialog.v-dialog--active");
+    if (dialog === null) return;
+    dialog.style.left = Math.min(parseInt(dialog.style.left), window.innerWidth - dialog.getBoundingClientRect().width) + "px";
+    dialog.style.top = Math.min(parseInt(dialog.style.top), window.innerHeight - dialog.getBoundingClientRect().height) + "px";
+  }, 100);
+}
+
+function init_vue_app(App, routes, vuetify_config, i18n_config, locales) {
+  setup_plugins();
+  setup_components();
+  make_dialog_movable();
+
+  const router = new VueRouter({ mode: "history", base: process.env.BASE_URL, routes });
+  const store = new Vuex.Store({ state: {}, mutations: {}, actions: {}, modules: {} });
+  const vuetify = new Vuetify({
+    theme: {
+      themes: {
+        light: {
+          primary: colors.blue,
+          progress: colors.red.darken2,
+          tag: colors.red.darken1,
+          secondary: '#4caf50',
+          tertiary: '#495057',
+          accent: '#82B1FF',
+          error: colors.red.darken1,
+          info: '#00d3ee',
+          success: colors.blue.darken1,
+          edit: colors.brown.darken1,
+          delete: colors.red.darken1,
+          refresh: colors.green.darken1,
+          warning: '#ffa21a',
+          chart: colors.cyan.darken1,
+          chart_title: colors.red.darken4,
+          chip: colors.lightBlue.darken1,
+          bgcolor: colors.grey.lighten4,
+          card: colors.cyan.darken1,
+          back: colors.red.darken4
+        }
+      },
+    }, ...vuetify_config
+  });
+
+  const i18n = new VueI18n({ locale: process.env.VUE_APP_I18N_LOCALE || 'en', fallbackLocale: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'en', messages: load_locale_messages(locales), ...i18n_config });
+
+  return new Vue({
+    router,
+    store,
+    vuetify,
+    i18n,
+    render: (h) => h(App),
+  }).$mount("#app");
+}
+
+export { init_vue_app, init_axios, get_url, axios_get, axios_post, axios_cached_get, axios_download, axios_upload, is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params, is_no_session, save_entity, read_entity, read_property, list_entity, query_entity, delete_entity, get_ref_labels, get_entity_meta, register_type, get_type, no_value, is_int };

@@ -44,7 +44,6 @@ export default {
     searchHint: { type: String },
 
     // This setting is used for action
-    //action for the item, such as delete item or edit item
     actions: { type: Array, default: () => [] },
     actionWidth: { type: String, default: "120px" },
     //Available options are start, center, end, baseline and stretch.

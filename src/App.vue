@@ -1,84 +1,55 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
-      <div class="d-flex align-center">
-        <v-img alt="Vuetify Logo" class="shrink mr-2" contain src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png" transition="scale-transition" width="40" />
-
-        <v-img alt="Vuetify Name" class="shrink mt-1 hidden-sm-and-down" contain min-width="100" src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png" width="100" />
-      </div>
-
-      <v-spacer></v-spacer>
-
-      <v-btn href="https://github.com/vuetifyjs/vuetify/releases/latest" target="_blank" text>
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar>
     <v-main>
-      <br />
-      <br />
-      <h-window title="hello" ref="terminal">
-        This is window content<br />
-        This is window content<br />
-        This is window content<br />
-        This is window content<br />
-        This is window content<br />
-        This is window content<br />
-      </h-window>
-
-      <v-btn elevation="2" @click="show_terminal">Show window</v-btn>
-      <!-- <h-crud ref="table" @dblclick:row="row_clicked" :headers="headers" header-uppcase :entity="entity" :item-label-key="item_label_key" :actions="actions" :sort-key="sort_key" :sort-desc="sort_desc" :search-cols="search_cols" :batch-toolbars="toolbars" action-width="200px"> </h-crud> -->
+      <h-nav-bar :title="title" :menus="menus"></h-nav-bar>
+      <template>
+        <div class="ma-5">
+          <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
+        </div>
+      </template>
+      <router-view :key="$route.fullPath" class="mt-3" @alert="show_alert"></router-view>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import { axios_post, is_success_response } from "./core/axios";
 export default {
-  name: "App",
-
   components: {},
+  name: "App",
 
   data() {
     return {
-      dialog: true,
-      search_cols: 4,
-      entity: "service",
-      item_label_key: "name",
-      sort_key: ["name"],
-      sort_desc: [false],
-      headers: [{ name: "name" }],
-      actions: [
-        { color: "edit", icon: "mdi-cloud-upload-outline", tooltip: this.$t("host.setup_host"), handle: this.setup_host },
-        { color: "edit", icon: "mdi-refresh", animate: true, tooltip: this.$t("host.refresh_host"), handle: this.refresh_host },
-        { color: "edit", icon: "mdi-console", tooltip: this.$t("host.terminal"), handle: this.show_terminal },
+      //success,info,warning,error
+      alert: { shown: false, type: "info", msg: "" },
+      title: "this is a test",
+      menus: [
+        {
+          title: "Application management",
+          menus: [
+            { icon: "mdi-space-station", title: "User management", route: "/user1" },
+            { icon: "mdi-bug-outline", title: "System log", route: "/log1" },
+          ],
+        },
+        {
+          title: "System management",
+          menus: [
+            { icon: "mdi-space-station", title: "Space station", route: "/user2" },
+            { icon: "mdi-bug-outline", title: "Bug list", route: "/log2" },
+          ],
+        },
       ],
-      toolbars: [{ color: "white", icon: "fingerprint", tooltip: this.$t("host.compare"), click: this.compare }],
     };
   },
+
   methods: {
-    async refresh_host(item) {
-      const url = "/host/batch_update";
-      const { code } = await axios_post(url, { _ids: [item["_id"]] });
-      if (is_success_response(code) && this.$refs.table) {
-        this.$refs.table.show_success(this.$t("host.refresh_host_success"));
-        this.$refs.table.refresh();
-      }
+    show_alert(msg_obj) {
+      const { type, msg, delay } = msg_obj;
+      const time = delay ? delay : 10 * 1000;
+      this.alert.shown = true;
+      this.alert.type = type;
+      this.alert.msg = msg ? msg.replace(/\n/g, "<br />") : "";
+      delay || delay == 0 || setTimeout(() => (this.alert.shown = false), time);
     },
-
-    setup_host() {},
-
-    row_clicked(evt, obj) {
-      const item = obj["item"];
-      this.$router.push({ path: "/inspection/" + item["_id"] });
-    },
-
-    show_terminal() {
-      const terminal = this.$refs.terminal;
-      terminal.show();
-    },
-
-    async compare() {},
   },
 };
 </script>
