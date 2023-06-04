@@ -1,24 +1,27 @@
 <template>
-  <h-card class="v-card--material-chart">
-    <h-chart v-bind="$attrs" v-on="$listeners"></h-chart>
-    <h4 class="title font-weight-light black--text" v-text="title" />
-    <v-icon class="mr-2" small :color="subIconColor"> {{ subIcon }}</v-icon>
-    <span class="caption grey--text font-weight-light" v-text="subText" />
+  <h-card v-bind="$attrs" class="v-card--material-chart" v-on="$listeners">
+    <chartist slot="header" :data="data" :event-handlers="eventHandlers" :options="options" :ratio="ratio" :responsive-options="responsiveOptions" :type="type" />
+    <h4 class="title font-weight-light black--text">{{ title }}</h4>
+    <v-icon class="mr-2" small :color="subIconColor">{{ subIcon }}</v-icon>
+    <span class="caption grey--text font-weight-light">{{ subText }}</span>
   </h-card>
 </template>
 
 <script>
-import Chart from "../mixins/chart";
 export default {
   inheritAttrs: false,
-  mixins: [Chart],
 
   props: {
+    data: { type: Object, default: () => ({}) },
+    eventHandlers: { type: Array, default: () => [] },
+    options: { type: Object, default: () => ({ height: "300px", chartPadding: { top: 20, right: 0, bottom: 0, left: 0 } }) },
+    ratio: { type: String, default: undefined },
+    responsiveOptions: { type: Array, default: () => [] },
+    type: { type: String, required: true, validator: (v) => ["Bar", "Line", "Pie"].includes(v) },
     title: { type: String },
+    subText: { type: String },
     subIcon: { type: String },
     subIconColor: { type: String },
-    subText: { type: String },
-    subTextColor: { type: String },
   },
 };
 </script>

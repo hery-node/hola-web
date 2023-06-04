@@ -7,6 +7,7 @@ import VueRouter from "vue-router";
 import Vuetify from 'vuetify/lib';
 import colors from 'vuetify/lib/util/colors';
 import "vuetify/dist/vuetify.min.css";
+import 'chartist/dist/chartist.min.css'
 
 import { register_echarts } from "../plugins/eschart";
 import { register_type, get_type, no_value, is_int } from "../core/type";
@@ -53,6 +54,7 @@ function load_locale_messages(locales) {
 }
 
 function setup_plugins() {
+  Vue.use(require('vue-chartist'));
   Vue.use(Vuex);
   Vue.use(VueI18n);
   Vue.use(VueRouter);
