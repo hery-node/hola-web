@@ -24,10 +24,10 @@ export default {
       title: "this is a test",
       menus: [
         {
-          title: "Application management",
+          title: "Dashboard Views",
           menus: [
-            { icon: "mdi-space-station", title: "User management", route: "/user1" },
-            { icon: "mdi-bug-outline", title: "System log", route: "/log1" },
+            { icon: "mdi-space-station", title: "Dashboard", route: "/dashboard" },
+            { icon: "mdi-bug-outline", title: "Application", route: "/application" },
           ],
         },
         {
@@ -53,3 +53,11 @@ export default {
   },
 };
 </script>
+<style lang="scss">
+@import "@/styles/index.scss";
+
+/* Remove in 1.2 */
+.v-datatable thead th.column.sortable i {
+  vertical-align: unset;
+}
+</style>

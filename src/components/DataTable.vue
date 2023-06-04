@@ -6,7 +6,7 @@
     </div>
 
     <v-data-table v-bind="$attrs" v-on="$listeners" :mobile-breakpoint="mobile ? 600 : 10" :headers="table_headers" :items="items" :loading="loading" multi-sort v-model="selected" :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0" :hide-default-footer="!pagination" :show-expand="is_expanded()" :show-select="showSelect" :expanded.sync="expanded">
-      <template v-slot:top>
+      <template v-slot:top v-if="!hideTop">
         <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
         <v-toolbar flat dense :class="toolbarClass" dark v-if="!hideToolbar">
           <span class="ml-3" v-if="!hideTitle">{{ table_title }}</span>
@@ -127,6 +127,7 @@ export default {
     refAsChip: { type: Boolean, default: true },
 
     //control the toolbar
+    hideTop: { type: Boolean, default: false },
     hideToolbar: { type: Boolean, default: false },
     hideTitle: { type: Boolean, default: false },
     toolbarClass: { type: String, default: "app_bar subtitle-2" },
@@ -431,3 +432,57 @@ export default {
   },
 };
 </script>
+<style>
+tr th:first-of-type {
+  background-color: #b2ebf2;
+}
+
+tr td {
+  white-space: pre-wrap;
+}
+
+.custom-loader {
+  animation: loader 1s infinite;
+  display: flex;
+}
+
+@-moz-keyframes loader {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes loader {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@-o-keyframes loader {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loader {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>

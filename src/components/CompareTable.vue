@@ -358,3 +358,29 @@ export default {
   },
 };
 </script>
+<style scoped>
+.diff_item {
+  color: #37474f;
+  background-color: #f3e5f5;
+}
+
+.diff_item:hover {
+  color: #37474f !important;
+  background-color: #26c6da !important;
+}
+
+.top_item {
+  color: #37474f;
+  background-color: #ffcdd2;
+}
+
+.top_item:hover {
+  color: #37474f !important;
+  background-color: #26c6da !important;
+}
+
+.compare_item:hover {
+  color: #37474f !important;
+  background-color: #26c6da !important;
+}
+</style>
