@@ -1,5 +1,36 @@
+import * as echarts from 'echarts/core';
+import {
+    LineChart,
+    ScatterChart,
+    BarChart,
+    PieChart
+} from 'echarts/charts';
+
+import {
+    TitleComponent,
+    TooltipComponent,
+    GridComponent,
+    LegendComponent,
+    DatasetComponent
+} from 'echarts/components';
+
+import { CanvasRenderer } from 'echarts/renderers';
+echarts.use(
+    [
+        TitleComponent,
+        TooltipComponent,
+        GridComponent,
+        LineChart,
+        ScatterChart,
+        BarChart,
+        PieChart,
+        LegendComponent,
+        DatasetComponent,
+        CanvasRenderer
+    ]
+);
+
 import Vue from 'vue';
-import "echarts";
 import ECharts from 'vue-echarts';
 import theme from "./theme.json";
 
