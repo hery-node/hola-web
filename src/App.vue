@@ -33,7 +33,7 @@ export default {
         {
           title: "System management",
           menus: [
-            { icon: "mdi-space-station", title: "Space station", route: "/user2" },
+            { icon: "mdi-space-station", title: "Charts", route: "/chart" },
             { icon: "mdi-bug-outline", title: "Bug list", route: "/log2" },
           ],
         },
