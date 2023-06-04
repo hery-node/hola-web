@@ -7,6 +7,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <link rel="icon" href="<%= BASE_URL %>logo.ico">
   <title><%= htmlWebpackPlugin.options.title %></title>
+  <% for (var i in htmlWebpackPlugin.options.cdn && htmlWebpackPlugin.options.cdn.css) { %>
+    <link href="<%= htmlWebpackPlugin.options.cdn.css[i] %>" rel="preload" as="style">
+    <link href="<%= htmlWebpackPlugin.options.cdn.css[i] %>" rel="stylesheet">
+    <% } %>
+  
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css">
   <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet" />
@@ -17,6 +22,16 @@
     <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
   </noscript>
   <div id="app"></div>
-  <!-- built files will be auto injected -->
+    <!-- built files will be auto injected -->
+    <% for (var i in htmlWebpackPlugin.options.cdn && htmlWebpackPlugin.options.cdn.js) { %>
+      <script src="<%= htmlWebpackPlugin.options.cdn.js[i] %>"></script>
+    <% } %>
 </body>
+<script>
+  window.Vuetify = new Vuetify({
+    icons: {
+      iconfont: 'mdi', // default - only for display purposes
+    },
+  })
+</script>
 </html>

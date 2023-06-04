@@ -2,13 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import VueI18n from "vue-i18n";
 import VueRouter from "vue-router";
-
-// Vuetify's related
-import Vuetify from 'vuetify/lib';
-import colors from 'vuetify/lib/util/colors';
-import "vuetify/dist/vuetify.min.css";
 import 'chartist/dist/chartist.min.css'
-
 import { register_echarts } from "../plugins/eschart";
 import { register_type, get_type, no_value, is_int } from "../core/type";
 import { init_axios, get_url, axios_get, axios_post, axios_cached_get, axios_download, axios_upload, is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params, is_no_session, save_entity, read_entity, query_entity, read_property, list_entity, delete_entity, get_ref_labels, get_entity_meta } from "../core/axios";
@@ -54,11 +48,9 @@ function load_locale_messages(locales) {
 }
 
 function setup_plugins() {
-  Vue.use(require('vue-chartist'));
   Vue.use(Vuex);
   Vue.use(VueI18n);
   Vue.use(VueRouter);
-  Vue.use(Vuetify);
   register_echarts();
 }
 
@@ -125,43 +117,8 @@ function make_dialog_movable() {
   }, 100);
 }
 
-function init_vue_app(App, routes, vuetify_config, i18n_config, locales) {
+function init_vue_app(App, routes, i18n_config, locales) {
   setup_plugins();
-
-  const vuetify = new Vuetify({
-    theme: {
-      themes: {
-        light: {
-          primary: colors.cyan.darken2,
-          progress: colors.red.darken2,
-          tag: colors.red.darken1,
-          secondary: colors.cyan.darken1,
-          tertiary: '#495057',
-          accent: '#82B1FF',
-          error: colors.red.darken1,
-          info: '#00d3ee',
-          success: colors.cyan.darken1,
-          create: colors.cyan.darken1,
-          edit: colors.cyan.darken1,
-          clone: colors.cyan.darken1,
-          delete: colors.red.darken1,
-          refresh: colors.green.darken1,
-          warning: '#ffa21a',
-          chart: colors.cyan.darken1,
-          chart_title: colors.red.darken4,
-          app_bar: colors.cyan.darken2,
-          system_bar: '#FFFFFF',
-          table_header: colors.cyan.lighten4,
-          toolbar_icon: '#FFFFFF',
-          chip: colors.cyan.darken1,
-          bgcolor: colors.grey.lighten4,
-          card: colors.cyan.darken1,
-          back: colors.red.darken4,
-          title_button: '#FFFFFF'
-        }
-      },
-    }, ...vuetify_config
-  });
 
   const i18n = new VueI18n({ locale: process.env.VUE_APP_I18N_LOCALE || 'en', fallbackLocale: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'en', messages: load_locale_messages(locales), ...i18n_config });
   const router = new VueRouter({ mode: "history", base: process.env.BASE_URL, routes });
@@ -172,7 +129,7 @@ function init_vue_app(App, routes, vuetify_config, i18n_config, locales) {
   return new Vue({
     router,
     store,
-    vuetify,
+    vuetify: window.Vuetify,
     i18n,
     render: (h) => h(App),
   }).$mount("#app");

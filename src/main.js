@@ -17,4 +17,4 @@ const routes = [
     { path: '/application', name: 'application', component: ApplicationView },
 ];
 
-init_vue_app(App, routes, {}, {}, locales);
+init_vue_app(App, routes, {}, locales);
