@@ -1,6 +1,6 @@
 const { defineConfig } = require('@vue/cli-service');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const local_deploy = true;
+const local_deploy = false;
 
 const cdn = {
   css: ['https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css'],

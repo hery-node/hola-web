@@ -1,7 +1,6 @@
 import Vue from "vue";
 import Vuetify from 'vuetify';
 import colors from 'vuetify/lib/util/colors';
-import "vuetify/dist/vuetify.min.css";
 
 function make_dialog_movable() {
     // make vuetify dialogs movable
@@ -74,9 +73,14 @@ const default_theme = {
 };
 
 function setup_vuetify(config = {}) {
-    Vue.use(Vuetify);
     make_dialog_movable();
-    return new Vuetify({ theme: { ...default_theme, ...config } });
+
+    if (window.Vuetify) {
+        return new window.Vuetify({ theme: { ...default_theme, ...config } });
+    } else {
+        Vue.use(Vuetify);
+        return new Vuetify({ theme: { ...default_theme, ...config } });
+    }
 }
 
 export { setup_vuetify };
