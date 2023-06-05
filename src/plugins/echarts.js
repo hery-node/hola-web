@@ -21,7 +21,7 @@ import {
 import { CanvasRenderer } from "echarts/renderers";
 import { LabelLayout, UniversalTransition } from "echarts/features";
 
-import ECharts from 'vue-echarts';
+import VueECharts from 'vue-echarts';
 import theme from "./theme.json";
 
 function setup_echarts() {
@@ -43,7 +43,7 @@ function setup_echarts() {
         UniversalTransition,
         CanvasRenderer
     ]);
-    Vue.component('v-chart', ECharts);
+    Vue.component('v-chart', VueECharts);
 }
 
 export { setup_echarts };
