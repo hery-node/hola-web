@@ -7,11 +7,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <link rel="icon" href="<%= BASE_URL %>logo.ico">
   <title><%= htmlWebpackPlugin.options.title %></title>
-  <% for (var i in htmlWebpackPlugin.options.cdn && htmlWebpackPlugin.options.cdn.css) { %>
+    <% for (var i in htmlWebpackPlugin.options.cdn && htmlWebpackPlugin.options.cdn.css) { %>
     <link href="<%= htmlWebpackPlugin.options.cdn.css[i] %>" rel="preload" as="style">
     <link href="<%= htmlWebpackPlugin.options.cdn.css[i] %>" rel="stylesheet">
     <% } %>
   
+    <% for (var i in htmlWebpackPlugin.options.cdn && htmlWebpackPlugin.options.cdn.js) { %>
+      <script src="<%= htmlWebpackPlugin.options.cdn.js[i] %>"></script>
+    <% } %>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css">
   <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet" />
@@ -23,13 +26,5 @@
   </noscript>
   <div id="app"></div>
     <!-- built files will be auto injected -->
-    <% for (var i in htmlWebpackPlugin.options.cdn && htmlWebpackPlugin.options.cdn.js) { %>
-      <script src="<%= htmlWebpackPlugin.options.cdn.js[i] %>"></script>
-    <% } %>
 </body>
-<script>
-  if (typeof Vuetify != 'undefined') {
-      window.Vuetify = Vuetify;
-    }
-</script>
 </html>

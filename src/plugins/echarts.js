@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import * as echarts from 'echarts/core';
 import VueChartist from 'vue-chartist';
-import 'chartist/dist/chartist.min.css';
 
 import {
     BarChart,
@@ -26,6 +25,8 @@ import ECharts from 'vue-echarts';
 import theme from "./theme.json";
 
 function setup_echarts() {
+    Vue.use(VueChartist);
+
     echarts.registerTheme("custom", theme);
     echarts.use([
         TitleComponent,
@@ -43,7 +44,6 @@ function setup_echarts() {
         CanvasRenderer
     ]);
     Vue.component('v-chart', ECharts);
-    Vue.use(VueChartist);
 }
 
 export { setup_echarts };

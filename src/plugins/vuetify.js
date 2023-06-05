@@ -74,13 +74,8 @@ const default_theme = {
 
 function setup_vuetify(config = {}) {
     make_dialog_movable();
-
-    if (window.Vuetify) {
-        return new window.Vuetify({ theme: { ...default_theme, ...config } });
-    } else {
-        Vue.use(Vuetify);
-        return new Vuetify({ theme: { ...default_theme, ...config } });
-    }
+    Vue.use(Vuetify);
+    return new Vuetify({ theme: { ...default_theme, ...config } });
 }
 
 export { setup_vuetify };
