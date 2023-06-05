@@ -14,10 +14,10 @@
           <v-subheader>{{ menu.title }}</v-subheader>
           <v-list-item v-for="child in menu.menus" :key="child.title" router :to="child.route">
             <v-list-item-icon>
-              <v-icon v-text="child.icon"></v-icon>
+              <v-icon>{{ child.icon }}</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title v-text="child.title"></v-list-item-title>
+              <v-list-item-title>{{ child.title }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list>

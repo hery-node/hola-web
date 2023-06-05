@@ -28,10 +28,8 @@
     <% } %>
 </body>
 <script>
-  window.Vuetify = new Vuetify({
-    icons: {
-      iconfont: 'mdi', // default - only for display purposes
-    },
-  })
+  if (typeof Vuetify != 'undefined') {
+      window.Vuetify = new Vuetify({});
+    }
 </script>
 </html>

@@ -1,5 +1,6 @@
 const { defineConfig } = require('@vue/cli-service');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const local_deploy = true;
 
 const cdn = {
   css: ['https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css'],
@@ -13,23 +14,25 @@ const cdn = {
   ]
 };
 
+const externals = local_deploy ? {} : {
+  vue: 'Vue',
+  'vue-router': 'VueRouter',
+  vuex: 'Vuex',
+  'vuetify': 'Vuetify'
+};
+
 module.exports = defineConfig({
   configureWebpack: {
     plugins: [new BundleAnalyzerPlugin()],
-    externals: {
-      vue: 'Vue',
-      'vue-router': 'VueRouter',
-      vuex: 'Vuex',
-      'vuetify': 'Vuetify',
-      'vue-echarts': 'VueECharts',
-      'echarts': 'echarts'
-    },
+    externals: externals
   },
 
   chainWebpack(config) {
     config.plugin('html').tap(args => {
-      args[0].cdn = cdn
-      return args
+      if (!local_deploy) {
+        args[0].cdn = cdn;
+      }
+      return args;
     })
   },
 
