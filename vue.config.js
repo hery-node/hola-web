@@ -3,7 +3,10 @@ const { defineConfig } = require('@vue/cli-service');
 module.exports = defineConfig({
   configureWebpack: {
     output: {
-      uniqueName: 'HolaWeb',
+      library: {
+        name: 'HolaWeb',
+        type: 'umd',
+      }
     },
   },
 
