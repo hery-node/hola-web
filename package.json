@@ -1,6 +1,6 @@
 {
   "name": "hola-web",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "vue components using with hola-server",
   "author": "hery1979 <hery1979@qq.com>",
   "scripts": {
@@ -9,7 +9,7 @@
     "lint": "vue-cli-service lint",
     "build-bundle": "vue-cli-service build --target lib --name hola-web ./src/components/index.js"
   },
-  "main": "./dist/hola-web.common.js",
+  "main": "./dist/hola-web.umd.js",
   "files": [
     "dist"
   ],
