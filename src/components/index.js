@@ -19,11 +19,12 @@ import NavBar from "./NavBar.vue";
 //chart and dashboard related views
 import OffsetView from "./OffsetView.vue";
 import CardView from "./CardView.vue";
-import ChartSimpleView from "./ChartSimpleView.vue";
+import ChartView from "./ChartView.vue";
 import ChartLineView from "./ChartLineView.vue";
 import ChartBarView from "./ChartBarView.vue";
 import ChartPieView from "./ChartPieView.vue";
 import ChartComboView from "./ChartComboView.vue";
+import ChartSimpleView from "./ChartSimpleView.vue";
 import ChartDashboardView from "./ChartDashboardView.vue";
 import DashboardTableView from "./DashboardTable.vue";
 
@@ -47,11 +48,12 @@ function setup_components() {
   Vue.component('h-offset', OffsetView);
   Vue.component('h-card', CardView);
   Vue.component('h-mobile-menu', MobileMenu);
-  Vue.component('h-chart', ChartSimpleView);
+  Vue.component('h-chart', ChartView);
   Vue.component('h-line-chart', ChartLineView);
   Vue.component('h-bar-chart', ChartBarView);
   Vue.component('h-pie-chart', ChartPieView);
   Vue.component('h-combo-chart', ChartComboView);
+  Vue.component('h-simple-chart', ChartSimpleView);
   Vue.component('h-dash-chart', ChartDashboardView);
   Vue.component('h-dash-table', DashboardTableView);
 }
