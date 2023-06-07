@@ -105,11 +105,14 @@ export default {
       return form_fields;
     },
 
-    async get_edit_fields() {
+    async get_edit_fields(update_mode) {
       if (!this.meta) {
         return [];
       }
-      return this.get_form_fields(this.meta.fields.filter((field) => field.create != false && field.sys != true && field.name != this.meta.user_field));
+      const edit_fields = update_mode ?
+        this.meta.fields.filter((field) => field.create != false && field.update != false && field.sys != true && field.name != this.meta.user_field) :
+        this.meta.fields.filter((field) => field.create != false && field.sys != true && field.name != this.meta.user_field);
+      return this.get_form_fields(edit_fields);
     },
 
     async get_clone_fields() {

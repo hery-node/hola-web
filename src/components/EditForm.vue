@@ -191,7 +191,7 @@ export default {
 
     async init_form() {
       await this.load_meta();
-      const edit_fields = this.clone ? await this.get_clone_fields() : await this.get_edit_fields();
+      const edit_fields = this.clone ? await this.get_clone_fields() : await this.get_edit_fields(this.update_mode);
       edit_fields.forEach((field) => {
         field.cols || (field.cols = this.cols);
       });
