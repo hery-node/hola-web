@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { delete_entity, is_success_response, is_been_referred } from "../core/axios";
+import { delete_entity, is_success_response, is_been_referred, get_entity_mode } from "../core/axios";
 import Keymap from "../mixins/keymap";
 
 export default {
@@ -33,7 +33,7 @@ export default {
     itemLabelKey: { type: String, required: true },
     //end
     //b:batch mode, c:create, d:delete, e:export, i:import, o:clone, p:page, r: refresh, s:search, u:update
-    mode: { type: String, default: "bcdeiorsu" },
+    mode: { type: String },
     //add more actions to item actions
     actions: { type: Array, default: () => [] },
     //add more toolbars for single mode
@@ -65,6 +65,7 @@ export default {
     return {
       //batch mode, this is used to control the crud table batch mode
       batch_mode: false,
+      entity_mode: "",
       //used to pass id value to edit form
       edit_entity_id: "",
       chip_entity: "",
@@ -76,41 +77,50 @@ export default {
     };
   },
 
-  created() {
+  async created() {
+    if (this.mode) {
+      this.entity_mode = this.mode;
+    } else {
+      const server_mode = await get_entity_mode(this.entity);
+      if (server_mode && server_mode.trim().length > 0) {
+        this.entity_mode = server_mode;
+      }
+    }
+
     this.show_toolbars();
   },
 
   computed: {
     is_batchable() {
-      return this.mode.includes("b");
+      return this.entity_mode.includes("b");
     },
 
     is_creatable() {
-      return this.mode.includes("c");
+      return this.entity_mode.includes("c");
     },
 
     is_deletable() {
-      return this.mode.includes("d");
+      return this.entity_mode.includes("d");
     },
 
     is_cloneable() {
-      return this.mode.includes("o");
+      return this.entity_mode.includes("o");
     },
 
     is_paginable() {
-      return this.mode.includes("p");
+      return this.entity_mode.includes("p");
     },
 
     is_refreshable() {
-      return this.mode.includes("r");
+      return this.entity_mode.includes("r");
     },
 
     is_searchable() {
-      return this.mode.includes("s");
+      return this.entity_mode.includes("s");
     },
 
     is_updatable() {
-      return this.mode.includes("u");
+      return this.entity_mode.includes("u");
     },
 
     entity_label() {

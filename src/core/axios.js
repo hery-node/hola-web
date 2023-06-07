@@ -5,6 +5,7 @@ axios.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded
 axios.defaults.headers.common["Access-Control-Allow-Origin"] = "*";
 
 const META = "/meta";
+const MODE = "/mode";
 const CREATE = "/create";
 const READ_ENTITY = "/read_entity";
 const READ_PROPERTY = "/read_property";
@@ -179,6 +180,17 @@ const get_entity_meta = (entity) => {
   });
 };
 
+const get_entity_mode = (entity) => {
+  const url = "/" + entity + MODE;
+  return axios_cached_get(url).then((result) => {
+    if (is_success_response(result.code)) {
+      return result.data;
+    } else {
+      return null;
+    }
+  });
+};
+
 const get_ref_labels = (entity, ref_by_entity) => {
   const url = "/" + entity + REF;
   return axios_get(url, { ref_by_entity: ref_by_entity }).then((result) => {
@@ -263,4 +275,4 @@ const get_url = (url) => {
   return `${base}${url}`;
 };
 
-export { init_axios, get_url, axios_get, axios_post, axios_cached_get, axios_download, axios_upload, is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params, is_no_session, save_entity, read_entity, read_property, query_entity, list_entity, delete_entity, get_ref_labels, get_entity_meta };
+export { init_axios, get_url, axios_get, axios_post, axios_cached_get, axios_download, axios_upload, is_success_response, is_error_response, is_been_referred, is_duplicated, has_invalid_params, is_no_session, save_entity, read_entity, read_property, query_entity, list_entity, delete_entity, get_ref_labels, get_entity_meta, get_entity_mode };
