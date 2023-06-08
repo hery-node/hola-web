@@ -106,6 +106,10 @@ export default {
     },
 
     field_in_view(field, view) {
+      if (view == "*") {
+        return true;
+      }
+
       if (field.view) {
         if (Array.isArray(field.view)) {
           return field.view.includes(view);

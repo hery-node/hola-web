@@ -53,7 +53,8 @@ export default {
   mixins: [Alert, Meta],
 
   props: {
-    editView: { type: String, default: "0" },
+    createFormView: { type: String, default: "*" },
+    updateFormView: { type: String, default: "*" },
     createTitle: { type: String },
     updateTitle: { type: String },
     cloneTitle: { type: String },
@@ -109,6 +110,10 @@ export default {
   },
 
   computed: {
+    edit_view() {
+      return this.update_mode ? this.updateFormView : this.createFormView;
+    },
+
     update_mode() {
       return this.entityId != null;
     },
@@ -192,7 +197,7 @@ export default {
 
     async init_form() {
       await this.load_meta();
-      const edit_fields = this.clone ? await this.get_clone_fields() : await this.get_edit_fields(this.update_mode, this.editView);
+      const edit_fields = this.clone ? await this.get_clone_fields() : await this.get_edit_fields(this.update_mode, this.edit_view);
       edit_fields.forEach((field) => {
         field.cols || (field.cols = this.cols);
       });
@@ -222,6 +227,9 @@ export default {
 
       this.loading = true;
       const form = this.hiddenValues ? { ...form_data, ...this.hiddenValues } : form_data;
+      //submit view to server side using key _view
+      form["_view"] = this.edit_view;
+
       const { code, err } = await save_entity(this.entity, form, this.update_mode, this.clone);
       this.loading = false;
       if (is_success_response(code)) {
