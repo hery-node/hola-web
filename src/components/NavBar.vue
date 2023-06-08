@@ -9,7 +9,7 @@
       <slot name="toolbar" />
     </v-app-bar>
     <v-navigation-drawer v-bind="$attrs" v-on="$listeners" v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" app>
-      <v-list v-for="menu in menus" :key="menu.title">
+      <v-list v-for="menu in menu_items" :key="menu.title">
         <v-list subheader dense>
           <v-subheader>{{ menu.title }}</v-subheader>
           <v-list-item v-for="child in menu.menus" :key="child.title" router :to="child.route">
@@ -41,7 +41,17 @@ export default {
   data() {
     return {
       drawer: true,
+      menu_items: [],
     };
+  },
+
+  watch: {
+    menus: {
+      handler() {
+        this.menu_items = menus;
+      },
+      deep: true,
+    },
   },
 
   computed: {
