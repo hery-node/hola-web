@@ -10,8 +10,8 @@
         <span>{{ toolbar.tooltip }}</span>
       </v-tooltip>
       <h-confirm ref="confirm" />
-      <h-edit-form ref="form" v-bind="$attrs" dialog :clone="clone_mode" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="after_cancel" @success="after_close" :create-title="create_title" :update-title="update_title" :clone-title="clone_title"> </h-edit-form>
-      <h-edit-form ref="form_chip" v-bind="$attrs" dialog hide-hint :entity="chip_entity" :entity-id="chip_entity_id" :fields="chip_edit_fields" merge-with-server @cancel="after_cancel_chip" @success="after_close_chip"> </h-edit-form>
+      <h-edit-form ref="form" v-bind="$attrs" dialog :clone="clone_mode" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="after_cancel" @success="after_close" :create-title="create_title" :update-title="update_title" :clone-title="clone_title" :edit-view="view"> </h-edit-form>
+      <h-edit-form ref="form_chip" v-bind="$attrs" dialog hide-hint :entity="chip_entity" :entity-id="chip_entity_id" :fields="chip_edit_fields" merge-with-server @cancel="after_cancel_chip" @success="after_close_chip" :edit-view="chipView"> </h-edit-form>
     </template>
   </h-table>
 </template>
@@ -34,6 +34,9 @@ export default {
     //end
     //b:batch mode, c:create, d:delete, e:export, i:import, o:clone, p:page, r: refresh, s:search, u:update
     mode: { type: String },
+    //views used to edit form
+    view: { type: String, default: "0" },
+    chipView: { type: String, default: "0" },
     //add more actions to item actions
     actions: { type: Array, default: () => [] },
     //add more toolbars for single mode

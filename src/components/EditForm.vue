@@ -53,6 +53,7 @@ export default {
   mixins: [Alert, Meta],
 
   props: {
+    editView: { type: String, default: "0" },
     createTitle: { type: String },
     updateTitle: { type: String },
     cloneTitle: { type: String },
@@ -191,7 +192,7 @@ export default {
 
     async init_form() {
       await this.load_meta();
-      const edit_fields = this.clone ? await this.get_clone_fields() : await this.get_edit_fields(this.update_mode);
+      const edit_fields = this.clone ? await this.get_clone_fields() : await this.get_edit_fields(this.update_mode, this.editView);
       edit_fields.forEach((field) => {
         field.cols || (field.cols = this.cols);
       });

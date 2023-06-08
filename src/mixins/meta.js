@@ -105,13 +105,25 @@ export default {
       return form_fields;
     },
 
-    async get_edit_fields(update_mode) {
+    field_in_view(field, view) {
+      if (field.view) {
+        if (Array.isArray(field.view)) {
+          return field.view.includes(view);
+        } else {
+          return field.view == view;
+        }
+      } else {
+        return false;
+      }
+    },
+
+    async get_edit_fields(update_mode, view) {
       if (!this.meta) {
         return [];
       }
       const edit_fields = update_mode ?
-        this.meta.fields.filter((field) => field.create != false && field.update != false && field.sys != true && field.name != this.meta.user_field) :
-        this.meta.fields.filter((field) => field.create != false && field.sys != true && field.name != this.meta.user_field);
+        this.meta.fields.filter((field) => field.create != false && field.update != false && field.sys != true && field.name != this.meta.user_field && this.field_in_view(field, view)) :
+        this.meta.fields.filter((field) => field.create != false && field.sys != true && field.name != this.meta.user_field && this.field_in_view(field, view));
       return this.get_form_fields(edit_fields);
     },
 
