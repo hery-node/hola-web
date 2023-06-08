@@ -48,7 +48,7 @@ export default {
   watch: {
     menus: {
       handler() {
-        this.menu_items = menus;
+        this.menu_items = this.menus;
       },
       deep: true,
     },
