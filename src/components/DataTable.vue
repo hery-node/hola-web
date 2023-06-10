@@ -305,15 +305,20 @@ export default {
         const field_name = field_names[i];
         const value = item[field_name] ? item[field_name] + "" : "";
         if (value && value.trim().length > 0) {
-          if (field_names.length > 1) {
-            values.push(this.get_field_label_by_name(field_name) + ":");
-            values.push(value.includes("\n") ? "\n" : "\t");
-          }
-          values.push(value);
-          if (i != field_names.length - 1) {
-            values.push("\n");
-            values.push("===========================================================================================================");
-            values.push("\n");
+          const [field] = this.table_headers.filter((f) => f.name === field_name);
+          if (field && field.expand) {
+            values.push(field.expand(value.trim()));
+          } else {
+            if (field_names.length > 1) {
+              values.push(this.get_field_label_by_name(field_name) + ":");
+              values.push(value.includes("\n") ? "\n" : "\t");
+            }
+            values.push(value);
+            if (i != field_names.length - 1) {
+              values.push("\n");
+              values.push("===========================================================================================================");
+              values.push("\n");
+            }
           }
         }
       }
