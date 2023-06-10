@@ -197,7 +197,7 @@ export default {
       }
 
       const table_headers = [];
-      const server_fields = this.meta.fields.filter((field) => field.list != false && field.sys != true && field.name != this.meta.user_field && !expand_fields.includes(field.name));
+      const server_fields = this.meta.fields.filter((field) => field.list != false && field.sys != true && field.name != this.meta.user_field);
       const meta_fields = this.get_meta_fields(this.headers, server_fields);
       for (let i = 0; i < meta_fields.length; i++) {
         const header = meta_fields[i];
@@ -206,7 +206,10 @@ export default {
 
         const type = this.get_field_type(header);
         type.format && (header.format = type.format);
-        table_headers.push(header);
+        const is_expand_header = expand_fields.includes(header.name) && !header.expand;
+        if (!is_expand_header) {
+          table_headers.push(header);
+        }
       }
       return table_headers;
     },
