@@ -85,7 +85,7 @@
       <template v-slot:expanded-item="{ headers, item }" v-if="expandFields && expandFields.length > 0">
         <td :colspan="headers.length" style="white-space: pre-wrap; word-wrap: break-word" flat>
           <div style="margin: 15px">
-            {{ get_expanded(item) }}
+            <span v-html="get_expanded(item)"></span>
           </div>
         </td>
       </template>
@@ -305,7 +305,7 @@ export default {
         const field_name = field_names[i];
         const value = item[field_name] ? item[field_name] + "" : "";
         if (value && value.trim().length > 0) {
-          const [field] = this.table_headers.filter((f) => f.name === field_name);
+          const [field] = this.headers.filter((f) => f.name === field_name);
           if (field && field.expand) {
             values.push(field.expand(value.trim()));
           } else {
