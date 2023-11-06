@@ -40,6 +40,8 @@ export default {
     objs: { type: Array, required: true },
     labelKey: { type: String, required: true },
 
+    attrWidth: { type: String, default: "120px" },
+    valueWidth: { type: String, default: "80%" },
     headerWidth: { type: String, default: "120px" },
     //Available options are start, center, end, baseline and stretch.
     headerAlign: { type: String, default: "center" },
@@ -184,14 +186,14 @@ export default {
       const objs = JSON.parse(JSON.stringify(this.objs));
 
       const headers = [];
-      headers.push({ text: this.uppcase_header(this.$t("table.attribute")), value: "attr", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
+      headers.push({ text: this.uppcase_header(this.$t("table.attribute")), value: "attr", width: this.attrWidth, align: this.headerAlign, class: this.headerClass });
 
       if (objs.length > 1) {
         for (let i = 0; i < objs.length; i++) {
-          headers.push({ text: this.uppcase_header(objs[i][this.labelKey]), value: "value" + i, width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
+          headers.push({ text: this.uppcase_header(objs[i][this.labelKey]), value: "value" + i, width: this.valueWidth, align: this.headerAlign, class: this.headerClass });
         }
       } else if (objs.length == 1) {
-        headers.push({ text: this.uppcase_header(objs[0][this.labelKey]), value: "value", width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
+        headers.push({ text: this.uppcase_header(objs[0][this.labelKey]), value: "value", width: this.valueWidth, align: this.headerAlign, class: this.headerClass });
       }
 
       if (this.showRatio && objs.length == 2) {
