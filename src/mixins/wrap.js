@@ -32,12 +32,12 @@ export default {
       }
 
       if (typeof value === "string" || value instanceof String) {
-        return value.length <= this.maxLineWords ? value : this.split_to_multiline(value);
+        return (value.length <= this.maxLineWords || this.maxLineWords == -1) ? value : this.split_to_multiline(value);
       }
 
       if (typeof value === "object" && value !== null) {
-        const str = JSON.stringify(value);
-        return str.length <= this.maxLineWords ? str : this.split_to_multiline(str);
+        const str = JSON.stringify(value, null, 2);
+        return (str.length <= this.maxLineWords || this.maxLineWords == -1) ? str : this.split_to_multiline(str);
       }
 
       return value;
