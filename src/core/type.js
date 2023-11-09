@@ -57,9 +57,6 @@ const boolean_type = {
   },
 
   format: (value, vue) => {
-    if (no_value(value)) {
-      return "";
-    }
     return value == true ? vue.$t("type.boolean_true") : vue.$t("type.boolean_false");
   },
 };
