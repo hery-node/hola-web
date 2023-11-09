@@ -85,7 +85,12 @@
       <template v-slot:expanded-item="{ headers, item }" v-if="expandFields && expandFields.length > 0">
         <td :colspan="headers.length" style="white-space: pre-wrap; word-wrap: break-word" flat>
           <div style="margin: 15px">
-            <span v-html="get_expanded(item)"></span>
+            <template v-if="expandAsText">
+              <span v-text="get_expanded(item)"></span>
+            </template>
+            <template v-else>
+              <span v-html="get_expanded(item)"></span>
+            </template>
           </div>
         </td>
       </template>
@@ -125,6 +130,7 @@ export default {
     searchCols: { type: Number, default: 0 },
     searchFields: { type: Array, default: () => [] },
     refAsChip: { type: Boolean, default: true },
+    expandAsText: { type: Boolean, default: false },
 
     //control the toolbar
     hideTop: { type: Boolean, default: false },
