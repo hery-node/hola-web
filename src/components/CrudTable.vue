@@ -53,6 +53,7 @@ export default {
 
     //title related setting
     noSelectLabel: { type: String },
+    entityLabel: { type: String },
     createLabel: { type: String },
     refreshLabel: { type: String },
     updateLabel: { type: String },
@@ -129,7 +130,7 @@ export default {
     },
 
     entity_label() {
-      return this.entity && this.entity.trim().length > 0 ? this.$t(this.entity + "._label") : "";
+      return this.entityLabel ? this.entityLabel : (this.entity && this.entity.trim().length > 0 ? this.$t(this.entity + "._label") : "");
     },
 
     no_selected() {
