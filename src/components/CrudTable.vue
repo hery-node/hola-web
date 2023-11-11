@@ -1,5 +1,5 @@
 <template>
-  <h-table v-bind="$attrs" v-on="$listeners" ref="table" :entity="entity" :headers="headers" :searchable="is_searchable" :infinite="!is_paginable" :search-fields="searchFields" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="batch_mode" :has-action-header="has_action_header" :item-actions="item_actions" @chip="click_chip">
+  <h-table v-bind="$attrs" v-on="$listeners" ref="table" :entity="entity" :entity-label="entity_label" :headers="headers" :searchable="is_searchable" :infinite="!is_paginable" :search-fields="searchFields" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="batch_mode" :has-action-header="has_action_header" :item-actions="item_actions" @chip="click_chip">
     <template slot="toolbar" v-if="!$vuetify.breakpoint.xsOnly">
       <v-tooltip bottom v-for="(toolbar, index) in header_toolbars" v-bind:key="index">
         <template v-slot:activator="{ on }">

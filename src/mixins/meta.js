@@ -4,6 +4,7 @@ import { get_type } from "../core/type";
 export default {
   props: {
     entity: { type: String, required: true },
+    entityLabel: { type: String },
     //this is used for search form and edit form,the fields of the entity
     fields: { type: Array, default: () => [] },
     //merge the fields with server or not
@@ -20,7 +21,7 @@ export default {
 
   computed: {
     entity_label() {
-      return this.entity && this.entity.trim().length > 0 ? this.$t(this.entity + "._label") : "";
+      return this.entityLabel ? this.entityLabel : (this.entity && this.entity.trim().length > 0 ? this.$t(this.entity + "._label") : "");
     },
   },
 

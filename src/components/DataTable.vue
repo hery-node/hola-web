@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="searchable">
-      <h-search-form v-bind="$attrs" :entity="entity" :fields="searchFields" :title="searchTitle" :cols="searchCols" @clear="clear_search" @search="do_search"></h-search-form>
+      <h-search-form v-bind="$attrs" :entity="entity" :fields="searchFields" :title="searchTitle" :entity-label="entity_label" :cols="searchCols" @clear="clear_search" @search="do_search"></h-search-form>
       <v-divider class="mt-5"></v-divider>
     </div>
 
