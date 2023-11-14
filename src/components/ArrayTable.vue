@@ -2,6 +2,9 @@
   <v-card v-bind="$attrs">
     <v-toolbar :class="toolbarClass" dark v-if="showToolbar">
       <v-text-field v-model="search" append-icon="mdi-magnify" :label="search_hint" single-line hide-details clearable></v-text-field>
+      <template v-if="show_download_icon">
+        <v-btn class="ml-2" color="title_button" plain @click="download_result"><v-icon class="mr-3">mdi-cloud-download</v-icon>{{ $t("compare.download") }} </v-btn>
+      </template>
     </v-toolbar>
     <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :search="search" disable-pagination hide-default-footer fixed-header :custom-filter="regex_search">
       <template v-slot:[`item._action`]="{ item }">
@@ -26,6 +29,7 @@
 <script>
 import Regex from "../mixins/regex";
 import Wrap from "../mixins/wrap";
+import { utils, writeFileXLSX } from "xlsx";
 
 export default {
   inheritAttrs: false,
@@ -49,6 +53,7 @@ export default {
     //Available options are start, center, end, baseline and stretch.
     actionAlign: { type: String, default: "start" },
     actionClass: { type: String, default: "table_header subtitle-2" },
+    downloadExcelName: { type: String, default: "" },
   },
 
   data() {
@@ -68,6 +73,9 @@ export default {
     search_hint() {
       return this.searchHint ? this.searchHint : this.$t("table.search");
     },
+    show_download_icon() {
+      return this.downloadExcelName.length > 0 && this.objs.length > 0;
+    },
   },
 
   watch: {
@@ -80,6 +88,15 @@ export default {
   },
 
   methods: {
+    download_result() {
+      const tables = this.$el.getElementsByTagName("table");
+      if (tables.length == 1) {
+        //raw format, download directly
+        const workbook = utils.table_to_book(tables[0]);
+        writeFileXLSX(workbook, this.downloadExcelName);
+      }
+    },
+
     merge_properties() {
       const properties = [];
       for (let i = 0; i < this.objs.length; i++) {
