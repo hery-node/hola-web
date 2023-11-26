@@ -5,7 +5,7 @@
       <v-divider class="mt-5"></v-divider>
     </div>
 
-    <v-data-table v-bind="$attrs" v-on="$listeners" :mobile-breakpoint="mobile ? 600 : 10" :headers="table_headers" :items="items" :loading="loading" multi-sort v-model="selected" :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0" :hide-default-footer="!pagination" :show-expand="is_expanded()" :show-select="showSelect" :expanded.sync="expanded">
+    <v-data-table v-bind="$attrs" v-on="$listeners" :mobile-breakpoint="mobile ? 600 : 10" :headers="table_headers" :items="items" :item-class="get_color" :loading="loading" multi-sort v-model="selected" :options.sync="options" :server-items-length="total" item-key="_id" class="elevation-0" :hide-default-footer="!pagination" :show-expand="is_expanded()" :show-select="showSelect" :expanded.sync="expanded">
       <template v-slot:top v-if="!hideTop">
         <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
         <v-toolbar flat dense :class="toolbarClass" dark v-if="!hideToolbar">
@@ -105,11 +105,12 @@
 <script>
 import Meta from "../mixins/meta";
 import Alert from "../mixins/alert";
+import Color from "../mixins/color";
 import { is_success_response, list_entity } from "../core/axios";
 
 export default {
   inheritAttrs: false,
-  mixins: [Alert, Meta],
+  mixins: [Alert, Meta, Color],
 
   props: {
     //required attributes
