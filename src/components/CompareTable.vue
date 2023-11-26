@@ -29,12 +29,11 @@ import Regex from "../mixins/regex";
 import Simple from "../mixins/simple";
 import Fuzzy from "../mixins/fuzzy";
 import Wrap from "../mixins/wrap";
-import Color from "../mixins/color";
 import { utils, writeFileXLSX } from "xlsx";
 
 export default {
   inheritAttrs: false,
-  mixins: [Regex, Simple, Fuzzy, Wrap, Color],
+  mixins: [Regex, Simple, Fuzzy, Wrap],
 
   props: {
     //one is used to show, more than one is used to compare
@@ -53,6 +52,7 @@ export default {
     searchHint: { type: String },
     showDiffLabel: { type: String },
     topFields: { type: Array, default: () => [] },
+    colors: { type: Object, default: () => { } },
     filterFields: { type: Array, default: () => [] },
     showRatio: { type: Boolean, default: false },
     showDiff: { type: Boolean, default: false },
@@ -340,12 +340,12 @@ export default {
     },
 
     get_item_class(item) {
-      const color = this.get_color(item);
-      if (color && color.length > 0) {
-        return color;
+      const attr = item["attr"];
+
+      if (this.colors && this.colors[attr]) {
+        return this.colors[attr];
       }
 
-      const attr = item["attr"];
       if (this.topFields.includes(attr)) {
         return "top_item";
       }

@@ -6,7 +6,7 @@
         <v-btn class="ml-2" color="title_button" plain @click="download_result"><v-icon class="mr-3">mdi-cloud-download</v-icon>{{ $t("compare.download") }} </v-btn>
       </template>
     </v-toolbar>
-    <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_color" :search="search" disable-pagination hide-default-footer fixed-header :custom-filter="regex_search">
+    <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :search="search" disable-pagination hide-default-footer fixed-header :custom-filter="regex_search">
       <template v-slot:[`item._action`]="{ item }">
         <v-tooltip v-for="(action, index) in actions" bottom v-bind:key="index">
           <template v-slot:activator="{ on }">
@@ -29,12 +29,11 @@
 <script>
 import Regex from "../mixins/regex";
 import Wrap from "../mixins/wrap";
-import Color from "../mixins/color";
 import { utils, writeFileXLSX } from "xlsx";
 
 export default {
   inheritAttrs: false,
-  mixins: [Regex, Wrap, Color],
+  mixins: [Regex, Wrap],
 
   props: {
     objs: { type: Array, required: true },
