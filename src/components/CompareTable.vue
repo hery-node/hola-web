@@ -345,6 +345,7 @@ export default {
         return color;
       }
 
+      const attr = item["attr"];
       if (this.topFields.includes(attr)) {
         return "top_item";
       }
