@@ -52,7 +52,7 @@ export default {
     searchHint: { type: String },
     showDiffLabel: { type: String },
     topFields: { type: Array, default: () => [] },
-    colors: { type: Object, default: () => {} },
+    colors: { type: Object, default: () => { } },
     filterFields: { type: Array, default: () => [] },
     showRatio: { type: Boolean, default: false },
     showDiff: { type: Boolean, default: false },
