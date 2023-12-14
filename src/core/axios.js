@@ -191,9 +191,9 @@ const get_entity_mode = (entity) => {
   });
 };
 
-const get_ref_labels = (entity, ref_by_entity) => {
+const get_ref_labels = (entity, ref_by_entity, query) => {
   const url = "/" + entity + REF;
-  return axios_get(url, { ref_by_entity: ref_by_entity }).then((result) => {
+  return axios_get(url, { ref_by_entity: ref_by_entity, query: query }).then((result) => {
     if (is_success_response(result.code)) {
       return result.data;
     } else {
