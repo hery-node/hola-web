@@ -65,6 +65,8 @@ export default {
     updateIcon: { type: String, default: "mdi-square-edit-outline" },
     cloneIcon: { type: String, default: "mdi-content-copy" },
     deleteIcon: { type: String, default: "mdi-delete-circle" },
+    onlyBatchDelete: { type: Boolean, default: false },
+    myActionFirst: { type: Boolean, default: false },
   },
 
   data() {
@@ -164,16 +166,17 @@ export default {
     //actions for item operation
     item_actions() {
       const array = [];
+      this.myActionFirst && array.push(...this.actions);
       if (this.is_updatable) {
         array.push({ color: "edit", icon: this.updateIcon, tooltip: this.update_title, handle: this.update_entity });
       }
       if (this.is_cloneable) {
         array.push({ color: "clone", icon: this.cloneIcon, tooltip: this.clone_title, handle: this.clone_entity });
       }
-      if (this.is_deletable) {
+      if (this.is_deletable && !this.onlyBatchDelete) {
         array.push({ color: "delete", icon: this.deleteIcon, tooltip: this.delete_title, handle: this.delete_entity });
       }
-      array.push(...this.actions);
+      !this.myActionFirst && array.push(...this.actions);
       if (array.length > 0) {
         return array;
       } else {
