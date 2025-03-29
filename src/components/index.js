@@ -14,6 +14,7 @@ import CompareEntity from "./CompareEntity.vue";
 import SearchForm from "./SearchForm.vue";
 import EditForm from "./EditForm.vue";
 import DataTable from "./DataTable.vue";
+import DataList from "./DataList.vue";
 import CrudTable from "./CrudTable.vue";
 import PropertyTable from "./PropertyTable.vue";
 import NavBar from "./NavBar.vue";
@@ -44,6 +45,7 @@ function setup_components() {
   Vue.component("h-search-form", SearchForm);
   Vue.component("h-edit-form", EditForm);
   Vue.component("h-table", DataTable);
+  Vue.component("h-list", DataList);
   Vue.component("h-crud", CrudTable);
   Vue.component("h-property", PropertyTable);
   Vue.component("h-nav-bar", NavBar);
