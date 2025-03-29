@@ -2,14 +2,14 @@
   <div>
     <v-toolbar flat dense :class="toolbarClass" dark v-if="!hideToolbar">
       <span class="ml-3" v-if="!hideTitle">{{ table_title }}</span>
-      <span class="ml-3" v-if="infinite">{{ total_records_title }}</span>
+      <span class="ml-3">{{ total_records_title }}</span>
       <v-spacer></v-spacer>
       <slot name="toolbar" />
     </v-toolbar>
     <span v-for="(item, index) in items" :key="index">
       <slot :item="item"></slot>
       <template v-if="item._last === true">
-        <span v-intersect="infinite_scroll">...</span>
+        <span v-intersect="infinite_scroll">.</span>
       </template>
     </span>
   </div>
@@ -22,6 +22,7 @@ export default {
   inheritAttrs: false,
   props: {
     entity: { type: String, required: true },
+    entityLabel: { type: String },
     //required attributes
     sortDesc: { type: Array, required: true },
     sortKey: { type: Array, required: true },
@@ -54,6 +55,10 @@ export default {
   },
 
   computed: {
+    entity_label() {
+      return this.entityLabel ? this.entityLabel : this.entity && this.entity.trim().length > 0 ? this.$t(this.entity + "._label") : "";
+    },
+
     table_title() {
       if (this.hideTableTitle) {
         return "";
