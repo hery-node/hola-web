@@ -1,5 +1,11 @@
 <template>
   <div>
+    <v-toolbar flat dense :class="toolbarClass" dark v-if="!hideToolbar">
+      <span class="ml-3" v-if="!hideTitle">{{ table_title }}</span>
+      <span class="ml-3" v-if="infinite">{{ total_records_title }}</span>
+      <v-spacer></v-spacer>
+      <slot name="toolbar" />
+    </v-toolbar>
     <span v-for="(item, index) in items" :key="index">
       <slot :item="item"></slot>
       <template v-if="item._last === true">
@@ -27,6 +33,10 @@ export default {
     filter: { type: Object },
     //this is to control the page size for infinite scroll mode
     itemPerPage: { type: Number, default: 30 },
+    hideToolbar: { type: Boolean, default: false },
+    hideTitle: { type: Boolean, default: false },
+    toolbarClass: { type: String, default: "app_bar subtitle-2" },
+    title: { type: String },
   },
 
   data() {
@@ -41,6 +51,22 @@ export default {
 
   async created() {
     this.load_data();
+  },
+
+  computed: {
+    table_title() {
+      if (this.hideTableTitle) {
+        return "";
+      }
+      if (this.title) {
+        return this.title;
+      }
+      return this.$t("table.title", { entity: this.entity_label });
+    },
+
+    total_records_title() {
+      return this.$t("table.total_record", { total: this.total });
+    },
   },
 
   watch: {
