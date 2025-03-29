@@ -15,6 +15,7 @@ import { is_success_response, list_entity } from "../core/axios";
 export default {
   inheritAttrs: false,
   props: {
+    entity: { type: String, required: true },
     //required attributes
     sortDesc: { type: Array, required: true },
     sortKey: { type: Array, required: true },
@@ -24,7 +25,6 @@ export default {
     listAction: { type: String },
     //used to add filter conditions
     filter: { type: Object },
-    interval: { type: Number, default: -1 },
     //this is to control the page size for infinite scroll mode
     itemPerPage: { type: Number, default: 30 },
   },
