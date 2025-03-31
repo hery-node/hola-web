@@ -56,6 +56,8 @@ export default {
     updateView: { type: String, default: "*" },
     //add more toolbars for single mode
     toolbars: { type: Array, default: () => [] },
+    createIcon: { type: String, default: "mdi-plus-circle" },
+    refreshIcon: { type: String, default: "mdi-refresh" },
   },
 
   data() {
