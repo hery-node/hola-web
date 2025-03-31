@@ -4,7 +4,14 @@
       <span class="ml-3" v-if="!hideTitle">{{ table_title }}</span>
       <span class="ml-3">{{ total_records_title }}</span>
       <v-spacer></v-spacer>
-      <slot name="toolbar" />
+      <v-tooltip bottom v-for="(toolbar, index) in header_toolbars" v-bind:key="index">
+        <template v-slot:activator="{ on }">
+          <v-btn icon @click.stop="toolbar.click()" v-on="on">
+            <v-icon :color="toolbar.color">{{ toolbar.icon }}</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ toolbar.tooltip }}</span>
+      </v-tooltip>
     </v-toolbar>
     <span v-for="(item, index) in items" :key="index">
       <slot :item="item"></slot>
@@ -12,6 +19,7 @@
         <span v-intersect="infinite_scroll">.</span>
       </template>
     </span>
+    <h-edit-form ref="form" v-bind="$attrs" dialog hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="after_cancel" @success="after_close" :create-title="create_title" :update-title="update_title" :create-form-view="createView" :update-form-view="updateView"> </h-edit-form>
   </div>
 </template>
 
@@ -23,6 +31,9 @@ export default {
   props: {
     entity: { type: String, required: true },
     entityLabel: { type: String },
+    createLabel: { type: String },
+    updateLabel: { type: String },
+    mode: { type: String },
     //required attributes
     sortDesc: { type: Array, required: true },
     sortKey: { type: Array, required: true },
@@ -38,6 +49,11 @@ export default {
     hideTitle: { type: Boolean, default: false },
     toolbarClass: { type: String, default: "app_bar subtitle-2" },
     title: { type: String },
+    editFields: { type: Array, default: () => [] },
+    //views used for create form
+    createView: { type: String, default: "*" },
+    //views used for update form
+    updateView: { type: String, default: "*" },
   },
 
   data() {
@@ -47,16 +63,35 @@ export default {
       next_page: 1,
       items: [],
       options: {},
+      //used to pass id value to edit form
+      edit_entity_id: "",
     };
   },
 
   async created() {
+    this.show_toolbars();
     this.load_data();
   },
 
   computed: {
     entity_label() {
       return this.entityLabel ? this.entityLabel : this.entity && this.entity.trim().length > 0 ? this.$t(this.entity + "._label") : "";
+    },
+
+    create_title() {
+      return this.createLabel ? this.createLabel : this.$t("table.create_title", { entity: this.entity_label });
+    },
+
+    update_title() {
+      return this.updateLabel ? this.updateLabel : this.$t("table.update_title", { entity: this.entity_label });
+    },
+
+    is_creatable() {
+      return this.mode.includes("c");
+    },
+
+    is_refreshable() {
+      return this.mode.includes("r");
     },
 
     table_title() {
@@ -93,6 +128,18 @@ export default {
   },
 
   methods: {
+    show_toolbars() {
+      const header_toolbars = [];
+      this.is_creatable && header_toolbars.push({ color: "toolbar_icon", icon: this.createIcon, tooltip: this.create_title, click: this.show_create_dialog });
+      this.is_refreshable && header_toolbars.push({ color: "toolbar_icon", icon: this.refreshIcon, tooltip: this.refresh_title, click: this.refresh });
+      header_toolbars.push(...this.toolbars);
+      this.header_toolbars = header_toolbars;
+    },
+
+    show_create_dialog() {
+      this.edit_entity_id = null;
+    },
+
     infinite_scroll(entries) {
       const intersection = entries[0].intersectionRatio > 0;
 
@@ -115,6 +162,15 @@ export default {
 
     set_data(items) {
       this.items = items;
+    },
+
+    after_cancel() {
+      this.edit_entity_id = "";
+    },
+
+    after_close() {
+      this.edit_entity_id = "";
+      this.refresh();
     },
 
     async load_data() {
