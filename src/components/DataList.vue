@@ -54,6 +54,8 @@ export default {
     createView: { type: String, default: "*" },
     //views used for update form
     updateView: { type: String, default: "*" },
+    //add more toolbars for single mode
+    toolbars: { type: Array, default: () => [] },
   },
 
   data() {
