@@ -1,5 +1,6 @@
 <template>
   <div>
+    <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
     <v-toolbar flat dense :class="toolbarClass" dark v-if="!hideToolbar">
       <span class="ml-3" v-if="!hideTitle">{{ table_title }}</span>
       <span class="ml-3">{{ total_records_title }}</span>
@@ -19,20 +20,27 @@
         <span v-intersect="infinite_scroll">.</span>
       </template>
     </span>
+    <h-confirm ref="confirm" />
     <h-edit-form ref="form" v-bind="$attrs" dialog hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="after_cancel" @success="after_close" :create-title="create_title" :update-title="update_title" :create-form-view="createView" :update-form-view="updateView"> </h-edit-form>
   </div>
 </template>
 
 <script>
-import { is_success_response, list_entity } from "../core/axios";
+import Alert from "../mixins/alert";
+import Keymap from "../mixins/keymap";
+
+import { is_success_response, list_entity, delete_entity, is_been_referred } from "../core/axios";
 
 export default {
   inheritAttrs: false,
+  mixins: [Alert, Keymap],
+
   props: {
     entity: { type: String, required: true },
     entityLabel: { type: String },
     createLabel: { type: String },
     updateLabel: { type: String },
+    deleteLabel: { type: String },
     mode: { type: String },
     //required attributes
     sortDesc: { type: Array, required: true },
@@ -88,6 +96,10 @@ export default {
 
     update_title() {
       return this.updateLabel ? this.updateLabel : this.$t("table.update_title", { entity: this.entity_label });
+    },
+
+    delete_title() {
+      return this.deleteLabel ? this.deleteLabel : this.$t("table.delete_title", { entity: this.entity_label });
     },
 
     is_creatable() {
@@ -175,6 +187,49 @@ export default {
     after_close() {
       this.edit_entity_id = "";
       this.refresh();
+    },
+
+    press_key(event) {
+      if (this.is_creatable) {
+        if (event.key == "a" && event.altKey == true) {
+          this.show_create_dialog();
+        }
+      }
+
+      if (this.is_refreshable) {
+        if (event.key == "r" && event.altKey == true) {
+          this.refresh();
+        }
+      }
+    },
+
+    confirm_delete(items) {
+      const labels = items.map((item) => item[this.itemLabelKey]).join(",");
+      const title = this.delete_title;
+      const msg = this.$t("table.delete_confirm", { entity: labels });
+      return this.show_confirm(title, msg);
+    },
+
+    show_confirm(title, msg) {
+      return this.$refs.confirm.open(title, msg);
+    },
+
+    async delete_entities(items) {
+      const ids = items.map((item) => item["_id"]);
+      const res = await this.confirm_delete(items);
+
+      if (res) {
+        const { code, err } = await delete_entity(this.entity, ids);
+        if (is_success_response(code)) {
+          this.refresh();
+        } else if (is_been_referred(code)) {
+          const labels = err ? err.join(",") : "";
+          const msg = this.$t("table.has_ref", { entity: labels });
+          this.show_error(msg);
+        } else if (err) {
+          this.show_error(err);
+        }
+      }
     },
 
     async load_data() {

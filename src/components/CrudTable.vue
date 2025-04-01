@@ -210,6 +210,12 @@ export default {
         }
       }
 
+      if (this.is_refreshable) {
+        if (event.key == "r" && event.altKey == true) {
+          this.refresh();
+        }
+      }
+
       if (event.key == "b" && event.altKey == true) {
         this.batch_mode == false && this.switch_to_batch();
       }
