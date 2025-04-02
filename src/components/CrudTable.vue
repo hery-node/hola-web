@@ -205,7 +205,7 @@ export default {
 
     press_key(event) {
       if (this.is_creatable) {
-        if (event.key == "a" && event.altKey == true) {
+        if (event.key == "c" && event.altKey == true) {
           this.show_create_dialog();
         }
       }
