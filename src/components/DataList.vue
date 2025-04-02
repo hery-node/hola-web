@@ -36,17 +36,19 @@ export default {
   mixins: [Alert, Keymap],
 
   props: {
-    entity: { type: String, required: true },
-    entityLabel: { type: String },
-    createLabel: { type: String },
-    updateLabel: { type: String },
-    deleteLabel: { type: String },
-    mode: { type: String },
     //required attributes
+    entity: { type: String, required: true },
+    //show delete name in batch delete dialog
+    itemLabelKey: { type: String, required: true },
     sortDesc: { type: Array, required: true },
     sortKey: { type: Array, required: true },
     attrs: { type: Array, required: true },
     //end
+    entityLabel: { type: String },
+    createLabel: { type: String },
+    updateLabel: { type: String },
+    deleteLabel: { type: String },
+    mode: { type: String, default: "" },
     //action to do list
     listAction: { type: String },
     //used to add filter conditions
