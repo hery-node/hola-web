@@ -184,7 +184,7 @@ const get_entity_mode = (entity) => {
   const url = "/" + entity + MODE;
   return axios_cached_get(url).then((result) => {
     if (is_success_response(result.code)) {
-      return result.data;
+      return result.mode;
     } else {
       return null;
     }
