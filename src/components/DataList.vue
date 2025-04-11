@@ -136,6 +136,13 @@ export default {
       deep: true,
     },
 
+    toolbars: {
+      handler() {
+        this.show_toolbars();
+      },
+      deep: true,
+    },
+
     filter: {
       handler() {
         this.reset_values();
