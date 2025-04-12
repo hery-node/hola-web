@@ -7,7 +7,7 @@
       <v-spacer></v-spacer>
       <v-tooltip bottom v-for="(toolbar, index) in header_toolbars" v-bind:key="index">
         <template v-slot:activator="{ on }">
-          <v-btn icon @click.stop="toolbar.click()" v-on="on">
+          <v-btn icon @click.stop="toolbar.click()" v-on="on" class="mr-3">
             <v-icon :color="toolbar.color">{{ toolbar.icon }}</v-icon> {{ toolbar.label ? toolbar.label : "" }}
           </v-btn>
         </template>
