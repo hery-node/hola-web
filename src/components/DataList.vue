@@ -8,7 +8,7 @@
       <v-tooltip bottom v-for="(toolbar, index) in header_toolbars" v-bind:key="index">
         <template v-slot:activator="{ on }">
           <v-btn icon @click.stop="toolbar.click()" v-on="on">
-            <v-icon :color="toolbar.color">{{ toolbar.icon }}</v-icon>
+            <v-icon :color="toolbar.color">{{ toolbar.icon }}</v-icon> {{ toolbar.label ? toolbar.label : "" }}
           </v-btn>
         </template>
         <span>{{ toolbar.tooltip }}</span>
@@ -20,6 +20,13 @@
         <span v-intersect="infinite_scroll">.</span>
       </template>
     </span>
+    <template v-if="items.length == 0">
+      <v-row class="fill-height" justify="center" align="center">
+        <v-col class="text-center">
+          <h3>{{ noDataText }}</h3>
+        </v-col>
+      </v-row>
+    </template>
     <h-confirm ref="confirm" />
     <h-edit-form ref="form" v-bind="$attrs" dialog hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="after_cancel" @success="after_close" :create-title="create_title" :update-title="update_title" :create-form-view="createView" :update-form-view="updateView"> </h-edit-form>
   </div>
@@ -48,6 +55,7 @@ export default {
     createLabel: { type: String },
     updateLabel: { type: String },
     deleteLabel: { type: String },
+    noDataText: { type: String, default: "" },
     mode: { type: String, default: "" },
     //action to do list
     listAction: { type: String },
