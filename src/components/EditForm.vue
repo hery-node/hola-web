@@ -75,6 +75,7 @@ export default {
     updateSubmitLabel: { type: String },
     //reset value after posting
     resetPost: { type: Boolean, default: true },
+    initForm: { type: Boolean, default: false },
     //hide hint or not
     hideHint: { type: Boolean, default: false },
     //success hint to shown
@@ -99,7 +100,9 @@ export default {
   },
 
   async created() {
-    await this.init_form();
+    if (this.initForm) {
+      await this.init_form();
+    }
   },
 
   watch: {
