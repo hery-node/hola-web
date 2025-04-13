@@ -99,9 +99,7 @@ export default {
   },
 
   async created() {
-    if (this.entityId && this.entityId.length > 0) {
-      await this.init_form();
-    }
+    await this.init_form();
   },
 
   watch: {
