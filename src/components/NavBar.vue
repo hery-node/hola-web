@@ -2,7 +2,7 @@
   <nav>
     <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app dark flat :color="barColor">
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-toolbar-title style="width: 300px" class="ml-0 pl-4">
+      <v-toolbar-title :style="drawer_width" class="ml-0 pl-4">
         <span class="hidden-sm-and-down">{{ app_title }}</span>
       </v-toolbar-title>
       <v-spacer />
@@ -55,6 +55,9 @@ export default {
   },
 
   computed: {
+    drawer_width() {
+      return `width: ${this.drawerWidth}px`;
+    },
     app_title() {
       if (this.title) {
         return this.title;
