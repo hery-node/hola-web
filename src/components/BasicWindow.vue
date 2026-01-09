@@ -27,6 +27,10 @@
 </template>
 
 <script>
+/**
+ * Basic window component with minimize/maximize/expand controls
+ * Provides resizable modal dialog
+ */
 export default {
   inheritAttrs: false,
 
@@ -49,39 +53,45 @@ export default {
   },
 
   methods: {
+    /** Minimize window to title bar */
     minimize() {
       this.minimized = true;
       this.win_width = "100px";
     },
 
+    /** Restore from minimized state */
     maximize() {
       this.minimized = false;
       this.win_width = this.width;
     },
 
+    /** Collapse from fullscreen */
     collapse() {
       this.window_width = this.width;
       this.fullscreen = false;
-      this.$refs["content"].style.height = this.original_height + "px";
+      this.$refs.content.style.height = `${this.original_height}px`;
       this.$emit("resize", { width: this.width, height: this.original_height });
     },
 
+    /** Expand to fullscreen */
     expand() {
       this.fullscreen = true;
       const height = window.innerHeight - 66;
-      this.$refs["content"].style.height = height + "px";
-      this.$emit("resize", { width: "100%", height: height });
+      this.$refs.content.style.height = `${height}px`;
+      this.$emit("resize", { width: "100%", height });
     },
 
+    /** Show window and capture initial height */
     show() {
       this.dialog = true;
       this.button_disabled = true;
       setTimeout(() => {
-        this.original_height = this.$refs["content"].offsetHeight;
+        this.original_height = this.$refs.content?.offsetHeight ?? 0;
         this.button_disabled = false;
       }, 1000);
     },
 
+    /** Close window */
     close() {
       this.dialog = false;
       this.$emit("close");

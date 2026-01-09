@@ -15,6 +15,10 @@
 </template>
 
 <script>
+/**
+ * Confirm dialog component
+ * Provides promise-based confirmation dialog
+ */
 export default {
   inheritAttrs: false,
 
@@ -22,7 +26,6 @@ export default {
     width: { type: String, default: "800px" },
     zIndex: { type: Number, default: 200 },
     titleClass: { type: String, default: "warning text-body-2 font-weight-bold white--text" },
-    //hide cancel button
     hideCancel: { type: Boolean, default: false },
   },
 
@@ -37,6 +40,12 @@ export default {
   },
 
   methods: {
+    /**
+     * Open dialog and return promise
+     * @param {string} title - Dialog title
+     * @param {string} message - Dialog message
+     * @returns {Promise<boolean>} User response
+     */
     open(title, message) {
       this.title = title;
       this.message = message;
@@ -47,13 +56,15 @@ export default {
       });
     },
 
+    /** User confirmed */
     agree() {
-      this.resolve(true);
+      this.resolve?.(true);
       this.dialog = false;
     },
 
+    /** User cancelled */
     cancel() {
-      this.resolve(false);
+      this.resolve?.(false);
       this.dialog = false;
     },
   },

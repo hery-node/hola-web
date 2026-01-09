@@ -28,6 +28,10 @@
 </template>
 
 <script>
+/**
+ * Navigation bar component with drawer
+ * Provides app bar and navigation menu
+ */
 export default {
   inheritAttrs: false,
 
@@ -55,15 +59,14 @@ export default {
   },
 
   computed: {
+    /** Get drawer width CSS style */
     drawer_width() {
       return `width: ${this.drawerWidth}px`;
     },
+
+    /** Get app title from prop or i18n */
     app_title() {
-      if (this.title) {
-        return this.title;
-      } else {
-        return this.$t("app.title");
-      }
+      return this.title ?? this.$t("app.title");
     },
   },
 };

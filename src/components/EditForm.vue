@@ -44,6 +44,10 @@
 </template>
 
 <script>
+/**
+ * Edit form component
+ * Provides create/update/clone form with entity metadata
+ */
 import Meta from "../mixins/meta";
 import Alert from "../mixins/alert";
 import { read_property, save_entity, is_success_response, has_invalid_params, is_duplicated } from "../core/axios";
@@ -58,35 +62,22 @@ export default {
     createTitle: { type: String },
     updateTitle: { type: String },
     cloneTitle: { type: String },
-    //colspan for the field
     cols: { type: Number, default: 0 },
-    //has value then it is edit mode otherwise create mode
     entityId: { type: String, default: undefined },
-    //is this edit form is clone or update
     clone: { type: Boolean, default: false },
-    //pass hidden values to the form
     hiddenValues: { type: Object },
-    //hide cancel button
     hideCancel: { type: Boolean, default: false },
-    //label for cancel and submit button
     createCancelLabel: { type: String },
     createSubmitLabel: { type: String },
     updateCancelLabel: { type: String },
     updateSubmitLabel: { type: String },
-    //reset value after posting
     resetPost: { type: Boolean, default: true },
     initForm: { type: Boolean, default: false },
-    //hide hint or not
     hideHint: { type: Boolean, default: false },
-    //success hint to shown
     successHint: { type: String },
-    //fail hint to shown
     failHint: { type: String },
-    //show detailed error message
     showDetailError: { type: Boolean, default: false },
-    //control whether the form in dialog or not
     dialog: { type: Boolean, default: false },
-    //dialog setting
     dialogWidth: { type: String, default: "800px" },
     progressBarColor: { type: String, default: "indigo" },
   },
@@ -108,7 +99,7 @@ export default {
   watch: {
     entityId: {
       async handler() {
-        if (this.entityId != "") {
+        if (this.entityId !== "") {
           await this.init_form();
         }
       },
@@ -117,84 +108,81 @@ export default {
   },
 
   computed: {
+    /** Get current edit view */
     edit_view() {
       return this.update_mode ? this.updateFormView : this.createFormView;
     },
 
+    /** Check if in update mode */
     update_mode() {
       return this.entityId != null;
     },
 
+    /** Get form title based on mode */
     form_title() {
       if (this.update_mode) {
-        if (this.clone) {
-          if (this.cloneTitle && this.cloneTitle.length > 0) {
-            return this.cloneTitle;
-          }
-        } else {
-          if (this.updateTitle && this.updateTitle.length > 0) {
-            return this.updateTitle;
-          }
+        if (this.clone && this.cloneTitle?.length > 0) {
+          return this.cloneTitle;
         }
-      } else {
-        if (this.createTitle && this.createTitle.length > 0) {
-          return this.createTitle;
+        if (!this.clone && this.updateTitle?.length > 0) {
+          return this.updateTitle;
         }
+        const key = this.clone ? "form.clone_title" : "form.update_title";
+        return this.$t(key, { entity: this.entity_label });
       }
 
-      const title = this.clone ? this.$t("form.clone_title", { entity: this.entity_label }) : this.$t("form.update_title", { entity: this.entity_label });
-      return this.update_mode ? title : this.$t("form.create_title", { entity: this.entity_label });
+      if (this.createTitle?.length > 0) {
+        return this.createTitle;
+      }
+      return this.$t("form.create_title", { entity: this.entity_label });
     },
 
+    /** Get cancel button label */
     cancel_label() {
-      if (this.update_mode) {
-        if (this.updateCancelLabel && this.updateCancelLabel.length > 0) {
-          return this.updateCancelLabel;
-        }
-      } else {
-        if (this.createCancelLabel && this.createCancelLabel.length > 0) {
-          return this.createCancelLabel;
-        }
+      if (this.update_mode && this.updateCancelLabel?.length > 0) {
+        return this.updateCancelLabel;
       }
-
+      if (!this.update_mode && this.createCancelLabel?.length > 0) {
+        return this.createCancelLabel;
+      }
       return this.$t("form.cancel_label");
     },
 
+    /** Get submit button label */
     submit_label() {
-      if (this.update_mode) {
-        if (this.updateSubmitLabel && this.updateSubmitLabel.length > 0) {
-          return this.updateSubmitLabel;
-        }
-      } else {
-        if (this.createSubmitLabel && this.createSubmitLabel.length > 0) {
-          return this.createSubmitLabel;
-        }
+      if (this.update_mode && this.updateSubmitLabel?.length > 0) {
+        return this.updateSubmitLabel;
       }
-
+      if (!this.update_mode && this.createSubmitLabel?.length > 0) {
+        return this.createSubmitLabel;
+      }
       return this.$t("form.submit_label");
     },
   },
 
   methods: {
+    /** Reset form */
     reset_form() {
-      if (this.$refs.form) {
-        this.$refs.form.reset_form();
-      }
+      this.$refs.form?.reset_form();
     },
 
+    /** Validate form */
     is_validate() {
-      return this.$refs.form ? this.$refs.form.is_validate() : false;
+      return this.$refs.form?.is_validate() ?? false;
     },
 
+    /** Cancel edit */
     cancel() {
       this.alert.shown = false;
       this.loading = false;
-      this.dialog && this.$refs.win.close();
-
+      if (this.dialog) {
+        this.$refs.win?.close();
+      }
       this.reset_form();
       this.$emit("cancel");
     },
 
+    /** Close window */
     close_window() {
       this.alert.shown = false;
       this.loading = false;
@@ -202,18 +190,24 @@ export default {
       this.$emit("cancel");
     },
 
+    /** Initialize form with metadata and data */
     async init_form() {
       await this.load_meta();
       const edit_fields = this.clone ? await this.get_clone_fields() : await this.get_edit_fields(this.update_mode, this.edit_view);
+
       edit_fields.forEach((field) => {
-        field.cols || (field.cols = this.cols);
+        if (!field.cols) {
+          field.cols = this.cols;
+        }
       });
       this.edit_fields = edit_fields;
 
-      //change readonly property every time (update or create mode switch)
-      if (this.clone != true) {
+      // Set disabled state for non-updatable fields
+      if (!this.clone) {
         this.edit_fields.forEach((field) => {
-          field.update == false && (field.disabled = this.update_mode);
+          if (field.update === false) {
+            field.disabled = this.update_mode;
+          }
         });
       }
 
@@ -222,9 +216,12 @@ export default {
         this.form = await read_property(this.entity, this.entityId, attr_names);
       }
 
-      this.dialog && this.$refs.win.show();
+      if (this.dialog) {
+        this.$refs.win?.show();
+      }
     },
 
+    /** Submit form */
     async submit_form(form_data) {
       this.alert.shown = false;
 
@@ -234,34 +231,43 @@ export default {
 
       this.loading = true;
       const form = this.hiddenValues ? { ...form_data, ...this.hiddenValues } : form_data;
-      //submit view to server side using key _view
-      form["_view"] = this.edit_view;
+      form._view = this.edit_view;
 
       const { code, err } = await save_entity(this.entity, form, this.update_mode, this.clone);
       this.loading = false;
-      if (is_success_response(code)) {
-        this.resetPost && this.reset_form();
 
-        const update_info = this.clone ? this.$t("form.clone_success_hint", { entity: this.entity_label }) : this.$t("form.update_success_hint", { entity: this.entity_label });
-        const success_info = this.successHint ? this.successHint : this.update_mode ? update_info : this.$t("form.create_success_hint", { entity: this.entity_label });
-        this.hideHint || this.show_success(success_info);
-        this.dialog && this.$refs.win.close();
+      if (is_success_response(code)) {
+        if (this.resetPost) {
+          this.reset_form();
+        }
+
+        const update_key = this.clone ? "form.clone_success_hint" : "form.update_success_hint";
+        const create_key = "form.create_success_hint";
+        const success_info = this.successHint ?? this.$t(this.update_mode ? update_key : create_key, { entity: this.entity_label });
+
+        if (!this.hideHint) {
+          this.show_success(success_info);
+        }
+        if (this.dialog) {
+          this.$refs.win?.close();
+        }
         this.$emit("success");
       } else if (has_invalid_params(code)) {
         const field_names = err;
-        if (field_names && field_names.length == 1) {
+        if (field_names?.length === 1) {
           const [field_name] = field_names;
-          const [label_field] = this.edit_fields.filter((f) => f.name == field_name);
-          const error_info = this.$t("form.err_invalid_value", { field: label_field.label });
+          const [label_field] = this.edit_fields.filter((f) => f.name === field_name);
+          const error_info = this.$t("form.err_invalid_value", { field: label_field?.label });
           this.show_error(error_info);
         }
       } else if (is_duplicated(code)) {
         const error_info = this.$t("form.err_duplicate", { entity: this.entity_label });
         this.show_error(error_info);
       } else {
-        const update_info = this.clone ? this.$t("form.clone_fail_hint", { entity: this.entity_label }) : this.$t("form.update_fail_hint", { entity: this.entity_label });
-        const error_info = this.failHint ? this.failHint : this.update_mode ? update_info : this.$t("form.create_fail_hint", { entity: this.entity_label });
-        const error = this.showDetailError ? this.$t("form.error", { err: err }) : this.$t("form.check_log");
+        const update_key = this.clone ? "form.clone_fail_hint" : "form.update_fail_hint";
+        const create_key = "form.create_fail_hint";
+        const error_info = this.failHint ?? this.$t(this.update_mode ? update_key : create_key, { entity: this.entity_label });
+        const error = this.showDetailError ? this.$t("form.error", { err }) : this.$t("form.check_log");
         this.show_error(error_info + error);
       }
     },

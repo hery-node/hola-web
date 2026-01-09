@@ -28,6 +28,10 @@
 </template>
 
 <script>
+/**
+ * Search form component
+ * Provides collapsible search form with entity metadata
+ */
 import Meta from "../mixins/meta";
 
 export default {
@@ -36,7 +40,6 @@ export default {
 
   props: {
     title: { type: String },
-    //colspan for the field
     cols: { type: Number, default: 0 },
     clearLabel: { type: String },
     searchLabel: { type: String },
@@ -54,30 +57,31 @@ export default {
     await this.load_meta();
     const search_fields = await this.get_search_fields();
     search_fields.forEach((field) => {
-      field.cols || (field.cols = this.cols);
+      if (!field.cols) {
+        field.cols = this.cols;
+      }
     });
-
     this.search_fields = search_fields;
   },
 
   computed: {
+    /** Get form title from prop or i18n */
     form_title() {
-      if (this.title && this.title.length > 0) {
+      if (this.title?.length > 0) {
         return this.title;
       }
-
       return this.$t("form.search_title", { entity: this.entity_label });
     },
   },
 
   methods: {
+    /** Clear search form */
     clear() {
-      if (this.$refs.form) {
-        this.$refs.form.reset_form();
-      }
+      this.$refs.form?.reset_form();
       this.$emit("clear");
     },
 
+    /** Submit search form */
     submit_form() {
       this.$emit("search", this.form);
     },
