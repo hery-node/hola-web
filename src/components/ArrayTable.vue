@@ -27,6 +27,10 @@
 </template>
 
 <script>
+/**
+ * Array table component
+ * Displays array of objects in table format
+ */
 import Regex from "../mixins/regex";
 import Wrap from "../mixins/wrap";
 import { utils, writeFileXLSX } from "xlsx";
@@ -39,18 +43,14 @@ export default {
     objs: { type: Array, required: true },
     hiddenProperties: { type: Array, default: () => [] },
     headerWidth: { type: String, default: "120px" },
-    //Available options are start, center, end, baseline and stretch.
     headerAlign: { type: String, default: "center" },
     headerClass: { type: String, default: "table_header subtitle-2" },
     headerUppcase: { type: Boolean, default: false },
     showToolbar: { type: Boolean, default: false },
     toolbarClass: { type: String, default: "app_bar subtitle-2" },
     searchHint: { type: String },
-
-    // This setting is used for action
     actions: { type: Array, default: () => [] },
     actionWidth: { type: String, default: "120px" },
-    //Available options are start, center, end, baseline and stretch.
     actionAlign: { type: String, default: "start" },
     actionClass: { type: String, default: "table_header subtitle-2" },
     downloadExcelName: { type: String, default: "" },
@@ -70,9 +70,12 @@ export default {
   },
 
   computed: {
+    /** Get search hint */
     search_hint() {
-      return this.searchHint ? this.searchHint : this.$t("table.search");
+      return this.searchHint ?? this.$t("table.search");
     },
+
+    /** Show download icon if excel name and data exist */
     show_download_icon() {
       return this.downloadExcelName.length > 0 && this.objs.length > 0;
     },
@@ -88,24 +91,28 @@ export default {
   },
 
   methods: {
+    /** Download table as Excel */
     download_result() {
       const tables = this.$el.getElementsByTagName("table");
-      if (tables.length == 1) {
-        //raw format, download directly
+      if (tables.length === 1) {
         const workbook = utils.table_to_book(tables[0]);
         writeFileXLSX(workbook, this.downloadExcelName);
       }
     },
 
+    /** Merge all properties from objects */
     merge_properties() {
       const properties = [];
       for (let i = 0; i < this.objs.length; i++) {
         const obj = this.objs[i];
-        obj && properties.push(...Object.keys(obj));
+        if (obj) {
+          properties.push(...Object.keys(obj));
+        }
       }
       return [...new Set(properties)];
     },
 
+    /** Handle action click with optional animation */
     async click_action(action, item) {
       if (action.animate) {
         this.icon_loading[item._id + action.icon] = true;
@@ -116,34 +123,51 @@ export default {
       }
     },
 
+    /** Uppercase header if enabled */
     uppcase_header(header_title) {
       return this.headerUppcase ? header_title.toUpperCase() : header_title;
     },
 
+    /** Parse objects into table data */
     parse_data() {
-      if (!this.objs || this.objs.length == 0) {
+      if (!this.objs?.length) {
         return;
       }
 
       const headers = [];
       const items = [];
-      const properties = this.merge_properties().filter((o) => !this.hiddenProperties.includes(o) && o != "_id");
+      const properties = this.merge_properties().filter(
+        (o) => !this.hiddenProperties.includes(o) && o !== "_id"
+      );
+      
       for (const property of properties) {
-        headers.push({ text: this.uppcase_header(property), value: property, width: this.headerWidth, align: this.headerAlign, class: this.headerClass });
+        headers.push({ 
+          text: this.uppcase_header(property), 
+          value: property, 
+          width: this.headerWidth, 
+          align: this.headerAlign, 
+          class: this.headerClass 
+        });
       }
 
       if (this.actions.length > 0) {
-        const action = { text: this.uppcase_header(this.$t("table.action_header")), value: "_action", sortable: false };
-        action.width = this.actionWidth;
-        action.align = this.actionAlign;
-        action.class = this.actionClass;
+        const action = { 
+          text: this.uppcase_header(this.$t("table.action_header")), 
+          value: "_action", 
+          sortable: false,
+          width: this.actionWidth,
+          align: this.actionAlign,
+          class: this.actionClass
+        };
         headers.push(action);
       }
 
       for (const obj of this.objs) {
         const item = {};
         for (const property in obj) {
-          item[property] = property == "_id" ? obj[property] : this.convert_long_to_newline(obj[property]);
+          item[property] = property === "_id" 
+            ? obj[property] 
+            : this.convert_long_to_newline(obj[property]);
         }
         items.push(item);
       }

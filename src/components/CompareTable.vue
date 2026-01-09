@@ -25,6 +25,10 @@
 </template>
 
 <script>
+/**
+ * Compare table component
+ * Compares multiple objects with diff highlighting
+ */
 import Regex from "../mixins/regex";
 import Simple from "../mixins/simple";
 import Fuzzy from "../mixins/fuzzy";
@@ -36,14 +40,11 @@ export default {
   mixins: [Regex, Simple, Fuzzy, Wrap],
 
   props: {
-    //one is used to show, more than one is used to compare
     objs: { type: Array, required: true },
     labelKey: { type: String, required: true },
-
     attrWidth: { type: String, default: "120px" },
     valueWidth: { type: String, default: "80%" },
     headerWidth: { type: String, default: "120px" },
-    //Available options are start, center, end, baseline and stretch.
     headerAlign: { type: String, default: "center" },
     headerClass: { type: String, default: "table_header subtitle-2" },
     headerUppcase: { type: Boolean, default: false },
@@ -52,7 +53,7 @@ export default {
     searchHint: { type: String },
     showDiffLabel: { type: String },
     topFields: { type: Array, default: () => [] },
-    colors: { type: Object, default: () => { } },
+    colors: { type: Object, default: () => ({}) },
     filterFields: { type: Array, default: () => [] },
     showRatio: { type: Boolean, default: false },
     showDiff: { type: Boolean, default: false },
@@ -100,37 +101,44 @@ export default {
   },
 
   computed: {
+    /** Get search hint */
     search_hint() {
-      return this.searchHint ? this.searchHint : this.$t("compare.search");
+      return this.searchHint ?? this.$t("compare.search");
     },
 
+    /** Show diff checkbox for multiple objects */
     show_only_show_diff() {
       return this.objs.length > 1;
     },
 
+    /** Show download icon */
     show_download_icon() {
       return this.downloadExcelName.length > 0 && this.objs.length > 0;
     },
 
+    /** Show threshold filter */
     show_threshold() {
       return this.diffThreshold > 0 && this.objs.length > 1;
     },
 
+    /** Get diff label */
     show_diff_label() {
-      return this.showDiffLabel ? this.showDiffLabel : this.$t("compare.show_diff");
+      return this.showDiffLabel ?? this.$t("compare.show_diff");
     },
 
+    /** Get threshold label */
     threshold_label() {
       return this.thresholdLabel;
     },
   },
 
   methods: {
+    /** Download table as Excel */
     download_result() {
       const tables = this.$el.getElementsByTagName("table");
-      if (tables.length == 1) {
+      if (tables.length === 1) {
         if (this.simple_value) {
-          //use raw data to download, so convert data to raw format
+          // Convert to raw format for download
           this.simple_value = false;
           this.parse_data();
           setTimeout(() => {
@@ -140,44 +148,46 @@ export default {
             this.parse_data();
           }, 2000);
         } else {
-          //raw format, download directly
           const workbook = utils.table_to_book(tables[0]);
           writeFileXLSX(workbook, this.downloadExcelName);
         }
       }
     },
 
+    /** Set ratio values for comparison */
     set_ratio_values(items) {
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
-
-        const left = parseFloat(item["value0"]);
-        const right = parseFloat(item["value1"]);
-        if (!isNaN(left) && !isNaN(right) && left != right) {
-          item["ratio"] = left != 0 ? ((right * 100) / left).toFixed(2) + "%" : "";
+        const left = parseFloat(item.value0);
+        const right = parseFloat(item.value1);
+        
+        if (!isNaN(left) && !isNaN(right) && left !== right) {
+          item.ratio = left !== 0 ? `${((right * 100) / left).toFixed(2)}%` : "";
         } else {
-          item["ratio"] = "";
+          item.ratio = "";
         }
       }
     },
 
-    set_diff_values(items, columes) {
+    /** Set diff values for comparison */
+    set_diff_values(items, columns) {
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
-
         const values = [];
-        for (let j = 0; j < columes; j++) {
-          values.push(parseFloat(item["value" + j]));
+        
+        for (let j = 0; j < columns; j++) {
+          values.push(parseFloat(item[`value${j}`]));
         }
 
         const max = Math.max(...values);
         const min = Math.min(...values);
-        if (!isNaN(max) && !isNaN(min) && max != min) {
-          item["diff1"] = min != 0 ? ((max * 100) / min).toFixed(2) + "%" : "";
-          item["diff2"] = max != 0 ? ((min * 100) / max).toFixed(2) + "%" : "";
+        
+        if (!isNaN(max) && !isNaN(min) && max !== min) {
+          item.diff1 = min !== 0 ? `${((max * 100) / min).toFixed(2)}%` : "";
+          item.diff2 = max !== 0 ? `${((min * 100) / max).toFixed(2)}%` : "";
         } else {
-          item["diff1"] = "";
-          item["diff2"] = "";
+          item.diff1 = "";
+          item.diff2 = "";
         }
       }
     },
@@ -319,30 +329,32 @@ export default {
       this.filter_fields();
     },
 
+    /** Uppercase header if enabled */
     uppcase_header(header_title) {
       return this.headerUppcase ? header_title.toUpperCase() : header_title;
     },
 
+    /** Check if item has different values */
     is_diff_value(item) {
       if (this.objs.length > 1 && this.threshold > 0) {
-        return this.has_value(item["diff1"]) ? Math.abs(parseFloat(item["diff1"])) > this.threshold : false;
+        return this.has_value(item.diff1) ? Math.abs(parseFloat(item.diff1)) > this.threshold : false;
       } else if (this.objs.length > 1) {
-        let value = item["value0"];
+        const value = item.value0;
         for (let i = 0; i < this.objs.length; i++) {
-          if (item["value" + i] != value) {
+          if (item[`value${i}`] !== value) {
             return true;
           }
         }
         return false;
-      } else {
-        return false;
       }
+      return false;
     },
 
+    /** Get item CSS class based on attributes */
     get_item_class(item) {
-      const attr = item["attr"];
+      const attr = item.attr;
 
-      if (this.colors && this.colors[attr]) {
+      if (this.colors?.[attr]) {
         return this.colors[attr];
       }
 
@@ -353,8 +365,11 @@ export default {
       return this.is_diff_value(item) ? "diff_item" : "compare_item";
     },
 
+    /** Filter items based on diff toggle */
     filter_fields() {
-      const items = this.only_show_diff ? this.all_items.filter((item) => this.is_diff_value(item)) : this.all_items;
+      const items = this.only_show_diff 
+        ? this.all_items.filter((item) => this.is_diff_value(item)) 
+        : this.all_items;
       this.items = items;
     },
   },

@@ -3,6 +3,10 @@
 </template>
 
 <script>
+/**
+ * Compare entity component
+ * Compares multiple entities side by side
+ */
 import Meta from "../mixins/meta";
 import { read_entity } from "../core/axios";
 
@@ -11,7 +15,6 @@ export default {
   mixins: [Meta],
 
   props: {
-    //one is used to show, more than one is used to compare
     ids: { type: Array, required: true },
     labelKey: { type: String, required: true },
   },
@@ -29,7 +32,7 @@ export default {
 
     const objs = [];
     for (let i = 0; i < this.ids.length; i++) {
-      objs.push(await read_entity(this.entity, this.ids[i], attr_names + "," + this.labelKey));
+      objs.push(await read_entity(this.entity, this.ids[i], `${attr_names},${this.labelKey}`));
     }
 
     const items = [];
@@ -37,9 +40,10 @@ export default {
       const obj = objs[i];
       const item = {};
       item[this.labelKey] = obj[this.labelKey];
+
       for (let j = 0; j < property_fields.length; j++) {
         const field = property_fields[j];
-        if (field.type == "obj") {
+        if (field.type === "obj") {
           Object.assign(item, obj[field.name]);
         } else {
           item[field.name] = this.format_field_value(field, obj[field.name], this);

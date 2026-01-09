@@ -3,6 +3,10 @@
 </template>
 
 <script>
+/**
+ * Array entity component
+ * Displays array field from entity
+ */
 import Meta from "../mixins/meta";
 import { read_entity } from "../core/axios";
 
@@ -23,7 +27,9 @@ export default {
 
   async created() {
     const obj = await read_entity(this.entity, this.id, this.fieldName);
-    obj[this.fieldName] && (this.items = obj[this.fieldName]);
+    if (obj?.[this.fieldName]) {
+      this.items = obj[this.fieldName];
+    }
   },
 };
 </script>
