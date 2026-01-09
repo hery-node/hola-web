@@ -4,8 +4,7 @@
 
 A powerful Vue.js framework that automatically generates CRUD interfaces from entity metadata, built with Vue 2.7 and Vuetify 2.6.
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/hery-node/hola-web)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/hery-node/hola-web) [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ---
 
@@ -47,58 +46,51 @@ Create a simple CRUD page:
 ```vue
 <template>
   <v-container>
-    <h-crud
-      entity="user"
-      :items="users"
-      @create="createUser"
-      @update="updateUser"
-      @delete="deleteUser"
-      @refresh="loadUsers"
-    />
+    <h-crud entity="user" :items="users" @create="createUser" @update="updateUser" @delete="deleteUser" @refresh="loadUsers" />
   </v-container>
 </template>
 
 <script>
-import Meta from '@/mixins/meta';
-import Alert from '@/mixins/alert';
+import Meta from "@/mixins/meta";
+import Alert from "@/mixins/alert";
 
 export default {
   mixins: [Meta, Alert],
-  
+
   data() {
     return {
-      users: []
+      users: [],
     };
   },
-  
+
   async mounted() {
-    await this.load_meta('user');
+    await this.load_meta("user");
     await this.loadUsers();
   },
-  
+
   methods: {
     async loadUsers() {
-      this.users = await this.$axios.get('/user');
+      this.users = await this.$axios.get("/user");
     },
-    
+
     async createUser(userData) {
-      await this.$axios.post('/user', userData);
+      await this.$axios.post("/user", userData);
       await this.loadUsers();
-      this.show_success('User created!');
+      this.show_success("User created!");
     },
-    
+
     async updateUser(user) {
       await this.$axios.patch(`/user/${user._id}`, user);
       await this.loadUsers();
-      this.show_success('User updated!');
+      this.show_success("User updated!");
     },
-    
+
     async deleteUser(user) {
       await this.$axios.delete(`/user/${user._id}`);
       await this.loadUsers();
-      this.show_success('User deleted!');
-    }
-  }
+      this.show_success("User deleted!");
+    },
+  },
 };
 </script>
 ```
@@ -109,44 +101,44 @@ export default {
 
 ### Core Components
 
-| Component | Name | Purpose |
-|-----------|------|---------|
-| `h-crud` | CrudTable | Full CRUD operations with inline editing |
-| `h-table` | DataTable | Data table with sorting and pagination |
-| `h-form` | BasicForm | Simple form component |
-| `h-edit-form` | EditForm | Meta-aware entity form |
-| `h-list` | DataList | Mobile-friendly list view |
+| Component     | Name      | Purpose                                  |
+| ------------- | --------- | ---------------------------------------- |
+| `h-crud`      | CrudTable | Full CRUD operations with inline editing |
+| `h-table`     | DataTable | Data table with sorting and pagination   |
+| `h-form`      | BasicForm | Simple form component                    |
+| `h-edit-form` | EditForm  | Meta-aware entity form                   |
+| `h-list`      | DataList  | Mobile-friendly list view                |
 
 ### Meta-Integrated Components (New in v2.0)
 
-| Component | Purpose |
-|-----------|---------|
-| `h-calendar` | Calendar view for date-based entities |
-| `h-timeline` | Chronological timeline display |
-| `h-tree` | Hierarchical tree view with drag-drop |
-| `h-kanban` | Kanban board with status columns |
-| `h-file` | File upload with GridFS integration |
-| `h-relationship` | Advanced entity relationship picker |
-| `h-gallery` | Image gallery with lightbox |
-| `h-compare-view` | Side-by-side entity comparison |
-| `h-filter-builder` | Visual MongoDB query builder |
-| `h-search` | Unified multi-entity search |
-| `h-bulk-actions` | Batch operations toolbar |
-| `h-import` | CSV/Excel import with mapping |
-| `h-export` | Multi-format export (CSV/Excel/JSON) |
-| `h-wizard` | Multi-step form wizard |
-| `h-audit` | Entity change history |
-| `h-notifications` | Notification center |
+| Component          | Purpose                               |
+| ------------------ | ------------------------------------- |
+| `h-calendar`       | Calendar view for date-based entities |
+| `h-timeline`       | Chronological timeline display        |
+| `h-tree`           | Hierarchical tree view with drag-drop |
+| `h-kanban`         | Kanban board with status columns      |
+| `h-file`           | File upload with GridFS integration   |
+| `h-relationship`   | Advanced entity relationship picker   |
+| `h-gallery`        | Image gallery with lightbox           |
+| `h-compare-view`   | Side-by-side entity comparison        |
+| `h-filter-builder` | Visual MongoDB query builder          |
+| `h-search`         | Unified multi-entity search           |
+| `h-bulk-actions`   | Batch operations toolbar              |
+| `h-import`         | CSV/Excel import with mapping         |
+| `h-export`         | Multi-format export (CSV/Excel/JSON)  |
+| `h-wizard`         | Multi-step form wizard                |
+| `h-audit`          | Entity change history                 |
+| `h-notifications`  | Notification center                   |
 
 ### Chart Components
 
-| Component | Type |
-|-----------|------|
-| `h-line-chart` | Line charts for trends |
-| `h-bar-chart` | Bar/column charts |
-| `h-pie-chart` | Pie/donut charts |
-| `h-combo-chart` | Combination charts |
-| `h-chart` | Generic ECharts wrapper |
+| Component       | Type                    |
+| --------------- | ----------------------- |
+| `h-line-chart`  | Line charts for trends  |
+| `h-bar-chart`   | Bar/column charts       |
+| `h-pie-chart`   | Pie/donut charts        |
+| `h-combo-chart` | Combination charts      |
+| `h-chart`       | Generic ECharts wrapper |
 
 See [Component Documentation](docs/COMPONENTS.md) for complete reference.
 
@@ -162,14 +154,14 @@ export default new Vuetify({
   theme: {
     themes: {
       light: {
-        primary: '#1976D2',
-        secondary: '#424242',
-        accent: '#82B1FF',
+        primary: "#1976D2",
+        secondary: "#424242",
+        accent: "#82B1FF",
       },
       dark: {
-        primary: '#2196F3',
-        secondary: '#616161',
-        accent: '#FF4081',
+        primary: "#2196F3",
+        secondary: "#616161",
+        accent: "#FF4081",
       },
     },
   },
@@ -184,16 +176,16 @@ See [Theming Guide](docs/THEMING.md) for advanced customization.
 
 Reusable functionality through Vue mixins:
 
-| Mixin | Purpose | Key Methods |
-|-------|---------|-------------|
-| **Meta** | Entity metadata integration | `load_meta()`, `get_table_headers()`, `get_form_fields()` |
-| **Alert** | Notifications & confirmations | `show_alert()`, `show_error()`, `confirm()` |
-| **Simple** | Basic CRUD operations | `load_items()`, `create_item()`, `update_item()`, `delete_item()` |
-| **Chart** | ECharts integration | `create_line_chart()`, `create_bar_chart()`, `create_pie_chart()` |
-| **Fuzzy** | Client-side search | `fuzzy_search()`, `fuzzy_match()` |
-| **Keymap** | Keyboard shortcuts | `register_keymap()` |
-| **Regex** | Input validation | `validate_email()`, `validate_url()`, `validate_password()` |
-| **Wrap** | Async wrappers | `wrap_async()`, `wrap_action()` |
+| Mixin      | Purpose                       | Key Methods                                                       |
+| ---------- | ----------------------------- | ----------------------------------------------------------------- |
+| **Meta**   | Entity metadata integration   | `load_meta()`, `get_table_headers()`, `get_form_fields()`         |
+| **Alert**  | Notifications & confirmations | `show_alert()`, `show_error()`, `confirm()`                       |
+| **Simple** | Basic CRUD operations         | `load_items()`, `create_item()`, `update_item()`, `delete_item()` |
+| **Chart**  | ECharts integration           | `create_line_chart()`, `create_bar_chart()`, `create_pie_chart()` |
+| **Fuzzy**  | Client-side search            | `fuzzy_search()`, `fuzzy_match()`                                 |
+| **Keymap** | Keyboard shortcuts            | `register_keymap()`                                               |
+| **Regex**  | Input validation              | `validate_email()`, `validate_url()`, `validate_password()`       |
+| **Wrap**   | Async wrappers                | `wrap_async()`, `wrap_action()`                                   |
 
 See [Composables Documentation](docs/COMPOSABLES.md) for detailed API reference.
 
@@ -291,16 +283,16 @@ VUE_APP_GRIDFS_URL=http://localhost:3000/gridfs
 Configure axios in `src/core/axios.js`:
 
 ```javascript
-import axios from 'axios';
+import axios from "axios";
 
 const instance = axios.create({
-  baseURL: process.env.VUE_APP_API_URL || 'http://localhost:3000',
+  baseURL: process.env.VUE_APP_API_URL || "http://localhost:3000",
   timeout: 30000,
 });
 
 // Request interceptor
-instance.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
+instance.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -315,18 +307,18 @@ export default instance;
 Customize Vuetify in `src/plugins/vuetify.js`:
 
 ```javascript
-import Vue from 'vue';
-import Vuetify from 'vuetify/lib';
+import Vue from "vue";
+import Vuetify from "vuetify/lib";
 
 Vue.use(Vuetify);
 
 export default new Vuetify({
   theme: {
     themes: {
-      light: { primary: '#1976D2' },
-      dark: { primary: '#2196F3' }
-    }
-  }
+      light: { primary: "#1976D2" },
+      dark: { primary: "#2196F3" },
+    },
+  },
 });
 ```
 
