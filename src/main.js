@@ -28,9 +28,9 @@ init_axios({ baseURL: "http://localhost:8089" });
  * Production apps should use dedicated router configuration.
  */
 const routes = [
-  { path: "/chart", name: "chart", component: ChartView },
-  { path: "/dashboard", name: "dashboard", component: Dashboard },
-  { path: "/application", name: "application", component: ApplicationView },
+    { path: "/chart", name: "chart", component: ChartView },
+    { path: "/dashboard", name: "dashboard", component: Dashboard },
+    { path: "/application", name: "application", component: ApplicationView },
 ];
 
 /**
