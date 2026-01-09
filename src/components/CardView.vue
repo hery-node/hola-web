@@ -24,6 +24,10 @@
 </template>
 
 <script>
+/**
+ * Card view component with offset header
+ * Provides material design card with optional header offset
+ */
 export default {
   inheritAttrs: false,
 
@@ -38,13 +42,18 @@ export default {
   },
 
   computed: {
+    /** Check if card has offset header */
     hasOffset() {
-      return this.$slots.header || this.$slots.offset || this.title || this.text;
+      return !!(this.$slots.header || this.$slots.offset || this.title || this.text);
     },
 
+    /** Get card margin styles */
     styles() {
       if (!this.hasOffset) return null;
-      return { marginBottom: `${this.offset}px`, marginTop: `${this.offset * 2}px` };
+      return {
+        marginBottom: `${this.offset}px`,
+        marginTop: `${this.offset * 2}px`,
+      };
     },
   },
 };

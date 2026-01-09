@@ -5,6 +5,10 @@
 </template>
 
 <script>
+/**
+ * Offset view component
+ * Provides container with negative top margin offset
+ */
 export default {
   props: {
     fullWidth: { type: Boolean, default: false },
@@ -12,11 +16,14 @@ export default {
   },
 
   computed: {
+    /** Get CSS classes */
     classes() {
       return {
         "v-offset--full-width": this.fullWidth,
       };
     },
+
+    /** Get offset styles */
     styles() {
       return {
         top: `-${this.offset}px`,

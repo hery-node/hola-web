@@ -10,6 +10,10 @@
 </template>
 
 <script>
+/**
+ * Mobile menu component
+ * Provides bottom navigation for mobile devices
+ */
 export default {
   inheritAttrs: false,
 
