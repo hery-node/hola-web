@@ -1,33 +1,414 @@
-# hola-web
+# Hola-Web
 
-## Project setup
+**Meta-Programming Framework for Vue.js Applications**
 
-```
+A powerful Vue.js framework that automatically generates CRUD interfaces from entity metadata, built with Vue 2.7 and Vuetify 2.6.
+
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/hery-node/hola-web)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+---
+
+## ✨ Features
+
+- **42 Production-Ready Components** - Tables, forms, charts, calendars, kanban boards, and more
+- **Meta-Programming** - Automatic UI generation from entity metadata
+- **8 Powerful Mixins** - Reusable logic for metadata, alerts, charts, search, and validation
+- **Vuetify 2.6** - Material Design components with full theming support
+- **TypeScript Support** - Comprehensive JSDoc documentation
+- **Responsive Design** - Mobile-first approach with adaptive layouts
+- **Dark Mode** - Complete light/dark theme switching
+- **Internationalization** - Built-in i18n support
+
+---
+
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/hery-node/hola-web.git
+cd hola-web
+
+# Install dependencies
 npm install
-```
 
-### Compiles and hot-reloads for development
-
-```
+# Start development server
 npm run serve
 ```
 
-### Compiles and minifies for production
+The application will be available at `http://localhost:8080`
+
+### Basic Usage
+
+Create a simple CRUD page:
+
+```vue
+<template>
+  <v-container>
+    <h-crud
+      entity="user"
+      :items="users"
+      @create="createUser"
+      @update="updateUser"
+      @delete="deleteUser"
+      @refresh="loadUsers"
+    />
+  </v-container>
+</template>
+
+<script>
+import Meta from '@/mixins/meta';
+import Alert from '@/mixins/alert';
+
+export default {
+  mixins: [Meta, Alert],
+  
+  data() {
+    return {
+      users: []
+    };
+  },
+  
+  async mounted() {
+    await this.load_meta('user');
+    await this.loadUsers();
+  },
+  
+  methods: {
+    async loadUsers() {
+      this.users = await this.$axios.get('/user');
+    },
+    
+    async createUser(userData) {
+      await this.$axios.post('/user', userData);
+      await this.loadUsers();
+      this.show_success('User created!');
+    },
+    
+    async updateUser(user) {
+      await this.$axios.patch(`/user/${user._id}`, user);
+      await this.loadUsers();
+      this.show_success('User updated!');
+    },
+    
+    async deleteUser(user) {
+      await this.$axios.delete(`/user/${user._id}`);
+      await this.loadUsers();
+      this.show_success('User deleted!');
+    }
+  }
+};
+</script>
+```
+
+---
+
+## 📦 Component Library
+
+### Core Components
+
+| Component | Name | Purpose |
+|-----------|------|---------|
+| `h-crud` | CrudTable | Full CRUD operations with inline editing |
+| `h-table` | DataTable | Data table with sorting and pagination |
+| `h-form` | BasicForm | Simple form component |
+| `h-edit-form` | EditForm | Meta-aware entity form |
+| `h-list` | DataList | Mobile-friendly list view |
+
+### Meta-Integrated Components (New in v2.0)
+
+| Component | Purpose |
+|-----------|---------|
+| `h-calendar` | Calendar view for date-based entities |
+| `h-timeline` | Chronological timeline display |
+| `h-tree` | Hierarchical tree view with drag-drop |
+| `h-kanban` | Kanban board with status columns |
+| `h-file` | File upload with GridFS integration |
+| `h-relationship` | Advanced entity relationship picker |
+| `h-gallery` | Image gallery with lightbox |
+| `h-compare-view` | Side-by-side entity comparison |
+| `h-filter-builder` | Visual MongoDB query builder |
+| `h-search` | Unified multi-entity search |
+| `h-bulk-actions` | Batch operations toolbar |
+| `h-import` | CSV/Excel import with mapping |
+| `h-export` | Multi-format export (CSV/Excel/JSON) |
+| `h-wizard` | Multi-step form wizard |
+| `h-audit` | Entity change history |
+| `h-notifications` | Notification center |
+
+### Chart Components
+
+| Component | Type |
+|-----------|------|
+| `h-line-chart` | Line charts for trends |
+| `h-bar-chart` | Bar/column charts |
+| `h-pie-chart` | Pie/donut charts |
+| `h-combo-chart` | Combination charts |
+| `h-chart` | Generic ECharts wrapper |
+
+See [Component Documentation](docs/COMPONENTS.md) for complete reference.
+
+---
+
+## 🎨 Theming
+
+Customize your application with Vuetify themes:
+
+```javascript
+// src/plugins/vuetify.js
+export default new Vuetify({
+  theme: {
+    themes: {
+      light: {
+        primary: '#1976D2',
+        secondary: '#424242',
+        accent: '#82B1FF',
+      },
+      dark: {
+        primary: '#2196F3',
+        secondary: '#616161',
+        accent: '#FF4081',
+      },
+    },
+  },
+});
+```
+
+See [Theming Guide](docs/THEMING.md) for advanced customization.
+
+---
+
+## 🧩 Mixins
+
+Reusable functionality through Vue mixins:
+
+| Mixin | Purpose | Key Methods |
+|-------|---------|-------------|
+| **Meta** | Entity metadata integration | `load_meta()`, `get_table_headers()`, `get_form_fields()` |
+| **Alert** | Notifications & confirmations | `show_alert()`, `show_error()`, `confirm()` |
+| **Simple** | Basic CRUD operations | `load_items()`, `create_item()`, `update_item()`, `delete_item()` |
+| **Chart** | ECharts integration | `create_line_chart()`, `create_bar_chart()`, `create_pie_chart()` |
+| **Fuzzy** | Client-side search | `fuzzy_search()`, `fuzzy_match()` |
+| **Keymap** | Keyboard shortcuts | `register_keymap()` |
+| **Regex** | Input validation | `validate_email()`, `validate_url()`, `validate_password()` |
+| **Wrap** | Async wrappers | `wrap_async()`, `wrap_action()` |
+
+See [Composables Documentation](docs/COMPOSABLES.md) for detailed API reference.
+
+---
+
+## 📚 Documentation
+
+- [Component Library](docs/COMPONENTS.md) - Complete component reference
+- [Mixins & Composables](docs/COMPOSABLES.md) - Reusable functionality
+- [Theming Guide](docs/THEMING.md) - Customization and styling
+- [Usage Examples](docs/EXAMPLES.md) - Real-world code examples
+
+---
+
+## 🏗️ Project Structure
 
 ```
+hola-web/
+├── public/
+│   └── index.html
+├── src/
+│   ├── assets/              # Static assets
+│   ├── components/          # 42 Vue components
+│   │   ├── ArrayEntity.vue
+│   │   ├── CrudTable.vue
+│   │   ├── EntityCalendarView.vue
+│   │   ├── EntityKanbanView.vue
+│   │   └── ...
+│   ├── core/                # Core utilities
+│   │   ├── axios.js         # HTTP client
+│   │   ├── chart.js         # Chart utilities
+│   │   ├── storage.js       # Local storage
+│   │   └── type.js          # Type utilities
+│   ├── mixins/              # 8 Vue mixins
+│   │   ├── meta.js
+│   │   ├── alert.js
+│   │   ├── simple.js
+│   │   └── ...
+│   ├── plugins/             # Vue plugins
+│   │   ├── vuetify.js
+│   │   ├── echarts.js
+│   │   └── i18n.js
+│   ├── locales/             # Translations
+│   │   └── en.json
+│   ├── App.vue              # Root component
+│   ├── main.js              # Entry point
+│   └── i18n.js              # i18n configuration
+├── docs/                    # Documentation
+├── babel.config.js
+├── jsconfig.json
+├── vue.config.js
+└── package.json
+```
+
+---
+
+## 🛠️ Development
+
+### Prerequisites
+
+- Node.js 14+ and npm
+- Vue CLI 4+
+
+### Setup
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run serve
+
+# Build for production
 npm run build
-```
 
-### Lints and fixes files
-
-```
+# Lint and fix files
 npm run lint
 ```
 
-### Customize configuration
+### Environment Variables
 
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Create a `.env.local` file:
 
-### For local deployment:
+```env
+VUE_APP_API_URL=http://localhost:3000
+VUE_APP_GRIDFS_URL=http://localhost:3000/gridfs
+```
 
-Add: "vuetify-loader": "^1.7.0", to devDependencies
+---
+
+## 🔧 Configuration
+
+### API Integration
+
+Configure axios in `src/core/axios.js`:
+
+```javascript
+import axios from 'axios';
+
+const instance = axios.create({
+  baseURL: process.env.VUE_APP_API_URL || 'http://localhost:3000',
+  timeout: 30000,
+});
+
+// Request interceptor
+instance.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export default instance;
+```
+
+### Vuetify Configuration
+
+Customize Vuetify in `src/plugins/vuetify.js`:
+
+```javascript
+import Vue from 'vue';
+import Vuetify from 'vuetify/lib';
+
+Vue.use(Vuetify);
+
+export default new Vuetify({
+  theme: {
+    themes: {
+      light: { primary: '#1976D2' },
+      dark: { primary: '#2196F3' }
+    }
+  }
+});
+```
+
+---
+
+## 🌐 Backend Integration
+
+Hola-web works seamlessly with [hola-server](https://github.com/hery-node/hola-server), a Node.js + MongoDB backend that provides entity metadata endpoints:
+
+```javascript
+// GET /meta/:entity
+{
+  "entity": "user",
+  "label": "Users",
+  "fields": [
+    {
+      "name": "name",
+      "type": "string",
+      "required": true,
+      "label": "Full Name"
+    },
+    {
+      "name": "email",
+      "type": "string",
+      "required": true,
+      "label": "Email Address"
+    },
+    {
+      "name": "role",
+      "type": "string",
+      "enum": ["admin", "user"],
+      "label": "User Role"
+    }
+  ]
+}
+```
+
+---
+
+## 📋 Requirements
+
+- **Node.js:** 14.x or higher
+- **Vue:** 2.7.8
+- **Vuetify:** 2.6.6
+- **Browsers:** Modern browsers (Chrome, Firefox, Safari, Edge)
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- Built with [Vue.js](https://vuejs.org/)
+- UI components by [Vuetify](https://vuetifyjs.com/)
+- Charts powered by [Apache ECharts](https://echarts.apache.org/)
+- Icons from [Material Design Icons](https://materialdesignicons.com/)
+
+---
+
+## 📞 Support
+
+- **GitHub Issues:** [Report bugs or request features](https://github.com/hery-node/hola-web/issues)
+- **Documentation:** See `docs/` folder
+- **Examples:** See `docs/EXAMPLES.md`
+
+---
+
+**Version:** 2.0.0  
+**Last Updated:** January 9, 2026
