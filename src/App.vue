@@ -13,15 +13,31 @@
 </template>
 
 <script>
+/**
+ * App Component
+ *
+ * Root application component for hola-web framework.
+ * Provides global navigation, alert system, and router view.
+ *
+ * Features:
+ * - Navigation bar with hierarchical menus
+ * - Global alert notification system (success, info, warning, error)
+ * - Router view with key-based refresh
+ * - Responsive layout with Vuetify v-app
+ */
 export default {
   components: {},
   name: "App",
 
   data() {
     return {
-      //success,info,warning,error
+      /** Alert state: { shown: boolean, type: string, msg: string } */
       alert: { shown: false, type: "info", msg: "" },
+
+      /** Application title */
       title: "this is a test",
+
+      /** Navigation menu structure */
       menus: [
         {
           title: "Dashboard Views",
@@ -42,13 +58,20 @@ export default {
   },
 
   methods: {
+    /**
+     * Display global alert notification
+     * @param {Object} msg_obj - Alert configuration
+     * @param {string} msg_obj.type - Alert type: success, info, warning, error
+     * @param {string} msg_obj.msg - Alert message (supports newlines)
+     * @param {number} [msg_obj.delay] - Auto-hide delay in ms (default: 10000, 0 = no auto-hide)
+     */
     show_alert(msg_obj) {
       const { type, msg, delay } = msg_obj;
-      const time = delay ? delay : 10 * 1000;
+      const time = delay ?? 10 * 1000;
       this.alert.shown = true;
       this.alert.type = type;
       this.alert.msg = msg ? msg.replace(/\n/g, "<br />") : "";
-      delay || delay == 0 || setTimeout(() => (this.alert.shown = false), time);
+      delay || delay === 0 || setTimeout(() => (this.alert.shown = false), time);
     },
   },
 };
