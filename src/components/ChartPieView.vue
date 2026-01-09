@@ -4,6 +4,19 @@
   </div>
 </template>
 <script>
+/**
+ * ChartPieView Component
+ * 
+ * Renders pie charts using ECharts with optional rose diagram style.
+ * Extends the Chart mixin for common chart functionality.
+ * 
+ * Features:
+ * - Standard pie chart with percentage labels
+ * - Optional rose diagram (polar area chart)
+ * - Auto-generates series based on data columns
+ * - Labels show name and percentage: "Label:(XX.XX%)"
+ * - Hidden legend and X-axis for cleaner display
+ */
 import Chart from "../mixins/chart";
 
 export default {
@@ -11,12 +24,17 @@ export default {
   mixins: [Chart],
 
   props: {
+    /** Enable rose diagram style (polar area chart) */
     rose: { type: Boolean, default: false },
   },
 
   methods: {
+    /**
+     * Generate ECharts option for pie chart
+     * @returns {Object} Chart configuration with series, legend, xAxis
+     */
     get_option() {
-      this.chart_type = this.type ? this.type : "pie";
+      this.chart_type = this.type ?? "pie";
       const rose_obj = this.rose ? { roseType: "area" } : {};
       const legend = { show: false };
       const xAxis = this.rose ? { show: false } : {};
@@ -29,7 +47,7 @@ export default {
         },
         ...rose_obj,
       }));
-      return { series: series, legend: legend, xAxis: xAxis };
+      return { series, legend, xAxis };
     },
   },
 };

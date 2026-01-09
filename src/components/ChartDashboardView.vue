@@ -8,10 +8,24 @@
 </template>
 
 <script>
+/**
+ * ChartDashboardView Component
+ *
+ * A material design card component that displays a simple chart in the header.
+ * Used for dashboard widgets to show key metrics with visual representation.
+ *
+ * Features:
+ * - Material design card with offset chart header
+ * - Supports Pie, Line, and Bar chart types
+ * - Icon with customizable color
+ * - Title and subtitle text
+ * - Chartist integration for simple charts
+ */
 export default {
   inheritAttrs: false,
 
   props: {
+    /** Chart type: Pie, Line, or Bar */
     type: {
       type: String,
       required: true,
@@ -19,16 +33,22 @@ export default {
         return val === "Pie" || val === "Line" || val === "Bar";
       },
     },
+    /** Card title text */
     title: { type: String },
+    /** Subtitle text below icon */
     subText: { type: String },
+    /** Material Design icon name */
     subIcon: { type: String },
+    /** Icon color */
     subIconColor: { type: String },
+    /** Chart data with series and labels */
     data: {
       type: Object,
       default() {
         return { series: [], labels: [] };
       },
     },
+    /** Chart configuration options */
     options: {
       type: Object,
       default() {

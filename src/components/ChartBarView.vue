@@ -4,6 +4,18 @@
   </div>
 </template>
 <script>
+/**
+ * ChartBarView Component
+ *
+ * Renders bar charts using ECharts with automatic series generation.
+ * Extends the Chart mixin for common chart functionality.
+ *
+ * Features:
+ * - Auto-generates series based on data columns
+ * - Fixed bar width and spacing (30px max, 60% gap)
+ * - Top-positioned labels with configurable font size
+ * - Supports custom chart type override
+ */
 import Chart from "../mixins/chart";
 
 export default {
@@ -11,8 +23,12 @@ export default {
   mixins: [Chart],
 
   methods: {
+    /**
+     * Generate ECharts option for bar chart
+     * @returns {Object} Chart series configuration
+     */
     get_option() {
-      this.chart_type = this.type ? this.type : "bar";
+      this.chart_type = this.type ?? "bar";
       const series = [...Array(this.data[0].length - 1)].map(() => ({
         type: this.chart_type,
         barMaxWidth: "30px",
@@ -25,7 +41,7 @@ export default {
           fontSize: this.small_font_size,
         },
       }));
-      return { series: series };
+      return { series };
     },
   },
 };

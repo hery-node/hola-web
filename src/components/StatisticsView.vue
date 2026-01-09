@@ -20,6 +20,20 @@
 </template>
 
 <script>
+/**
+ * StatisticsView Component
+ * 
+ * A material design statistics card that displays a metric with icon, title, and subtitle.
+ * Extends CardView for consistent card styling with offset icon card.
+ * 
+ * Features:
+ * - Large icon in offset colored card
+ * - Primary value with optional small suffix
+ * - Customizable text color
+ * - Action slot with icon and text
+ * - Responsive layout (centered on mobile)
+ * - Material design elevation
+ */
 import CardView from "./CardView";
 
 export default {
@@ -27,16 +41,29 @@ export default {
 
   props: {
     ...CardView.props,
+    /** Material Design icon name */
     icon: { type: String, required: true },
+    /** Primary text color */
     textColor: { type: String, default: "black" },
+    /** Action icon */
     subIcon: { type: String },
+    /** Action icon color */
     subIconColor: { type: String },
+    /** Action text */
     subText: { type: String },
+    /** Card title */
     title: { type: String },
+    /** Primary value to display */
     value: { type: String },
+    /** Small value suffix */
     smallValue: { type: String },
   },
+  
   computed: {
+    /**
+     * Generate text class with color
+     * @returns {string} Combined CSS classes for value text
+     */
     text_class() {
       return `title display-1 font-weight-light ${this.textColor}--text`;
     },

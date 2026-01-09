@@ -3,12 +3,27 @@
 </template>
 
 <script>
+/**
+ * ChartSimpleView Component
+ * 
+ * A simple chart component using Chartist library for lightweight charts.
+ * Supports Bar, Line, and Pie charts with responsive options and custom event handlers.
+ * 
+ * Features:
+ * - Chartist-based rendering (lighter than ECharts)
+ * - Responsive chart ratios (square, golden, etc.)
+ * - Custom event handlers support
+ * - Responsive options for different screen sizes
+ * - No-data state with custom message
+ * - Auto-redraw on data/options change
+ */
 import { LineChart, BarChart, PieChart } from "chartist";
 
 export default {
   inheritAttrs: false,
 
   props: {
+    /** Chart type: Pie, Line, or Bar */
     type: {
       type: String,
       required: true,
@@ -16,32 +31,37 @@ export default {
         return val === "Pie" || val === "Line" || val === "Bar";
       },
     },
+    /** Chart aspect ratio class (ct-square, ct-minor-seventh, etc.) */
     ratio: { type: String, default: "ct-square" },
+    /** Chart data with series and labels */
     data: {
       type: Object,
       default() {
         return { series: [], labels: [] };
       },
     },
+    /** Chart configuration options */
     options: {
       type: Object,
       default() {
         return {};
       },
     },
+    /** Array of {event, fn} objects for chart events */
     eventHandlers: {
       type: Array,
       default() {
         return [];
       },
     },
+    /** Responsive options for different breakpoints */
     responsiveOptions: {
       type: Array,
       default() {
         return [];
       },
     },
-
+    /** No data configuration */
     noData: {
       type: Object,
       default() {
@@ -84,10 +104,15 @@ export default {
   },
 
   computed: {
+    /** @returns {Array} CSS classes for chart container */
     styles() {
       return [this.ratio, { [this.noDataOptions.class]: this.hasNoData }];
     },
 
+    /**
+     * Check if chart has no valid data to display
+     * @returns {boolean} True if no data available
+     */
     hasNoData() {
       return (
         !this.data ||
@@ -103,6 +128,8 @@ export default {
           }))
       );
     },
+    
+    /** @returns {Object} No data message and class */
     noDataOptions() {
       return {
         message: this.options.messageNoData || this.noData.message,
@@ -112,17 +139,19 @@ export default {
   },
 
   methods: {
+    /** Clear no-data message */
     clear() {
       this.message = "";
     },
 
+    /** Draw chart using Chartist library */
     draw() {
       if (this.hasNoData) {
         this.chart = null;
       } else {
-        if (this.type == "Bar") {
+        if (this.type === "Bar") {
           this.chart = new BarChart(this.$refs.chart, this.data, this.options, this.responsiveOptions);
-        } else if (this.type == "Pie") {
+        } else if (this.type === "Pie") {
           this.chart = new PieChart(this.$refs.chart, this.data, this.options, this.responsiveOptions);
         } else {
           this.chart = new LineChart(this.$refs.chart, this.data, this.options, this.responsiveOptions);
@@ -132,10 +161,16 @@ export default {
       this.setEventHandlers();
     },
 
+    /** Redraw chart with updated data */
     redraw() {
       this.chart ? this.chart.update(this.data, this.options) : this.draw();
     },
 
+    /**
+     * Reset event handlers when they change
+     * @param {Array} eventHandlers - New event handlers
+     * @param {Array} oldEventHandler - Old event handlers to remove
+     */
     resetEventHandlers(eventHandlers, oldEventHandler) {
       if (!this.chart) {
         return;
@@ -148,6 +183,7 @@ export default {
       }
     },
 
+    /** Attach event handlers to chart */
     setEventHandlers() {
       if (this.chart && this.eventHandlers) {
         for (let item of this.eventHandlers) {
@@ -156,6 +192,7 @@ export default {
       }
     },
 
+    /** Set no-data message */
     setNoData() {
       this.message = this.noDataOptions.message;
     },

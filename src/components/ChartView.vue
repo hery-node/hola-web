@@ -4,6 +4,19 @@
   </div>
 </template>
 <script>
+/**
+ * ChartView Component
+ * 
+ * A minimal chart component that extends the Chart mixin.
+ * Provides basic chart rendering with automatic type defaulting to line.
+ * 
+ * Features:
+ * - Extends Chart mixin for full chart capabilities
+ * - Auto-resize support
+ * - Default line chart type
+ * - Theme support
+ * - Loading state
+ */
 import Chart from "../mixins/chart";
 
 export default {
@@ -11,8 +24,12 @@ export default {
   mixins: [Chart],
 
   methods: {
+    /**
+     * Generate ECharts option
+     * @returns {Object} Empty options object (relies on mixin defaults)
+     */
     get_option() {
-      this.chart_type = this.type ? this.type : "line";
+      this.chart_type = this.type ?? "line";
       return {};
     },
   },
