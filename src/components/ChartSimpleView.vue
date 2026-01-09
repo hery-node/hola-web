@@ -5,10 +5,10 @@
 <script>
 /**
  * ChartSimpleView Component
- * 
+ *
  * A simple chart component using Chartist library for lightweight charts.
  * Supports Bar, Line, and Pie charts with responsive options and custom event handlers.
- * 
+ *
  * Features:
  * - Chartist-based rendering (lighter than ECharts)
  * - Responsive chart ratios (square, golden, etc.)
@@ -128,7 +128,7 @@ export default {
           }))
       );
     },
-    
+
     /** @returns {Object} No data message and class */
     noDataOptions() {
       return {

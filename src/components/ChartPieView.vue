@@ -6,10 +6,10 @@
 <script>
 /**
  * ChartPieView Component
- * 
+ *
  * Renders pie charts using ECharts with optional rose diagram style.
  * Extends the Chart mixin for common chart functionality.
- * 
+ *
  * Features:
  * - Standard pie chart with percentage labels
  * - Optional rose diagram (polar area chart)

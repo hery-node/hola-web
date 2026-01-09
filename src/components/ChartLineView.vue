@@ -6,10 +6,10 @@
 <script>
 /**
  * ChartLineView Component
- * 
+ *
  * Renders line or scatter charts using ECharts with automatic series generation.
  * Extends the Chart mixin for common chart functionality.
- * 
+ *
  * Features:
  * - Auto-generates series based on data columns
  * - Supports line and scatter chart types

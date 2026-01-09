@@ -22,10 +22,10 @@
 <script>
 /**
  * StatisticsView Component
- * 
+ *
  * A material design statistics card that displays a metric with icon, title, and subtitle.
  * Extends CardView for consistent card styling with offset icon card.
- * 
+ *
  * Features:
  * - Large icon in offset colored card
  * - Primary value with optional small suffix
@@ -58,7 +58,7 @@ export default {
     /** Small value suffix */
     smallValue: { type: String },
   },
-  
+
   computed: {
     /**
      * Generate text class with color

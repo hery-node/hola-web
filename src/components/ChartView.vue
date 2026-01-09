@@ -6,10 +6,10 @@
 <script>
 /**
  * ChartView Component
- * 
+ *
  * A minimal chart component that extends the Chart mixin.
  * Provides basic chart rendering with automatic type defaulting to line.
- * 
+ *
  * Features:
  * - Extends Chart mixin for full chart capabilities
  * - Auto-resize support

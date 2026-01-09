@@ -160,7 +160,7 @@ export default {
         const item = items[i];
         const left = parseFloat(item.value0);
         const right = parseFloat(item.value1);
-        
+
         if (!isNaN(left) && !isNaN(right) && left !== right) {
           item.ratio = left !== 0 ? `${((right * 100) / left).toFixed(2)}%` : "";
         } else {
@@ -174,14 +174,14 @@ export default {
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
         const values = [];
-        
+
         for (let j = 0; j < columns; j++) {
           values.push(parseFloat(item[`value${j}`]));
         }
 
         const max = Math.max(...values);
         const min = Math.min(...values);
-        
+
         if (!isNaN(max) && !isNaN(min) && max !== min) {
           item.diff1 = min !== 0 ? `${((max * 100) / min).toFixed(2)}%` : "";
           item.diff2 = max !== 0 ? `${((min * 100) / max).toFixed(2)}%` : "";
@@ -367,9 +367,7 @@ export default {
 
     /** Filter items based on diff toggle */
     filter_fields() {
-      const items = this.only_show_diff 
-        ? this.all_items.filter((item) => this.is_diff_value(item)) 
-        : this.all_items;
+      const items = this.only_show_diff ? this.all_items.filter((item) => this.is_diff_value(item)) : this.all_items;
       this.items = items;
     },
   },

@@ -136,28 +136,26 @@ export default {
 
       const headers = [];
       const items = [];
-      const properties = this.merge_properties().filter(
-        (o) => !this.hiddenProperties.includes(o) && o !== "_id"
-      );
-      
+      const properties = this.merge_properties().filter((o) => !this.hiddenProperties.includes(o) && o !== "_id");
+
       for (const property of properties) {
-        headers.push({ 
-          text: this.uppcase_header(property), 
-          value: property, 
-          width: this.headerWidth, 
-          align: this.headerAlign, 
-          class: this.headerClass 
+        headers.push({
+          text: this.uppcase_header(property),
+          value: property,
+          width: this.headerWidth,
+          align: this.headerAlign,
+          class: this.headerClass,
         });
       }
 
       if (this.actions.length > 0) {
-        const action = { 
-          text: this.uppcase_header(this.$t("table.action_header")), 
-          value: "_action", 
+        const action = {
+          text: this.uppcase_header(this.$t("table.action_header")),
+          value: "_action",
           sortable: false,
           width: this.actionWidth,
           align: this.actionAlign,
-          class: this.actionClass
+          class: this.actionClass,
         };
         headers.push(action);
       }
@@ -165,9 +163,7 @@ export default {
       for (const obj of this.objs) {
         const item = {};
         for (const property in obj) {
-          item[property] = property === "_id" 
-            ? obj[property] 
-            : this.convert_long_to_newline(obj[property]);
+          item[property] = property === "_id" ? obj[property] : this.convert_long_to_newline(obj[property]);
         }
         items.push(item);
       }
