@@ -20,7 +20,7 @@
         <span v-intersect="infinite_scroll">.</span>
       </template>
     </span>
-    <template v-if="items.length == 0">
+    <template v-if="items.length === 0">
       <v-row class="fill-height" justify="center" align="center">
         <v-col class="text-center">
           <h3>{{ noDataText }}</h3>
@@ -33,6 +33,21 @@
 </template>
 
 <script>
+/**
+ * DataList Component
+ *
+ * An infinite-scroll list component for displaying entities with custom slots.
+ * Provides CRUD operations through dialogs and toolbar actions.
+ *
+ * Features:
+ * - Infinite scroll for loading more items
+ * - Custom item rendering via default slot
+ * - Create/Update/Delete operations via dialogs
+ * - Customizable toolbar actions
+ * - Keyboard shortcuts (Alt+C create, Alt+R refresh)
+ * - Empty state message
+ * - Alert notifications for operations
+ */
 import Alert from "../mixins/alert";
 import Keymap from "../mixins/keymap";
 
@@ -90,46 +105,55 @@ export default {
     };
   },
 
+  /**
+   * Initialize component
+   * Setup toolbars and load initial data
+   */
   async created() {
     this.show_toolbars();
     this.load_data();
   },
 
   computed: {
+    /** @returns {string} Localized entity label */
     entity_label() {
-      return this.entityLabel ? this.entityLabel : this.entity && this.entity.trim().length > 0 ? this.$t(this.entity + "._label") : "";
+      return this.entityLabel ?? (this.entity?.trim().length > 0 ? this.$t(`${this.entity}._label`) : "");
     },
 
+    /** @returns {string} Create dialog title */
     create_title() {
-      return this.createLabel ? this.createLabel : this.$t("table.create_title", { entity: this.entity_label });
+      return this.createLabel ?? this.$t("table.create_title", { entity: this.entity_label });
     },
 
+    /** @returns {string} Update dialog title */
     update_title() {
-      return this.updateLabel ? this.updateLabel : this.$t("table.update_title", { entity: this.entity_label });
+      return this.updateLabel ?? this.$t("table.update_title", { entity: this.entity_label });
     },
 
+    /** @returns {string} Delete confirmation title */
     delete_title() {
-      return this.deleteLabel ? this.deleteLabel : this.$t("table.delete_title", { entity: this.entity_label });
+      return this.deleteLabel ?? this.$t("table.delete_title", { entity: this.entity_label });
     },
 
+    /** @returns {boolean} True if create mode is enabled */
     is_creatable() {
       return this.mode.includes("c");
     },
 
+    /** @returns {boolean} True if refresh mode is enabled */
     is_refreshable() {
       return this.mode.includes("r");
     },
 
+    /** @returns {string} Table title with entity label */
     table_title() {
       if (this.hideTableTitle) {
         return "";
       }
-      if (this.title) {
-        return this.title;
-      }
-      return this.$t("table.title", { entity: this.entity_label });
+      return this.title ?? this.$t("table.title", { entity: this.entity_label });
     },
 
+    /** @returns {string} Total records count message */
     total_records_title() {
       return this.$t("table.total_record", { total: this.total });
     },
@@ -161,6 +185,9 @@ export default {
   },
 
   methods: {
+    /**
+     * Build toolbar buttons based on mode capabilities
+     */
     show_toolbars() {
       const header_toolbars = [];
       this.is_creatable && header_toolbars.push({ color: "toolbar_icon", icon: this.createIcon, tooltip: this.create_title, click: this.show_create_dialog });
@@ -169,10 +196,15 @@ export default {
       this.header_toolbars = header_toolbars;
     },
 
+    /** Open create entity dialog */
     show_create_dialog() {
       this.edit_entity_id = null;
     },
 
+    /**
+     * Handle infinite scroll intersection
+     * @param {Array} entries - Intersection observer entries
+     */
     infinite_scroll(entries) {
       const intersection = entries[0].intersectionRatio > 0;
 
@@ -184,42 +216,60 @@ export default {
       }
     },
 
+    /** Reset pagination to first page */
     reset_values() {
       this.next_page = 1;
     },
 
+    /** Refresh list data from server */
     refresh() {
       this.reset_values();
       this.load_data();
     },
 
+    /**
+     * Set list items directly
+     * @param {Array} items - Items to display
+     */
     set_data(items) {
       this.items = items;
     },
 
+    /** Handle edit form cancel */
     after_cancel() {
       this.edit_entity_id = "";
     },
 
+    /** Handle edit form success - refresh list */
     after_close() {
       this.edit_entity_id = "";
       this.refresh();
     },
 
+    /**
+     * Handle keyboard shortcuts
+     * @param {KeyboardEvent} event - Keyboard event
+     * Alt+C: Create, Alt+R: Refresh
+     */
     press_key(event) {
       if (this.is_creatable) {
-        if (event.key == "c" && event.altKey == true) {
+        if (event.key === "c" && event.altKey === true) {
           this.show_create_dialog();
         }
       }
 
       if (this.is_refreshable) {
-        if (event.key == "r" && event.altKey == true) {
+        if (event.key === "r" && event.altKey === true) {
           this.refresh();
         }
       }
     },
 
+    /**
+     * Show delete confirmation dialog
+     * @param {Array} items - Items to delete
+     * @returns {Promise<boolean>} User confirmation result
+     */
     confirm_delete(items) {
       const labels = items.map((item) => item[this.itemLabelKey]).join(",");
       const title = this.delete_title;
@@ -227,12 +277,22 @@ export default {
       return this.show_confirm(title, msg);
     },
 
+    /**
+     * Show generic confirmation dialog
+     * @param {string} title - Dialog title
+     * @param {string} msg - Dialog message
+     * @returns {Promise<boolean>} User confirmation result
+     */
     show_confirm(title, msg) {
       return this.$refs.confirm.open(title, msg);
     },
 
+    /**
+     * Delete entities after user confirmation
+     * @param {Array} items - Items to delete
+     */
     async delete_entities(items) {
-      const ids = items.map((item) => item["_id"]);
+      const ids = items.map((item) => item._id);
       const res = await this.confirm_delete(items);
 
       if (res) {
@@ -249,23 +309,27 @@ export default {
       }
     },
 
+    /**
+     * Load list data from server
+     * Handles infinite scroll pagination and filtering
+     */
     async load_data() {
       this.loading = true;
       const sort_by = this.sortKey.join(",");
       const desc = this.sortDesc.join(",");
       const attr_names = this.attrs.join(",");
-      const params = { attr_names: attr_names, sort_by: sort_by, desc: desc };
+      const params = { attr_names, sort_by, desc };
       params.page = this.next_page;
       params.limit = this.itemPerPage;
 
-      const query_obj = this.filter ? this.filter : {};
+      const query_obj = this.filter ?? {};
       const { code, total, data } = await list_entity(this.entity, query_obj, params, this.listAction);
       this.loading = false;
       if (is_success_response(code)) {
         this.total = total;
         if (data.length > 0) {
           data[data.length - 1]._last = true;
-          if (this.next_page == 1) {
+          if (this.next_page === 1) {
             this.items = data;
           } else {
             this.items.push(...data);

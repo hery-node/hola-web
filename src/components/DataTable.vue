@@ -103,6 +103,25 @@
 </template>
 
 <script>
+/**
+ * DataTable Component
+ *
+ * A comprehensive data table component with advanced features including sorting, pagination,
+ * infinite scroll, search, expandable rows, chip rendering, and custom styling.
+ *
+ * Features:
+ * - Server-side pagination or infinite scroll
+ * - Multi-column sorting
+ * - Search form integration
+ * - Expandable rows with custom fields
+ * - Chip rendering for array/reference fields
+ * - Custom styling per column
+ * - Item actions with icon buttons
+ * - Auto-refresh at intervals
+ * - Mobile responsive layout
+ * - Click-to-edit chip functionality
+ * - Export capabilities via custom actions
+ */
 import Meta from "../mixins/meta";
 import Alert from "../mixins/alert";
 import { is_success_response, list_entity } from "../core/axios";
@@ -190,6 +209,10 @@ export default {
     };
   },
 
+  /**
+   * Initialize component
+   * Loads entity metadata and builds table headers with chip/style configuration
+   */
   async created() {
     await this.load_meta();
     const table_headers = await this.get_table_headers(this.expandFields);
@@ -197,12 +220,12 @@ export default {
     for (let i = 0; i < table_headers.length; i++) {
       const header = table_headers[i];
       header.text = this.uppcase_header(header.text);
-      header.width || (header.width = this.headerWidth);
-      header.align || (header.align = this.headerAlign);
-      header.class || (header.class = this.headerClass);
+      header.width ||= this.headerWidth;
+      header.align ||= this.headerAlign;
+      header.class ||= this.headerClass;
       header.chip && this.chips.push(header.name);
       !header.chip && this.refAsChip && header.ref && this.chips.push(header.name);
-      !header.chip && header.type == "array" && ((this.refAsChip && !header.ref) || (!this.refAsChip && header.ref)) && this.arrays.push(header.name);
+      !header.chip && header.type === "array" && ((this.refAsChip && !header.ref) || (!this.refAsChip && header.ref)) && this.arrays.push(header.name);
       header.style && !header.chip && this.styles.push(header.name);
     }
 
@@ -250,50 +273,66 @@ export default {
   },
 
   computed: {
+    /** @returns {boolean} True if using pagination (not infinite scroll) */
     pagination() {
       return !this.infinite;
     },
 
+    /** @returns {string} Table title with entity label */
     table_title() {
       if (this.hideTableTitle) {
         return "";
       }
-      if (this.title) {
-        return this.title;
-      }
-      return this.$t("table.title", { entity: this.entity_label });
+      return this.title ?? this.$t("table.title", { entity: this.entity_label });
     },
 
+    /** @returns {string} Total records count message */
     total_records_title() {
       return this.$t("table.total_record", { total: this.total });
     },
 
+    /** @returns {string} CSS class for first column based on alignment */
     first_column_style() {
-      return this.headerAlign == "start" ? "ml-3" : "";
+      return this.headerAlign === "start" ? "ml-3" : "";
     },
   },
 
   methods: {
+    /**
+     * Handle chip click - emit event or execute custom handler
+     * @param {Object} item - Table row item
+     * @param {string} field_name - Field name of the chip
+     * @param {number} index - Index if chip is in array
+     */
     async click_chip(item, field_name, index) {
       const [field] = this.table_headers.filter((f) => f.name === field_name);
-      if (field && field.ref) {
-        const field_name_id = field_name + "_id";
+      if (field?.ref) {
+        const field_name_id = `${field_name}_id`;
         const id = Array.isArray(item[field_name_id]) ? item[field_name_id][index] : item[field_name_id];
         const label = Array.isArray(item[field_name]) ? item[field_name][index] : item[field_name];
         if (field.click) {
           field.click(id, field.ref, label);
         } else {
-          this.$emit("chip", { id: id, ref: field.ref, label: label });
+          this.$emit("chip", { id, ref: field.ref, label });
         }
-      } else if (field && field.click) {
+      } else if (field?.click) {
         field.click(item, field_name, index);
       }
     },
 
+    /**
+     * Check if row expansion is enabled
+     * @returns {boolean} True if expansion enabled and not in select mode
+     */
     is_expanded() {
-      return this.expandFields && this.expandFields.length > 0 ? (this.showSelect == true ? false : true) : false;
+      return this.expandFields?.length > 0 ? (this.showSelect === true ? false : true) : false;
     },
 
+    /**
+     * Execute item action with optional loading animation
+     * @param {Object} action - Action configuration
+     * @param {Object} item - Table row item
+     */
     async click_action(action, item) {
       if (action.animate) {
         this.icon_loading[item._id + action.icon] = true;
@@ -304,15 +343,20 @@ export default {
       }
     },
 
+    /**
+     * Build expanded row content from configured fields
+     * @param {Object} item - Table row item
+     * @returns {string} Formatted expanded content
+     */
     get_expanded(item) {
       const field_names = this.expandFields;
       const values = [];
       for (let i = 0; i < field_names.length; i++) {
         const field_name = field_names[i];
-        const value = item[field_name] ? item[field_name] : "";
+        const value = item[field_name] ?? "";
         if (value) {
           const [field] = this.headers.filter((f) => f.name === field_name);
-          if (field && field.expand) {
+          if (field?.expand) {
             values.push(field.expand(value));
           } else {
             if (field_names.length > 1) {
@@ -320,7 +364,7 @@ export default {
               values.push(value.includes("\n") ? "\n" : "\t");
             }
             values.push(value);
-            if (i != field_names.length - 1) {
+            if (i !== field_names.length - 1) {
               values.push("\n");
               values.push("===========================================================================================================");
               values.push("\n");
@@ -331,10 +375,19 @@ export default {
       return values.join("");
     },
 
+    /**
+     * Convert header text to uppercase if configured
+     * @param {string} header_title - Original header text
+     * @returns {string} Transformed header text
+     */
     uppcase_header(header_title) {
       return this.headerUppcase ? header_title.toUpperCase() : header_title;
     },
 
+    /**
+     * Handle infinite scroll intersection
+     * @param {Array} entries - Intersection observer entries
+     */
     infinite_scroll(entries) {
       const intersection = entries[0].intersectionRatio > 0;
 
@@ -346,60 +399,86 @@ export default {
       }
     },
 
+    /** Reset pagination to first page */
     reset_values() {
       this.next_page = 1;
     },
 
+    /** Clear search form and reload data */
     clear_search() {
       this.search_form = {};
       this.reset_values();
       this.load_data();
     },
 
+    /** Refresh table data from server */
     refresh() {
       this.reset_values();
       this.load_data();
     },
 
+    /**
+     * Set table items directly
+     * @param {Array} items - Items to display
+     */
     set_data(items) {
       this.items = items;
     },
 
+    /**
+     * Execute search with form data
+     * @param {Object} form - Search form data
+     */
     do_search(form) {
       this.search_form = form;
       this.reset_values();
       this.load_data();
     },
 
+    /**
+     * Get header alignment for field
+     * @param {string} field_name - Field name
+     * @returns {string} Alignment value (start, center, end)
+     */
     get_header_align(field_name) {
       const [field] = this.table_headers.filter((f) => f.name === field_name);
       return field.align;
     },
 
+    /**
+     * Get custom style class for field value
+     * @param {string} field_name - Field name
+     * @param {*} field_value - Field value
+     * @param {string} default_value - Default class if no custom style
+     * @returns {string} CSS class name
+     */
     get_item_style(field_name, field_value, default_value) {
       const [field] = this.table_headers.filter((f) => f.name === field_name);
-      if (field && field.style) {
+      if (field?.style) {
         return field.style(field_value);
-      } else {
-        return default_value;
       }
+      return default_value;
     },
 
+    /**
+     * Load table data from server
+     * Handles pagination, sorting, filtering, and field formatting
+     */
     async load_data() {
-      if (this.table_headers.length == 0) {
+      if (this.table_headers.length === 0) {
         return;
       }
 
       this.loading = true;
 
       const { page, sortBy, sortDesc, itemsPerPage } = this.options;
-      const sort_by = sortBy && sortBy.length > 0 ? sortBy.join(",") : this.sortKey.join(",");
-      const desc = sortDesc && sortDesc.length > 0 ? sortDesc.join(",") : this.sortDesc.join(",");
-      let attrs = this.table_headers.filter((h) => h.name && h.name.length > 0).map((h) => h.name);
+      const sort_by = sortBy?.length > 0 ? sortBy.join(",") : this.sortKey.join(",");
+      const desc = sortDesc?.length > 0 ? sortDesc.join(",") : this.sortDesc.join(",");
+      let attrs = this.table_headers.filter((h) => h.name?.length > 0).map((h) => h.name);
       this.expandFields && attrs.push(...this.expandFields);
       attrs = attrs.concat([this.hiddenFields]);
       const attr_names = attrs.join(",");
-      const params = { attr_names: attr_names, sort_by: sort_by, desc: desc };
+      const params = { attr_names, sort_by, desc };
       if (this.pagination) {
         params.page = page;
         params.limit = itemsPerPage;
@@ -428,7 +507,7 @@ export default {
           if (this.pagination) {
             this.items = data;
           } else {
-            if (this.next_page == 1) {
+            if (this.next_page === 1) {
               this.items = data;
             } else {
               this.items.push(...data);
