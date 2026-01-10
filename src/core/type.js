@@ -5,303 +5,258 @@
 
 const type_manager = {};
 
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
 /**
  * Check if value is empty or undefined.
  * @param {*} value - Value to check.
  * @returns {boolean} True if value is empty.
  */
 const no_value = (value) => {
-  if (value === undefined || value === null) {
-    return true;
-  }
-  if (typeof value === "string" && value.trim().length === 0) {
-    return true;
-  }
+  if (value === undefined || value === null) return true;
+  if (typeof value === "string" && value.trim().length === 0) return true;
   return false;
 };
 
-/**
- * Register custom type with validation and formatting rules.
- * @param {Object} type - Type definition object.
- * @param {string} type.name - Type name.
- * @param {string} [type.input_type] - Input component type.
- * @param {Function} [type.rule] - Validation rule function.
- * @param {Function} [type.format] - Formatting function.
- */
-const register_type = (type) => {
-  type_manager[type.name] = type;
-};
-
-/**
- * Get registered type by name.
- * @param {string} name - Type name.
- * @returns {Object|null} Type definition or null if not found.
- */
-const get_type = (name) => {
-  return type_manager[name] || null;
-};
-
-/**
- * Check if value is an integer.
- * @param {*} value - Value to check.
- * @returns {boolean} True if integer.
- */
+/** Check if value is an integer. */
 const is_int = (value) => parseInt(value) === parseFloat(value);
 
-/**
- * Check if value is a float.
- * @param {*} value - Value to check.
- * @returns {boolean} True if float.
- */
+/** Check if value is a float. */
 const is_float = (value) => !isNaN(parseFloat(value));
 
-// Register built-in types
-
-const obj_type = {
-  name: "obj",
-  input_type: "text",
+/**
+ * Format float value with fixed decimals.
+ * @param {*} value - Value to format.
+ * @param {number} decimals - Decimal places.
+ * @param {string} suffix - Optional suffix.
+ * @returns {string} Formatted value.
+ */
+const format_float = (value, decimals = 2, suffix = "") => {
+  if (no_value(value)) return "";
+  const formatted = value.toFixed ? value.toFixed(decimals) : value;
+  return suffix ? formatted + suffix : formatted;
 };
-register_type(obj_type);
 
-const boolean_type = {
+// ============================================================================
+// Rule Factory Functions
+// ============================================================================
+
+/** Create a pattern-based validation rule. */
+const pattern_rule = (pattern, err_key) => (vue, field_name) => {
+  const err = vue.$t(err_key, { field: field_name });
+  return (value) => no_value(value) || pattern.test(value) || err;
+};
+
+/** Create a numeric validation rule with optional constraints. */
+const numeric_rule = (err_key, validator) => (vue, field_name) => {
+  const err = vue.$t(err_key, { field: field_name });
+  return (value) => no_value(value) || validator(value) || err;
+};
+
+/** Create an enum type with items and format function. */
+const create_enum_type = (name, items_config) => ({
+  name,
+  input_type: "autocomplete",
+  items: (vue) => items_config.map(({ value, label }) => ({ value, text: vue.$t(label) })),
+  format: (value, vue) => {
+    if (no_value(value)) return "";
+    const item = items_config.find((i) => i.value === value);
+    return item ? vue.$t(item.label) : "";
+  },
+});
+
+// ============================================================================
+// Type Registration
+// ============================================================================
+
+const register_type = (type) => { type_manager[type.name] = type; };
+const get_type = (name) => type_manager[name] || null;
+
+// ============================================================================
+// Built-in Types: Basic (simple types without custom rules)
+// ============================================================================
+
+const SIMPLE_TYPES = [
+  { name: "obj", input_type: "text" },
+  { name: "string", input_type: "text" },
+  { name: "lstr", input_type: "textarea", search_input_type: "text" },
+  { name: "text", input_type: "editor", search_input_type: "text" },
+  { name: "enum", input_type: "autocomplete" },
+  { name: "password", input_type: "password", format: () => "***" },
+  { name: "file", input_type: "file" },
+  { name: "array", input_type: "autocomplete", multiple: true },
+  { name: "date", input_type: "date" },
+  { name: "log_category", input_type: "text" },
+];
+
+SIMPLE_TYPES.forEach(register_type);
+
+// ============================================================================
+// Built-in Types: Boolean
+// ============================================================================
+
+register_type({
   name: "boolean",
   input_type: "switch",
   rule: (vue, field_name) => {
     const err = vue.$t("type.boolean", { field: field_name });
-    return (value) => no_value(value) || value === true || value === "true" || value === false || value === "false" || err;
+    const valid_values = [true, "true", false, "false"];
+    return (value) => no_value(value) || valid_values.includes(value) || err;
   },
-  format: (value, vue) => {
-    return value === true ? vue.$t("type.boolean_true") : vue.$t("type.boolean_false");
-  },
-};
-register_type(boolean_type);
+  format: (value, vue) => vue.$t(value === true ? "type.boolean_true" : "type.boolean_false"),
+});
 
-const int_type = {
-  name: "int",
-  input_type: "number",
+// ============================================================================
+// Built-in Types: Numeric
+// ============================================================================
+
+const NUMERIC_BASE = { input_type: "number", search_input_type: "text" };
+
+const NUMERIC_TYPES = [
+  { name: "number", validator: (v) => !isNaN(Number(v)), format: true },
+  { name: "int", validator: is_int },
+  { name: "uint", validator: (v) => is_int(v) && parseInt(v) >= 0 },
+  { name: "float", validator: is_float, format: true },
+  { name: "ufloat", validator: (v) => is_float(v) && parseFloat(v) >= 0, format: true },
+  { name: "decimal", validator: is_float, format: true },
+  { name: "percentage", validator: is_float, suffix: "%", format: (v) => format_float(v, 2, "%") },
+  { name: "currency", validator: (v) => !isNaN(Number(v)), prefix: "$", format: true },
+];
+
+NUMERIC_TYPES.forEach(({ name, validator, format, suffix, prefix }) => {
+  register_type({
+    ...NUMERIC_BASE,
+    name,
+    ...(suffix && { suffix }),
+    ...(prefix && { prefix }),
+    rule: numeric_rule(`type.${name}`, validator),
+    ...(format && { format: typeof format === "function" ? format : (v) => format_float(v) }),
+  });
+});
+
+// ============================================================================
+// Built-in Types: Date/Time
+// ============================================================================
+
+register_type({
+  name: "datetime",
+  input_type: "datetime",
+  rule: numeric_rule("type.datetime", (v) => !isNaN(new Date(v).getTime())),
+  format: (value) => {
+    if (no_value(value)) return "";
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? value : date.toLocaleString();
+  },
+});
+
+register_type({
+  name: "time",
+  input_type: "time",
+  rule: pattern_rule(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/, "type.time"),
+});
+
+// ============================================================================
+// Built-in Types: Validation (pattern-based)
+// ============================================================================
+
+const EMAIL_PATTERN = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const COLOR_PATTERN = /^#([0-9A-F]{3}){1,2}$/i;
+const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const PHONE_PATTERN = /^\+?[1-9]\d{1,14}$/;
+const IP_PATTERN = /^(\d{1,3}\.){3}\d{1,3}$/;
+
+register_type({ name: "email", input_type: "text", search_input_type: "text", rule: pattern_rule(EMAIL_PATTERN, "type.email") });
+register_type({ name: "uuid", input_type: "text", rule: pattern_rule(UUID_PATTERN, "type.uuid") });
+register_type({ name: "color", input_type: "color", rule: pattern_rule(COLOR_PATTERN, "type.color") });
+register_type({ name: "slug", input_type: "text", rule: pattern_rule(SLUG_PATTERN, "type.slug") });
+
+register_type({
+  name: "url",
+  input_type: "text",
   search_input_type: "text",
   rule: (vue, field_name) => {
-    const err = vue.$t("type.int", { field: field_name });
-    return (value) => no_value(value) || is_int(value) || err;
+    const err = vue.$t("type.url", { field: field_name });
+    return (value) => {
+      if (no_value(value)) return true;
+      try { new URL(value); return true; }
+      catch { return err; }
+    };
   },
-};
-register_type(int_type);
+});
 
-const uint_type = {
-  name: "uint",
-  input_type: "number",
+register_type({
+  name: "phone",
+  input_type: "text",
   search_input_type: "text",
   rule: (vue, field_name) => {
-    const err = vue.$t("type.uint", { field: field_name });
-    return (value) => no_value(value) || (is_int(value) && parseInt(value) >= 0) || err;
+    const err = vue.$t("type.phone", { field: field_name });
+    return (value) => {
+      if (no_value(value)) return true;
+      return PHONE_PATTERN.test(value.replace(/[\s\-\(\)]/g, "")) || err;
+    };
   },
-};
-register_type(uint_type);
+});
 
-const age_type = {
+register_type({
+  name: "ip_address",
+  input_type: "text",
+  rule: (vue, field_name) => {
+    const err = vue.$t("type.ip_address", { field: field_name });
+    return (value) => {
+      if (no_value(value)) return true;
+      if (!IP_PATTERN.test(value)) return err;
+      return value.split(".").every((p) => parseInt(p) <= 255) || err;
+    };
+  },
+});
+
+// ============================================================================
+// Built-in Types: Data Structures
+// ============================================================================
+
+register_type({
+  name: "json",
+  input_type: "textarea",
+  search_input_type: "text",
+  rule: (vue, field_name) => {
+    const err = vue.$t("type.json", { field: field_name });
+    return (value) => {
+      if (no_value(value) || typeof value === "object") return true;
+      try { JSON.parse(value); return true; }
+      catch { return err; }
+    };
+  },
+  format: (value) => {
+    if (no_value(value)) return "";
+    return typeof value === "object" ? JSON.stringify(value, null, 2) : value;
+  },
+});
+
+// ============================================================================
+// Built-in Types: Domain-Specific
+// ============================================================================
+
+register_type({
   name: "age",
   input_type: "number",
   search_input_type: "text",
   suffix: (vue) => vue.$t("type.age_unit"),
-  rule: (vue, field_name) => {
-    const err = vue.$t("type.age", { field: field_name });
-    return (value) => no_value(value) || (is_int(value) && parseInt(value) > 0 && parseInt(value) < 200) || err;
-  },
-};
-register_type(age_type);
+  rule: numeric_rule("type.age", (v) => is_int(v) && parseInt(v) >= 0 && parseInt(v) <= 200),
+});
 
-const float_type = {
-  name: "float",
-  input_type: "number",
-  search_input_type: "text",
-  rule: (vue, field_name) => {
-    const err = vue.$t("type.float", { field: field_name });
-    return (value) => no_value(value) || is_float(value) || err;
-  },
-  format: (value) => {
-    if (no_value(value)) {
-      return "";
-    }
-    return value.toFixed ? value.toFixed(2) : value;
-  },
-};
-register_type(float_type);
+register_type(create_enum_type("gender", [
+  { value: 0, label: "type.gender_male" },
+  { value: 1, label: "type.gender_female" },
+]));
 
-const percentage_type = {
-  name: "percentage",
-  input_type: "number",
-  search_input_type: "text",
-  suffix: "%",
-  rule: (vue, field_name) => {
-    const err = vue.$t("type.percentage", { field: field_name });
-    return (value) => no_value(value) || is_float(value) || err;
-  },
-  format: (value) => {
-    if (no_value(value)) {
-      return "";
-    }
-    return value.toFixed ? value.toFixed(2) + "%" : value + "%";
-  },
-};
-register_type(percentage_type);
-
-const ufloat_type = {
-  name: "ufloat",
-  input_type: "number",
-  search_input_type: "text",
-  rule: (vue, field_name) => {
-    const err = vue.$t("type.ufloat", { field: field_name });
-    return (value) => no_value(value) || (is_float(value) && parseFloat(value) >= 0) || err;
-  },
-  format: (value) => {
-    if (no_value(value)) {
-      return "";
-    }
-    return value.toFixed ? value.toFixed(2) : value;
-  },
-};
-register_type(ufloat_type);
-
-const number_type = {
-  name: "number",
-  input_type: "number",
-  search_input_type: "text",
-  rule: (vue, field_name) => {
-    const err = vue.$t("type.number", { field: field_name });
-    return (value) => no_value(value) || !isNaN(Number(value)) || err;
-  },
-  format: (value) => {
-    if (no_value(value)) {
-      return "";
-    }
-    return value.toFixed ? value.toFixed(2) : value;
-  },
-};
-register_type(number_type);
-
-const currency_type = {
-  name: "currency",
-  input_type: "number",
-  search_input_type: "text",
-  prefix: "$",
-  rule: (vue, field_name) => {
-    const err = vue.$t("type.number", { field: field_name });
-    return (value) => no_value(value) || !isNaN(Number(value)) || err;
-  },
-  format: (value) => {
-    if (no_value(value)) {
-      return "";
-    }
-    return value.toFixed ? value.toFixed(2) : value;
-  },
-};
-register_type(currency_type);
-
-const email_type = {
-  name: "email",
-  input_type: "text",
-  search_input_type: "text",
-  rule: (vue, field_name) => {
-    const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    const err = vue.$t("type.email", { field: field_name });
-    return (value) => no_value(value) || pattern.test(value) || err;
-  },
-};
-register_type(email_type);
-
-const string_type = {
-  name: "string",
-  input_type: "text",
-};
-register_type(string_type);
-
-const password_type = {
-  name: "password",
-  input_type: "password",
-  format: () => "***",
-};
-register_type(password_type);
-
-const array_type = {
-  name: "array",
-  input_type: "autocomplete",
-  multiple: true,
-};
-register_type(array_type);
-
-const lstr_type = {
-  name: "lstr",
-  input_type: "textarea",
-  search_input_type: "text",
-};
-register_type(lstr_type);
-
-const text_type = {
-  name: "text",
-  input_type: "editor",
-  search_input_type: "text",
-};
-register_type(text_type);
-
-const date_type = {
-  name: "date",
-  input_type: "date",
-};
-register_type(date_type);
-
-const gender_type = {
-  name: "gender",
-  input_type: "autocomplete",
-  items: (vue) => {
-    return [
-      { value: 0, text: vue.$t("type.gender_male") },
-      { value: 1, text: vue.$t("type.gender_female") },
-    ];
-  },
-  format: (value, vue) => {
-    if (no_value(value)) {
-      return "";
-    }
-    return value === 1 ? vue.$t("type.gender_female") : vue.$t("type.gender_male");
-  },
-};
-register_type(gender_type);
-
-// Log level constants
-const LOG_LEVEL_DEBUG = 0;
-const LOG_LEVEL_INFO = 1;
-const LOG_LEVEL_WARN = 2;
-const LOG_LEVEL_ERROR = 3;
-
-const log_level_type = {
-  name: "log_level",
-  input_type: "autocomplete",
-  items: (vue) => {
-    return [
-      { value: LOG_LEVEL_DEBUG, text: vue.$t("type.log_debug") },
-      { value: LOG_LEVEL_INFO, text: vue.$t("type.log_info") },
-      { value: LOG_LEVEL_WARN, text: vue.$t("type.log_warn") },
-      { value: LOG_LEVEL_ERROR, text: vue.$t("type.log_error") },
-    ];
-  },
-  format: (value, vue) => {
-    if (no_value(value)) {
-      return "";
-    }
-    switch (value) {
-      case LOG_LEVEL_DEBUG:
-        return vue.$t("type.log_debug");
-      case LOG_LEVEL_INFO:
-        return vue.$t("type.log_info");
-      case LOG_LEVEL_WARN:
-        return vue.$t("type.log_warn");
-      case LOG_LEVEL_ERROR:
-        return vue.$t("type.log_error");
-      default:
-        return "";
-    }
-  },
-};
-register_type(log_level_type);
+register_type(create_enum_type("log_level", [
+  { value: 0, label: "type.log_debug" },
+  { value: 1, label: "type.log_info" },
+  { value: 2, label: "type.log_warn" },
+  { value: 3, label: "type.log_error" },
+]));
 
 export { register_type, get_type, no_value, is_int };
