@@ -1220,7 +1220,7 @@ Define comprehensive entity metadata for automatic UI generation:
   fields: [
     { name: "title", type: "string", required: true, label: "Task Title" },
     { name: "status", type: "string", enum: ["todo", "in_progress", "done"] },
-    { name: "assigned_to", type: "ref", ref: "user", label: "Assignee" },
+    { name: "assigned_to", ref: "user", label: "Assignee" },
     { name: "tags", type: "array", items: { type: "string" } }
   ]
 }
