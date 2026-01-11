@@ -64,14 +64,14 @@ export default {
     return {
       show_date_picker: false,
       show_password: false,
-      form_data: this.form,
+      form_data: this.apply_defaults(this.form),
     };
   },
 
   watch: {
     form: {
       handler() {
-        this.form_data = this.form;
+        this.form_data = this.apply_defaults(this.form);
       },
       deep: true,
     },
@@ -85,6 +85,17 @@ export default {
   },
 
   methods: {
+    /** Apply default values from field definitions to empty form values */
+    apply_defaults(form) {
+      const result = { ...form };
+      for (const field of this.fields) {
+        if (field.default !== undefined && (result[field.name] === undefined || result[field.name] === null || result[field.name] === "")) {
+          result[field.name] = field.default;
+        }
+      }
+      return result;
+    },
+
     /** Reset form */
     reset_form() {
       this.$refs.form?.reset();
