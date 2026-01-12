@@ -41,59 +41,32 @@ The application will be available at `http://localhost:8080`
 
 ### Basic Usage
 
-Create a simple CRUD page:
+Create a simple CRUD page - the `h-crud` component handles all operations automatically:
 
 ```vue
 <template>
-  <v-container>
-    <h-crud entity="user" :items="users" @create="createUser" @update="updateUser" @delete="deleteUser" @refresh="loadUsers" />
-  </v-container>
+  <h-crud :entity="entity" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc"></h-crud>
 </template>
 
 <script>
-import Meta from "@/mixins/meta";
-import Alert from "@/mixins/alert";
-
 export default {
-  mixins: [Meta, Alert],
-
   data() {
     return {
-      users: [],
+      entity: "user",
+      item_label_key: "name",
+      sort_key: ["name"],
+      sort_desc: [false],
     };
-  },
-
-  async mounted() {
-    await this.load_meta("user");
-    await this.loadUsers();
-  },
-
-  methods: {
-    async loadUsers() {
-      this.users = await this.$axios.get("/user");
-    },
-
-    async createUser(userData) {
-      await this.$axios.post("/user", userData);
-      await this.loadUsers();
-      this.show_success("User created!");
-    },
-
-    async updateUser(user) {
-      await this.$axios.patch(`/user/${user._id}`, user);
-      await this.loadUsers();
-      this.show_success("User updated!");
-    },
-
-    async deleteUser(user) {
-      await this.$axios.delete(`/user/${user._id}`);
-      await this.loadUsers();
-      this.show_success("User deleted!");
-    },
   },
 };
 </script>
 ```
+
+That's it! The `h-crud` component automatically:
+- Loads entity metadata from the server
+- Fetches and displays data with pagination
+- Provides create, update, and delete dialogs
+- Handles all API calls internally
 
 ---
 
@@ -326,34 +299,35 @@ export default new Vuetify({
 
 ## 🌐 Backend Integration
 
-Hola-web works seamlessly with [hola-server](https://github.com/hery-node/hola-server), a Node.js + MongoDB backend that provides entity metadata endpoints:
+Hola-web works seamlessly with [hola-server](https://github.com/hery-node/hola-server), a Node.js + MongoDB backend. Define your entity metadata using `init_router()`:
 
 ```javascript
-// GET /meta/:entity
-{
-  "entity": "user",
-  "label": "Users",
-  "fields": [
-    {
-      "name": "name",
-      "type": "string",
-      "required": true,
-      "label": "Full Name"
-    },
-    {
-      "name": "email",
-      "type": "string",
-      "required": true,
-      "label": "Email Address"
-    },
-    {
-      "name": "role",
-      "type": "string",
-      "enum": ["admin", "user"],
-      "label": "User Role"
-    }
+// routes/user.js
+const { init_router } = require("hola-server");
+
+module.exports = init_router({
+  collection: "user",
+  primary_keys: ["email"],
+  ref_label: "name",
+
+  readable: true,
+  creatable: true,
+  updatable: true,
+  deleteable: true,
+
+  roles: [
+    "admin:*",
+    "user:rs"
+  ],
+
+  fields: [
+    { name: "email", type: "email", required: true },
+    { name: "name", type: "string", required: true },
+    { name: "age", type: "int" },
+    { name: "role", type: "user_role", default: "user" },
+    { name: "created_at", type: "datetime", sys: true, create: false, update: false }
   ]
-}
+});
 ```
 
 ---

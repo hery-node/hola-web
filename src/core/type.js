@@ -195,7 +195,7 @@ register_type({
     const err = vue.$t("type.phone", { field: field_name });
     return (value) => {
       if (no_value(value)) return true;
-      return PHONE_PATTERN.test(value.replace(/[\s\-\(\)]/g, "")) || err;
+      return PHONE_PATTERN.test(value.replace(/[\s\-()]/g, "")) || err;
     };
   },
 });

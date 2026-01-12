@@ -33,6 +33,7 @@
           <v-text-field v-model="dialog_search" :label="$t('search')" prepend-icon="mdi-magnify" clearable dense class="mb-2"></v-text-field>
 
           <v-data-table v-model="dialog_selected" :headers="table_headers" :items="filtered_items" :loading="loading" :show-select="is_multiple" :single-select="!is_multiple" item-key="value" :items-per-page="10" @click:row="handleRowClick">
+            <!-- eslint-disable-next-line vue/valid-v-slot -->
             <template #item.label="{ item }">
               <strong>{{ item.label }}</strong>
             </template>

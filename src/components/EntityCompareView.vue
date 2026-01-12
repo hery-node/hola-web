@@ -13,10 +13,12 @@
       <!-- Comparison Table -->
       <v-card v-if="compared_entities.length >= 2" outlined>
         <v-data-table :headers="comparison_headers" :items="comparison_rows" hide-default-footer disable-pagination dense>
+          <!-- eslint-disable-next-line vue/valid-v-slot -->
           <template #item.field="{ item }">
             <strong>{{ item.field_label }}</strong>
           </template>
 
+          <!-- eslint-disable-next-line vue/valid-v-slot -->
           <template v-for="(entity, index) in compared_entities" #[`item.entity_${index}`]="{ item }">
             <v-chip v-if="item.differences[index]" :key="`diff-${index}`" small :color="get_diff_color(item, index)">
               {{ format_value(item.values[index], item.field_type) }}
