@@ -50,7 +50,7 @@
  */
 import Meta from "../mixins/meta";
 import Alert from "../mixins/alert";
-import { read_property, save_entity, is_success_response, has_invalid_params, is_duplicated } from "../core/axios";
+import { read_property, save_entity, is_success_response, has_invalid_params, is_duplicated, is_unique_duplicated } from "../core/axios";
 
 export default {
   inheritAttrs: false,
@@ -263,6 +263,19 @@ export default {
       } else if (is_duplicated(code)) {
         const error_info = this.$t("form.err_duplicate", { entity: this.entity_label });
         this.show_error(error_info);
+      } else if (is_unique_duplicated(code)) {
+        const field_names = err;
+        if (field_names?.length > 0) {
+          const labels = field_names.map((name) => {
+            const field = this.edit_fields.find((f) => f.name === name);
+            return field?.label || name;
+          });
+          const error_info = this.$t("form.err_duplicate_unique", { fields: labels.join(", ") });
+          this.show_error(error_info);
+        } else {
+          const error_info = this.$t("form.err_duplicate_unique_generic");
+          this.show_error(error_info);
+        }
       } else {
         const update_key = this.clone ? "form.clone_fail_hint" : "form.update_fail_hint";
         const create_key = "form.create_fail_hint";

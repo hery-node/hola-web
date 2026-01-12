@@ -40,6 +40,7 @@ const CODE = {
   REF_NOT_UNIQUE: 206,
   HAS_REF: 207,
   DUPLICATE_KEY: 300,
+  DUPLICATE_UNIQUE: 301,
   NO_RESOURCE: 404,
 };
 
@@ -186,6 +187,13 @@ const has_invalid_params = (code) => code === CODE.INVALID_PARAMS;
  * @returns {boolean} True if duplicate.
  */
 const is_duplicated = (code) => code === CODE.DUPLICATE_KEY;
+
+/**
+ * Check if response code indicates duplicate unique field value.
+ * @param {number} code - Response code.
+ * @returns {boolean} True if unique constraint violated.
+ */
+const is_unique_duplicated = (code) => code === CODE.DUPLICATE_UNIQUE;
 
 /**
  * Check if response code indicates entity is referenced.
@@ -427,6 +435,7 @@ export {
   is_error_response,
   is_been_referred,
   is_duplicated,
+  is_unique_duplicated,
   has_invalid_params,
   is_no_session,
   save_entity,

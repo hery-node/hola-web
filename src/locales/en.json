@@ -55,6 +55,8 @@
     "update_fail_hint": "Failed to update {entity}.",
     "err_invalid_value": "The value of {field} is invalid. Please correct it.",
     "err_duplicate": "This {entity} already exists.",
+    "err_duplicate_unique": "The value for {fields} already exists.",
+    "err_duplicate_unique_generic": "A unique field value already exists.",
     "clone_title": "Clone {entity}",
     "clone_success_hint": "{entity} cloned successfully.",
     "clone_fail_hint": "Failed to clone {entity}.",
