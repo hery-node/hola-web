@@ -34,24 +34,6 @@ import DashboardTableView from "./DashboardTable.vue";
 //mobile
 import MobileMenu from "./MobileMenu.vue";
 
-// Meta-integrated components (Phase 2.3)
-import EntityCalendarView from "./EntityCalendarView.vue";
-import EntityTimelineView from "./EntityTimelineView.vue";
-import EntityTreeView from "./EntityTreeView.vue";
-import EntityKanbanView from "./EntityKanbanView.vue";
-import FileUploadField from "./FileUploadField.vue";
-import RelationshipPicker from "./RelationshipPicker.vue";
-import EntityGalleryView from "./EntityGalleryView.vue";
-import EntityCompareView from "./EntityCompareView.vue";
-import AdvancedFilterBuilder from "./AdvancedFilterBuilder.vue";
-import EntitySearchView from "./EntitySearchView.vue";
-import BulkActionsToolbar from "./BulkActionsToolbar.vue";
-import BulkImportDialog from "./BulkImportDialog.vue";
-import BulkExportDialog from "./BulkExportDialog.vue";
-import EntityWizard from "./EntityWizard.vue";
-import EntityAuditLog from "./EntityAuditLog.vue";
-import EntityNotifications from "./EntityNotifications.vue";
-
 function setup_components() {
   Vue.component("h-array", ArrayTable);
   Vue.component("h-array-entity", ArrayEntity);
@@ -78,24 +60,6 @@ function setup_components() {
   Vue.component('h-simple-chart', ChartSimpleView);
   Vue.component('h-dash-chart', ChartDashboardView);
   Vue.component('h-dash-table', DashboardTableView);
-
-  // Meta-integrated components (Phase 2.3)
-  Vue.component("h-calendar", EntityCalendarView);
-  Vue.component("h-timeline", EntityTimelineView);
-  Vue.component("h-tree", EntityTreeView);
-  Vue.component("h-kanban", EntityKanbanView);
-  Vue.component("h-file", FileUploadField);
-  Vue.component("h-relationship", RelationshipPicker);
-  Vue.component("h-gallery", EntityGalleryView);
-  Vue.component("h-compare-view", EntityCompareView);
-  Vue.component("h-filter-builder", AdvancedFilterBuilder);
-  Vue.component("h-search", EntitySearchView);
-  Vue.component("h-bulk-actions", BulkActionsToolbar);
-  Vue.component("h-import", BulkImportDialog);
-  Vue.component("h-export", BulkExportDialog);
-  Vue.component("h-wizard", EntityWizard);
-  Vue.component("h-audit", EntityAuditLog);
-  Vue.component("h-notifications", EntityNotifications);
 }
 
 const capitalize = (str) => {
