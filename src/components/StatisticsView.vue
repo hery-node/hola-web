@@ -1,5 +1,5 @@
 <template>
-  <h-card v-bind="$attrs" class="v-card--material-stats">
+  <CardView v-bind="$attrs" class="v-card--material-stats">
     <template v-if="!mobile" #offset>
       <v-card :class="`elevation-${elevation}`" :color="color" class="pa-4" theme="dark">
         <v-icon size="40" class="mb-7"> {{ icon }} </v-icon>
@@ -18,12 +18,13 @@
       </v-icon>
       <span class="caption text-blue-grey" v-text="subText" />
     </template>
-  </h-card>
+  </CardView>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
 import { useDisplay } from "vuetify";
+import CardView from "./CardView.vue";
 
 /**
  * StatisticsView Component
@@ -78,8 +79,9 @@ const textClass = computed(() => {
 });
 </script>
 
-<style lang="scss">
-.v-card--material-stats {
+<style lang="scss" scoped>
+/* Scoped styles for StatisticsView */
+:deep(.v-card--material-stats) {
   display: flex;
   flex-wrap: wrap;
   position: relative;
@@ -95,7 +97,7 @@ const textClass = computed(() => {
     padding: 0 16px 0;
   }
 
-  .v-card {
+  .v-card--material__header {
     border-radius: 4px;
     flex: 0 1 auto;
   }

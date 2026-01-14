@@ -27,8 +27,8 @@
         </v-col>
       </v-row>
     </template>
-    <h-confirm ref="confirmRef" />
-    <h-edit-form ref="formRef" v-bind="$attrs" dialog hide-hint :entity="entity" :fields="editFields" :entity-id="editEntityId" @cancel="afterCancel" @success="afterClose" :create-title="createTitle" :update-title="updateTitle" :create-form-view="createView" :update-form-view="updateView" />
+    <ConfirmDialog ref="confirmRef" />
+    <EditForm ref="formRef" v-bind="$attrs" dialog hide-hint :entity="entity" :fields="editFields" :entity-id="editEntityId" @cancel="afterCancel" @success="afterClose" :create-title="createTitle" :update-title="updateTitle" :create-form-view="createView" :update-form-view="updateView" />
   </div>
 </template>
 
@@ -38,6 +38,8 @@ import { useI18n } from "vue-i18n";
 import { useAlert } from "@/composables/useAlert";
 import { useKeymap } from "@/composables/useKeymap";
 import { isSuccessResponse, listEntity, deleteEntity, isBeenReferred } from "@/core/axios";
+import ConfirmDialog from "./ConfirmDialog.vue";
+import EditForm from "./EditForm.vue";
 import type { EntityField } from "@/types";
 
 /**

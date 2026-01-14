@@ -1,11 +1,12 @@
 <template>
-  <h-compare v-bind="$attrs" :objs="items" :label-key="labelKey"></h-compare>
+  <CompareTable v-bind="$attrs" :objs="items" :label-key="labelKey"></CompareTable>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, toRef } from "vue";
 import { useMeta } from "@/composables/useMeta";
 import { readEntity } from "@/core/axios";
+import CompareTable from "./CompareTable.vue";
 
 /**
  * Compare entity component

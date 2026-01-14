@@ -1,10 +1,10 @@
 <template>
-  <v-card v-bind="$attrs" flat>
+  <v-card v-bind="$attrs" flat style="overflow: visible">
     <v-form ref="formRef" @submit.prevent="submitForm">
       <v-card-title v-if="!hideTitle">
         <span class="text-h6">{{ formTitle }}</span>
       </v-card-title>
-      <v-card-text>
+      <v-card-text style="overflow: visible">
         <v-row dense>
           <v-col v-for="(field, index) in fields" :key="index" cols="12" sm="12" :md="field.cols ?? 12" :lg="field.cols ?? 12">
             <!-- Combobox -->
@@ -27,9 +27,14 @@
               </v-menu>
             </template>
 
-            <!-- Autocomplete (when items provided) -->
+            <!-- Autocomplete (when items provided with multiple or autocomplete type) -->
+            <template v-else-if="field.items && (field.multiple || field.inputType === 'autocomplete')">
+              <v-autocomplete :items="field.items" :autofocus="index === 0" v-model="formData[field.name]" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ?? []" :multiple="field.multiple" chips closable-chips :disabled="!!field.disabled" density="compact" variant="outlined" :clearable="!field.disabled" :menu-props="{ zIndex: 9999 }" />
+            </template>
+
+            <!-- Select (when items provided for single selection) -->
             <template v-else-if="field.items">
-              <v-autocomplete :items="field.items" :autofocus="index === 0" v-model="formData[field.name]" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ?? []" :multiple="field.multiple" chips closable-chips :disabled="!!field.disabled" density="compact" variant="outlined" :clearable="!field.disabled" />
+              <v-select :items="field.items" :autofocus="index === 0" v-model="formData[field.name]" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ?? []" :disabled="!!field.disabled" density="compact" variant="outlined" :clearable="!field.disabled" eager />
             </template>
 
             <!-- Switch -->
@@ -66,7 +71,7 @@ import type { VForm } from "vuetify/components";
 export interface FormField {
   name: string;
   label: string;
-  inputType?: "text" | "password" | "email" | "number" | "date" | "textarea" | "switch" | "combobox";
+  inputType?: "text" | "password" | "email" | "number" | "date" | "textarea" | "switch" | "combobox" | "autocomplete" | "select";
   hint?: string;
   suffix?: string;
   prefix?: string;
@@ -102,6 +107,7 @@ const formRef = useTemplateRef<VForm>("formRef");
 // State
 const showPassword = ref(false);
 const datePickerMenus = reactive<Record<string, boolean>>({});
+const isInternalUpdate = ref(false);
 
 // Apply default values from field definitions
 function applyDefaults(form: FormData): FormData {
@@ -121,7 +127,9 @@ const formData = ref<FormData>(applyDefaults(props.modelValue));
 watch(
   () => props.modelValue,
   (newValue) => {
-    formData.value = applyDefaults(newValue);
+    if (!isInternalUpdate.value) {
+      formData.value = applyDefaults(newValue);
+    }
   },
   { deep: true }
 );
@@ -130,7 +138,12 @@ watch(
 watch(
   formData,
   (newValue) => {
+    isInternalUpdate.value = true;
     emit("update:modelValue", newValue);
+    // Reset the flag after the current tick
+    setTimeout(() => {
+      isInternalUpdate.value = false;
+    }, 0);
   },
   { deep: true }
 );
@@ -142,7 +155,19 @@ const formTitle = computed(() => {
 
 // Methods
 async function resetForm(): Promise<void> {
-  formRef.value?.reset();
+  // Reset form data to defaults manually to avoid recursive updates
+  const defaultData: FormData = {};
+  for (const field of props.fields) {
+    defaultData[field.name] = field.default ?? (field.inputType === "switch" ? false : "");
+  }
+  isInternalUpdate.value = true;
+  formData.value = defaultData;
+  emit("update:modelValue", defaultData);
+  // Reset validation state
+  await formRef.value?.resetValidation();
+  setTimeout(() => {
+    isInternalUpdate.value = false;
+  }, 0);
 }
 
 async function resetValidation(): Promise<void> {

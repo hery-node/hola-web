@@ -1,10 +1,13 @@
 <template>
-  <h-card v-bind="$attrs" :color="color" :title="title" :text="text">
-    <h-table v-bind="$attrs" infinite hide-top :sort-key="sortKey" :sort-desc="sortDesc"> </h-table>
-  </h-card>
+  <CardView v-bind="$attrs" :color="color" :title="title" :text="text">
+    <DataTable v-bind="$attrs" infinite hide-top :sort-key="sortKey" :sort-desc="sortDesc"> </DataTable>
+  </CardView>
 </template>
 
 <script setup lang="ts">
+import CardView from "./CardView.vue";
+import DataTable from "./DataTable.vue";
+
 /**
  * DashboardTable Component
  *

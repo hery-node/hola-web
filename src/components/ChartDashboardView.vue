@@ -1,15 +1,18 @@
 <template>
-  <h-card class="v-card--material-chart" v-bind="$attrs">
+  <CardView class="v-card--material-chart" v-bind="$attrs">
     <template #header>
-      <h-simple-chart :type="type" :options="options" :data="data"></h-simple-chart>
+      <ChartSimpleView :type="type" :options="options" :data="data"></ChartSimpleView>
     </template>
     <h4 class="title font-weight-light text-black">{{ title }}</h4>
     <v-icon class="mr-2" size="small" :color="subIconColor">{{ subIcon }}</v-icon>
     <span class="caption text-grey font-weight-light">{{ subText }}</span>
-  </h-card>
+  </CardView>
 </template>
 
 <script setup lang="ts">
+import CardView from "./CardView.vue";
+import ChartSimpleView from "./ChartSimpleView.vue";
+
 /**
  * ChartDashboardView Component
  *

@@ -1,6 +1,6 @@
 <template>
-  <v-card v-bind="$attrs" :style="styles">
-    <h-offset v-if="hasOffset" :inline="inline" :full-width="fullWidth" :offset="offset">
+  <v-card v-bind="$attrs" :style="styles" class="v-card--material">
+    <OffsetView v-if="hasOffset" :inline="inline" :full-width="fullWidth" :offset="offset">
       <v-card v-if="!slots.offset" :color="color" :class="`elevation-${elevation}`" class="v-card--material__header" theme="dark">
         <slot v-if="!title && !text" name="header" />
         <span v-else>
@@ -9,7 +9,7 @@
         </span>
       </v-card>
       <slot v-else name="offset" />
-    </h-offset>
+    </OffsetView>
 
     <v-card-text>
       <slot />
@@ -25,6 +25,7 @@
 
 <script setup lang="ts">
 import { computed, useSlots } from "vue";
+import OffsetView from "./OffsetView.vue";
 
 /**
  * Card view component with offset header
@@ -71,16 +72,12 @@ const styles = computed(() => {
 </script>
 
 <style>
-.v-card {
-  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14) !important;
-  border-radius: 3px;
-}
-
-.v-card .category {
+/* CardView Material Design Styles - scoped to material card classes */
+.v-card--material .category {
   margin: 0;
 }
 
-.v-card .title {
+.v-card--material .title {
   margin-top: 0;
   line-height: 1.5em !important;
   letter-spacing: 0 !important;
@@ -88,27 +85,27 @@ const styles = computed(() => {
   margin-bottom: 5px !important;
 }
 
-.v-card .v-divider {
+.v-card--material .v-divider {
   border-top: 1px solid #eee;
   margin-left: 20px !important;
   margin-right: 20px !important;
   margin-bottom: 1px;
 }
 
-.v-card .v-offset {
+.v-card--material .v-offset {
   top: -20px !important;
   margin-bottom: -20px !important;
 }
 
-.v-card .v-offset .category {
+.v-card--material .v-offset .category {
   color: rgba(255, 255, 255, 0.62);
 }
 
-.v-card .v-offset .v-card--material__header.v-card {
+.v-card--material .v-offset .v-card--material__header.v-card {
   padding: 15px;
 }
 
-.v-card .v-card__actions {
+.v-card--material .v-card__actions {
   margin: 0 20px 0;
   padding: 10px 0 10px;
   line-height: 22px;
@@ -148,27 +145,27 @@ const styles = computed(() => {
   margin: 25px 0 !important;
 }
 
-.v-card.info {
+.v-card--material__header.info {
   background: linear-gradient(60deg, #26c6da, #00acc1) !important;
   box-shadow: 0 12px 20px -10px rgba(0, 188, 212, 0.28), 0 4px 20px 0px rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(0, 188, 212, 0.2) !important;
 }
 
-.v-card.red {
+.v-card--material__header.red {
   background: linear-gradient(60deg, #ef5350, #e53935) !important;
   box-shadow: 0 12px 20px -10px rgba(244, 67, 54, 0.28), 0 4px 20px 0px rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(244, 67, 54, 0.2) !important;
 }
 
-.v-card.green {
+.v-card--material__header.green {
   background: linear-gradient(60deg, #66bb6a, #43a047) !important;
   box-shadow: 0 12px 20px -10px rgba(76, 175, 80, 0.28), 0 4px 20px 0px rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(76, 175, 80, 0.2) !important;
 }
 
-.v-card.orange {
+.v-card--material__header.orange {
   background: linear-gradient(60deg, #ffa726, #fb8c00) !important;
   box-shadow: 0 12px 20px -10px rgba(255, 152, 0, 0.28), 0 4px 20px 0px rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(255, 152, 0, 0.2) !important;
 }
 
-.v-card.purple {
+.v-card--material__header.purple {
   background: linear-gradient(60deg, #ab47bc, #8e24aa) !important;
   box-shadow: 0 12px 20px -10px rgba(156, 39, 176, 0.28), 0 4px 20px 0px rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(156, 39, 176, 0.2) !important;
 }
