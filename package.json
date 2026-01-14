@@ -1,66 +1,60 @@
 {
   "name": "hola-web",
-  "version": "2.0.1",
-  "description": "vue components using with hola-server",
+  "version": "3.0.0",
+  "description": "Vue 3 components using with hola-server",
   "author": "hery1979 <hery1979@qq.com>",
+  "type": "module",
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "build-bundle": "vue-cli-service build --target lib --name hola-web ./src/components/index.js"
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "type-check": "vue-tsc --noEmit"
   },
-  "main": "./dist/hola-web.umd.js",
+  "main": "./dist/hola-web.umd.cjs",
+  "module": "./dist/hola-web.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/hola-web.js",
+      "require": "./dist/hola-web.umd.cjs"
+    },
+    "./style.css": "./dist/style.css"
+  },
   "files": [
     "dist"
   ],
   "dependencies": {
-    "axios": "^1.4.0",
-    "chartist": "^1.3.0",
-    "core-js": "^3.8.3",
-    "echarts": "^5.4.2",
-    "vue": "^2.7.8",
-    "vue-echarts": "^6.5.5",
-    "vue-i18n": "^8.28.2",
-    "vue-router": "^3.2.0",
-    "vuedraggable": "^2.24.3",
-    "vuetify": "^2.6.0",
-    "vuex": "^3.4.0",
+    "axios": "^1.7.0",
+    "echarts": "^5.5.0",
+    "pinia": "^2.2.0",
+    "vue": "^3.5.0",
+    "vue-echarts": "^7.0.0",
+    "vue-i18n": "^11.2.8",
+    "vue-router": "^4.4.0",
+    "vuedraggable": "^4.1.0",
+    "vuetify": "^3.7.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.16",
-    "@babel/eslint-parser": "^7.12.16",
-    "@vue/cli-plugin-babel": "~5.0.0",
-    "@vue/cli-plugin-eslint": "~5.0.0",
-    "@vue/cli-service": "~5.0.0",
-    "eslint": "^7.32.0",
-    "eslint-plugin-vue": "^8.0.3",
-    "node-sass": "^8.0.0",
-    "sass": "~1.32.0",
-    "sass-loader": "^10.4.1",
-    "vue-cli-plugin-vuetify": "~2.5.1",
-    "vue-template-compiler": "^2.6.14",
-    "webpack-bundle-analyzer": "^4.9.0"
+    "@mdi/font": "^7.4.0",
+    "@types/chartist": "^0.11.1",
+    "@types/node": "^22.0.0",
+    "@vitejs/plugin-vue": "^5.2.0",
+    "@vue/eslint-config-typescript": "^14.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-vue": "^9.30.0",
+    "sass": "^1.80.0",
+    "typescript": "~5.6.0",
+    "vite": "^6.0.0",
+    "vite-plugin-dts": "^4.3.0",
+    "vite-plugin-vuetify": "^2.0.0",
+    "vue-tsc": "^2.1.0"
   },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "@babel/eslint-parser"
-    },
-    "rules": {}
+  "peerDependencies": {
+    "vue": "^3.5.0"
   },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ],
   "bugs": {
     "url": "https://github.com/hery-node/hola-web/issues"
   },
@@ -69,7 +63,9 @@
     "meta",
     "nodejs",
     "vue",
-    "vuetify"
+    "vue3",
+    "vuetify",
+    "typescript"
   ],
   "license": "MIT",
   "repository": {

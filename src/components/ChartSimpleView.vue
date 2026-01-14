@@ -1,8 +1,11 @@
 <template>
-  <div ref="chart" :class="styles">{{ message }}</div>
+  <div ref="chartRef" :class="styles">{{ message }}</div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from "vue";
+import Chartist from "chartist";
+
 /**
  * ChartSimpleView Component
  *
@@ -17,185 +20,151 @@
  * - No-data state with custom message
  * - Auto-redraw on data/options change
  */
-import { LineChart, BarChart, PieChart } from "chartist";
 
-export default {
-  inheritAttrs: false,
+interface EventHandler {
+  event: string;
+  fn: (...args: unknown[]) => void;
+}
 
-  props: {
-    /** Chart type: Pie, Line, or Bar */
-    type: {
-      type: String,
-      required: true,
-      validator(val) {
-        return val === "Pie" || val === "Line" || val === "Bar";
-      },
-    },
-    /** Chart aspect ratio class (ct-square, ct-minor-seventh, etc.) */
-    ratio: { type: String, default: "ct-square" },
-    /** Chart data with series and labels */
-    data: {
-      type: Object,
-      default() {
-        return { series: [], labels: [] };
-      },
-    },
-    /** Chart configuration options */
-    options: {
-      type: Object,
-      default() {
-        return {};
-      },
-    },
-    /** Array of {event, fn} objects for chart events */
-    eventHandlers: {
-      type: Array,
-      default() {
-        return [];
-      },
-    },
-    /** Responsive options for different breakpoints */
-    responsiveOptions: {
-      type: Array,
-      default() {
-        return [];
-      },
-    },
-    /** No data configuration */
-    noData: {
-      type: Object,
-      default() {
-        return {
-          message: "",
-          class: "ct-nodata",
-        };
-      },
-    },
-  },
+interface NoDataOptions {
+  message?: string;
+  class?: string;
+}
 
-  data() {
-    return {
-      chart: null,
-      message: "",
-    };
-  },
+// Props
+const props = withDefaults(
+  defineProps<{
+    type: "Pie" | "Line" | "Bar";
+    ratio?: string;
+    data?: Chartist.IChartistData;
+    options?: Chartist.IChartOptions;
+    eventHandlers?: EventHandler[];
+    responsiveOptions?: Chartist.IResponsiveOptionTuple<Chartist.IChartOptions>[];
+    noData?: NoDataOptions;
+  }>(),
+  {
+    ratio: "ct-square",
+    data: () => ({ series: [], labels: [] }),
+    options: () => ({}),
+    eventHandlers: () => [],
+    responsiveOptions: () => [],
+    noData: () => ({ message: "", class: "ct-nodata" }),
+  }
+);
 
-  watch: {
-    ratio: "redraw",
-    options: { handler: "redraw", deep: true },
-    responsiveOptions: { handler: "redraw", deep: true },
-    data: { handler: "redraw", deep: true },
-    type: "draw",
-    eventHandlers: "resetEventHandlers",
-    hasNoData: {
-      immediate: true,
-      handler(val) {
-        if (val) {
-          this.setNoData();
-        } else {
-          this.clear();
+// Refs
+const chartRef = ref<HTMLElement | null>(null);
+const chart = ref<Chartist.IChartistBase<Chartist.IChartOptions> | null>(null);
+const message = ref("");
+
+// Computed
+const styles = computed(() => {
+  return [props.ratio, { [noDataOptions.value.class || "ct-nodata"]: hasNoData.value }];
+});
+
+const hasNoData = computed(() => {
+  return (
+    !props.data ||
+    !props.data.series ||
+    props.data.series.length < 1 ||
+    (props.type !== "Pie" &&
+      !(props.options as Record<string, unknown>)?.distributeSeries &&
+      (props.data.series as unknown[]).every((series) => {
+        if (Array.isArray(series)) {
+          return !series.length;
         }
-      },
-    },
+        return !(series as { data?: unknown[] }).data?.length;
+      }))
+  );
+});
+
+const noDataOptions = computed(() => {
+  return {
+    message: ((props.options as Record<string, unknown>)?.messageNoData as string) || props.noData?.message || "",
+    class: ((props.options as Record<string, unknown>)?.classNoData as string) || props.noData?.class || "ct-nodata",
+  };
+});
+
+// Methods
+function clear() {
+  message.value = "";
+}
+
+function draw() {
+  if (hasNoData.value || !chartRef.value) {
+    chart.value = null;
+  } else {
+    if (props.type === "Bar") {
+      chart.value = new Chartist.Bar(chartRef.value, props.data, props.options, props.responsiveOptions);
+    } else if (props.type === "Pie") {
+      chart.value = new Chartist.Pie(chartRef.value, props.data, props.options, props.responsiveOptions);
+    } else {
+      chart.value = new Chartist.Line(chartRef.value, props.data, props.options, props.responsiveOptions);
+    }
+  }
+
+  setEventHandlers();
+}
+
+function redraw() {
+  chart.value ? chart.value.update(props.data, props.options) : draw();
+}
+
+function resetEventHandlers(newHandlers: EventHandler[], oldHandlers: EventHandler[]) {
+  if (!chart.value) return;
+
+  for (const item of oldHandlers) {
+    chart.value.off(item.event, item.fn);
+  }
+  for (const item of newHandlers) {
+    chart.value.on(item.event, item.fn);
+  }
+}
+
+function setEventHandlers() {
+  if (chart.value && props.eventHandlers) {
+    for (const item of props.eventHandlers) {
+      chart.value.on(item.event, item.fn);
+    }
+  }
+}
+
+function setNoData() {
+  message.value = noDataOptions.value.message;
+}
+
+// Watchers
+watch(() => props.ratio, redraw);
+watch(() => props.options, redraw, { deep: true });
+watch(() => props.responsiveOptions, redraw, { deep: true });
+watch(() => props.data, redraw, { deep: true });
+watch(() => props.type, draw);
+watch(
+  () => props.eventHandlers,
+  (newVal, oldVal) => {
+    resetEventHandlers(newVal, oldVal);
+  }
+);
+watch(
+  hasNoData,
+  (val) => {
+    if (val) {
+      setNoData();
+    } else {
+      clear();
+    }
   },
+  { immediate: true }
+);
 
-  mounted() {
-    this.draw();
-  },
+// Lifecycle
+onMounted(() => {
+  draw();
+});
 
-  computed: {
-    /** @returns {Array} CSS classes for chart container */
-    styles() {
-      return [this.ratio, { [this.noDataOptions.class]: this.hasNoData }];
-    },
-
-    /**
-     * Check if chart has no valid data to display
-     * @returns {boolean} True if no data available
-     */
-    hasNoData() {
-      return (
-        !this.data ||
-        !this.data.series ||
-        this.data.series.length < 1 ||
-        (this.type !== "Pie" &&
-          !this.options.distributeSeries &&
-          this.data.series.every((series) => {
-            if (Array.isArray(series)) {
-              return !series.length;
-            }
-            return !series.data.length;
-          }))
-      );
-    },
-
-    /** @returns {Object} No data message and class */
-    noDataOptions() {
-      return {
-        message: this.options.messageNoData || this.noData.message,
-        class: this.options.classNoData || this.noData.class,
-      };
-    },
-  },
-
-  methods: {
-    /** Clear no-data message */
-    clear() {
-      this.message = "";
-    },
-
-    /** Draw chart using Chartist library */
-    draw() {
-      if (this.hasNoData) {
-        this.chart = null;
-      } else {
-        if (this.type === "Bar") {
-          this.chart = new BarChart(this.$refs.chart, this.data, this.options, this.responsiveOptions);
-        } else if (this.type === "Pie") {
-          this.chart = new PieChart(this.$refs.chart, this.data, this.options, this.responsiveOptions);
-        } else {
-          this.chart = new LineChart(this.$refs.chart, this.data, this.options, this.responsiveOptions);
-        }
-      }
-
-      this.setEventHandlers();
-    },
-
-    /** Redraw chart with updated data */
-    redraw() {
-      this.chart ? this.chart.update(this.data, this.options) : this.draw();
-    },
-
-    /**
-     * Reset event handlers when they change
-     * @param {Array} eventHandlers - New event handlers
-     * @param {Array} oldEventHandler - Old event handlers to remove
-     */
-    resetEventHandlers(eventHandlers, oldEventHandler) {
-      if (!this.chart) {
-        return;
-      }
-      for (let item of oldEventHandler) {
-        this.chart.off(item.event, item.fn);
-      }
-      for (let item of eventHandlers) {
-        this.chart.on(item.event, item.fn);
-      }
-    },
-
-    /** Attach event handlers to chart */
-    setEventHandlers() {
-      if (this.chart && this.eventHandlers) {
-        for (let item of this.eventHandlers) {
-          this.chart.on(item.event, item.fn);
-        }
-      }
-    },
-
-    /** Set no-data message */
-    setNoData() {
-      this.message = this.noDataOptions.message;
-    },
-  },
-};
+// Expose
+defineExpose({
+  draw,
+  redraw,
+});
 </script>

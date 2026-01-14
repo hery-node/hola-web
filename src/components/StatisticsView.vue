@@ -1,30 +1,35 @@
 <template>
-  <h-card v-bind="$attrs" class="v-card--material-stats" v-on="$listeners">
-    <v-card v-if="!$vuetify.breakpoint.xsOnly" slot="offset" :class="`elevation-${elevation}`" :color="color" class="pa-4" dark>
-      <v-icon size="40" class="mb-7"> {{ icon }} </v-icon>
-    </v-card>
-    <div :class="{ 'text-right': !$vuetify.breakpoint.xsOnly, 'text-center': $vuetify.breakpoint.xsOnly }">
+  <h-card v-bind="$attrs" class="v-card--material-stats">
+    <template v-if="!mobile" #offset>
+      <v-card :class="`elevation-${elevation}`" :color="color" class="pa-4" theme="dark">
+        <v-icon size="40" class="mb-7"> {{ icon }} </v-icon>
+      </v-card>
+    </template>
+    <div :class="{ 'text-right': !mobile, 'text-center': mobile }">
       <p class="category font-weight-light" v-text="title" />
-      <h3 :class="text_class">
+      <h3 :class="textClass">
         {{ value }} <small>{{ smallValue }}</small>
       </h3>
     </div>
 
-    <template slot="actions">
+    <template #actions>
       <v-icon :color="subIconColor" size="20" class="mr-2">
         {{ subIcon }}
       </v-icon>
-      <span class="caption blue-grey--text" v-text="subText" />
+      <span class="caption text-blue-grey" v-text="subText" />
     </template>
   </h-card>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed } from "vue";
+import { useDisplay } from "vuetify";
+
 /**
  * StatisticsView Component
  *
  * A material design statistics card that displays a metric with icon, title, and subtitle.
- * Extends CardView for consistent card styling with offset icon card.
+ * Uses CardView for consistent card styling with offset icon card.
  *
  * Features:
  * - Large icon in offset colored card
@@ -34,41 +39,43 @@
  * - Responsive layout (centered on mobile)
  * - Material design elevation
  */
-import CardView from "./CardView";
 
-export default {
-  inheritAttrs: false,
+// Props - including CardView props
+const props = withDefaults(
+  defineProps<{
+    // CardView props
+    color?: string;
+    elevation?: number | string;
+    inline?: boolean;
+    fullWidth?: boolean;
+    offset?: number | string;
+    // StatisticsView props
+    icon: string;
+    textColor?: string;
+    subIcon?: string;
+    subIconColor?: string;
+    subText?: string;
+    title?: string;
+    value?: string;
+    smallValue?: string;
+  }>(),
+  {
+    color: "secondary",
+    elevation: 10,
+    inline: false,
+    fullWidth: false,
+    offset: 24,
+    textColor: "black",
+  }
+);
 
-  props: {
-    ...CardView.props,
-    /** Material Design icon name */
-    icon: { type: String, required: true },
-    /** Primary text color */
-    textColor: { type: String, default: "black" },
-    /** Action icon */
-    subIcon: { type: String },
-    /** Action icon color */
-    subIconColor: { type: String },
-    /** Action text */
-    subText: { type: String },
-    /** Card title */
-    title: { type: String },
-    /** Primary value to display */
-    value: { type: String },
-    /** Small value suffix */
-    smallValue: { type: String },
-  },
+// Composables
+const { mobile } = useDisplay();
 
-  computed: {
-    /**
-     * Generate text class with color
-     * @returns {string} Combined CSS classes for value text
-     */
-    text_class() {
-      return `title display-1 font-weight-light ${this.textColor}--text`;
-    },
-  },
-};
+// Computed
+const textClass = computed(() => {
+  return `title display-1 font-weight-light text-${props.textColor}`;
+});
 </script>
 
 <style lang="scss">

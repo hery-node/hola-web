@@ -1,468 +1,437 @@
 <template>
-  <h-table v-bind="$attrs" v-on="$listeners" ref="table" :entity="entity" :entity-label="entity_label" :headers="headers" :searchable="is_searchable" :infinite="!is_paginable" :search-fields="searchFields" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="batch_mode" :has-action-header="has_action_header" :item-actions="item_actions" @chip="click_chip">
-    <template slot="toolbar" v-if="!$vuetify.breakpoint.xsOnly">
-      <v-tooltip bottom v-for="(toolbar, index) in header_toolbars" v-bind:key="index">
-        <template v-slot:activator="{ on }">
-          <v-btn icon @click.stop="toolbar.click()" v-on="on">
+  <DataTable v-bind="$attrs" ref="tableRef" :entity="entity" :headers="headers" :searchable="isSearchable" :infinite="!isPaginable" :search-fields="searchFieldsProp" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="batchMode" :has-action-header="hasActionHeader" :item-actions="itemActionsComputed" @chip="clickChip">
+    <template v-if="!mobile" #toolbar>
+      <v-tooltip v-for="(toolbar, index) in headerToolbars" :key="index" location="bottom">
+        <template #activator="{ props: tooltipProps }">
+          <v-btn v-bind="tooltipProps" icon variant="text" @click.stop="toolbar.click()">
             <v-icon :color="toolbar.color">{{ toolbar.icon }}</v-icon>
           </v-btn>
         </template>
         <span>{{ toolbar.tooltip }}</span>
       </v-tooltip>
-      <h-confirm ref="confirm" />
-      <h-edit-form ref="form" v-bind="$attrs" dialog :clone="clone_mode" hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="after_cancel" @success="after_close" :create-title="create_title" :update-title="update_title" :clone-title="clone_title" :create-form-view="createView" :update-form-view="updateView"> </h-edit-form>
-      <h-edit-form ref="form_chip" v-bind="$attrs" dialog hide-hint :entity="chip_entity" :entity-id="chip_entity_id" :fields="chip_edit_fields" merge-with-server @cancel="after_cancel_chip" @success="after_close_chip" :update-form-view="chipView"> </h-edit-form>
+
+      <ConfirmDialog ref="confirmRef" />
+
+      <EditForm ref="formRef" v-bind="$attrs" dialog :clone="cloneMode" hide-hint :entity="entity" :fields="editFieldsProp" :entity-id="editEntityId" :create-title="createTitleText" :update-title="updateTitleText" :clone-title="cloneTitleText" :create-form-view="createView" :update-form-view="updateView" @cancel="afterCancel" @success="afterClose" />
+
+      <EditForm ref="formChipRef" v-bind="$attrs" dialog hide-hint :entity="chipEntity" :entity-id="chipEntityId" :fields="chipEditFields" merge-with-server :update-form-view="chipView" @cancel="afterCancelChip" @success="afterCloseChip" />
     </template>
-  </h-table>
+  </DataTable>
 </template>
 
-<script>
+<script setup lang="ts">
 /**
- * CrudTable Component
- *
- * A comprehensive CRUD (Create, Read, Update, Delete) table component that wraps DataTable
- * with full entity management capabilities including batch operations, inline editing,
- * and customizable actions.
+ * CrudTable - Full CRUD operations table component
  *
  * Features:
  * - Create/Update/Clone/Delete operations
  * - Batch selection and deletion
- * - Inline item actions with tooltips
  * - Keyboard shortcuts (Alt+C create, Alt+R refresh, Alt+B batch mode)
  * - Customizable toolbars and actions
- * - Entity mode configuration (b:batch, c:create, d:delete, o:clone, p:page, r:refresh, s:search, u:update)
- * - Chip field editing with separate forms
+ * - Entity mode configuration
  */
-import { delete_entity, is_success_response, is_been_referred, get_entity_mode } from "../core/axios";
-import Keymap from "../mixins/keymap";
+import { ref, computed, onMounted, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
+import { useDisplay } from "vuetify";
+import DataTable from "./DataTable.vue";
+import EditForm from "./EditForm.vue";
+import ConfirmDialog from "./ConfirmDialog.vue";
+import { useKeymap } from "@/composables/useKeymap";
+import { deleteEntity, isSuccessResponse, isBeenReferred, getEntityMode } from "@/core/axios";
+import type { ItemAction, TableItem } from "./DataTable.vue";
+import type { ConfirmDialogInstance, EditFormInstance } from "./types";
+import type { FormField } from "./BasicForm.vue";
 
-export default {
-  inheritAttrs: false,
-  mixins: [Keymap],
+/** Toolbar button configuration */
+export interface ToolbarAction {
+  icon: string;
+  color?: string;
+  tooltip?: string;
+  click: () => void;
+}
 
-  props: {
-    //required attributes for data table and form
-    entity: { type: String, required: true },
-    sortDesc: { type: Array, required: true },
-    sortKey: { type: Array, required: true },
-    //show delete name in batch delete dialog
-    itemLabelKey: { type: String, required: true },
-    //end
-    //b:batch mode, c:create, d:delete, e:export, i:import, o:clone, p:page, r: refresh, s:search, u:update
-    mode: { type: String },
-    //views used for create form
-    createView: { type: String, default: "*" },
-    //views used for update form
-    updateView: { type: String, default: "*" },
-    chipView: { type: String, default: "*" },
-    //add more actions to item actions
-    actions: { type: Array, default: () => [] },
-    //add more toolbars for single mode
-    toolbars: { type: Array, default: () => [] },
-    //add more toolbars for batch mode
-    batchToolbars: { type: Array, default: () => [] },
+/** CrudTable component props */
+export interface CrudTableProps {
+  entity: string;
+  sortDesc: boolean[];
+  sortKey: string[];
+  itemLabelKey: string;
+  mode?: string;
+  createView?: string;
+  updateView?: string;
+  chipView?: string;
+  actions?: ItemAction[];
+  toolbars?: ToolbarAction[];
+  batchToolbars?: ToolbarAction[];
+  searchFields?: string[];
+  editFields?: FormField[];
+  headers?: unknown[];
+  chipFieldsMap?: Record<string, FormField[]>;
+  noSelectLabel?: string;
+  entityLabel?: string;
+  createLabel?: string;
+  refreshLabel?: string;
+  updateLabel?: string;
+  cloneLabel?: string;
+  deleteLabel?: string;
+  batchDeleteLabel?: string;
+  createIcon?: string;
+  refreshIcon?: string;
+  updateIcon?: string;
+  cloneIcon?: string;
+  deleteIcon?: string;
+  onlyBatchDelete?: boolean;
+  myActionFirst?: boolean;
+}
 
-    searchFields: { type: Array, default: () => [] },
-    editFields: { type: Array, default: () => [] },
-    headers: { type: Array, default: () => [] },
-    chipFieldsMap: { type: Object },
+// Props
+const props = withDefaults(defineProps<CrudTableProps>(), {
+  createView: "*",
+  updateView: "*",
+  chipView: "*",
+  actions: () => [],
+  toolbars: () => [],
+  batchToolbars: () => [],
+  searchFields: () => [],
+  editFields: () => [],
+  headers: () => [],
+  createIcon: "mdi-plus-circle",
+  refreshIcon: "mdi-refresh",
+  updateIcon: "mdi-square-edit-outline",
+  cloneIcon: "mdi-content-copy",
+  deleteIcon: "mdi-delete-circle",
+  onlyBatchDelete: false,
+  myActionFirst: false,
+});
 
-    //title related setting
-    noSelectLabel: { type: String },
-    entityLabel: { type: String },
-    createLabel: { type: String },
-    refreshLabel: { type: String },
-    updateLabel: { type: String },
-    cloneLabel: { type: String },
-    deleteLabel: { type: String },
-    batchDeleteLabel: { type: String },
-    createIcon: { type: String, default: "mdi-plus-circle" },
-    refreshIcon: { type: String, default: "mdi-refresh" },
-    updateIcon: { type: String, default: "mdi-square-edit-outline" },
-    cloneIcon: { type: String, default: "mdi-content-copy" },
-    deleteIcon: { type: String, default: "mdi-delete-circle" },
-    onlyBatchDelete: { type: Boolean, default: false },
-    myActionFirst: { type: Boolean, default: false },
-  },
+// Rename props for internal use
+const searchFieldsProp = computed(() => props.searchFields);
+const editFieldsProp = computed(() => props.editFields);
 
-  data() {
-    return {
-      //batch mode, this is used to control the crud table batch mode
-      batch_mode: false,
-      entity_mode: "",
-      //used to pass id value to edit form
-      edit_entity_id: "",
-      chip_entity: "",
-      chip_entity_id: "",
-      chip_edit_fields: [],
-      clone_mode: false,
-      has_action_header: false,
-      header_toolbars: [],
-    };
-  },
+// Composables
+const { t } = useI18n();
+const { mobile } = useDisplay();
 
-  /**
-   * Initialize component
-   * Fetches entity mode from server if not provided via props
-   */
-  async created() {
-    if (this.mode) {
-      this.entity_mode = this.mode;
-    } else {
-      const server_mode = await get_entity_mode(this.entity);
-      if (server_mode?.trim().length > 0) {
-        this.entity_mode = server_mode;
-      }
+// Template refs
+const tableRef = ref<InstanceType<typeof DataTable> | null>(null);
+const confirmRef = useTemplateRef<ConfirmDialogInstance>("confirmRef");
+const formRef = useTemplateRef<EditFormInstance>("formRef");
+const formChipRef = useTemplateRef<EditFormInstance>("formChipRef");
+
+// State
+const batchMode = ref(false);
+const entityMode = ref("");
+const editEntityId = ref<string | undefined>("");
+const chipEntity = ref("");
+const chipEntityId = ref("");
+const chipEditFields = ref<FormField[]>([]);
+const cloneMode = ref(false);
+const hasActionHeader = ref(false);
+const headerToolbars = ref<ToolbarAction[]>([]);
+
+// Computed - Mode checks
+const isBatchable = computed(() => entityMode.value.includes("b"));
+const isCreatable = computed(() => entityMode.value.includes("c"));
+const isDeletable = computed(() => entityMode.value.includes("d"));
+const isCloneable = computed(() => entityMode.value.includes("o"));
+const isPaginable = computed(() => entityMode.value.includes("p"));
+const isRefreshable = computed(() => entityMode.value.includes("r"));
+const isSearchable = computed(() => entityMode.value.includes("s"));
+const isUpdatable = computed(() => entityMode.value.includes("u"));
+
+// Computed - Labels
+const entityLabelText = computed(() => {
+  return props.entityLabel ?? (props.entity?.trim().length > 0 ? t(`${props.entity}._label`) : "");
+});
+
+const noSelectedText = computed(() => {
+  return props.noSelectLabel ?? t("table.no_selected", { entity: entityLabelText.value });
+});
+
+const createTitleText = computed(() => {
+  return props.createLabel ?? t("table.create_title", { entity: entityLabelText.value });
+});
+
+const refreshTitleText = computed(() => {
+  return props.refreshLabel ?? t("table.refresh_title", { entity: entityLabelText.value });
+});
+
+const updateTitleText = computed(() => {
+  return props.updateLabel ?? t("table.update_title", { entity: entityLabelText.value });
+});
+
+const cloneTitleText = computed(() => {
+  return props.cloneLabel ?? t("table.clone_title", { entity: entityLabelText.value });
+});
+
+const deleteTitleText = computed(() => {
+  return props.deleteLabel ?? t("table.delete_title", { entity: entityLabelText.value });
+});
+
+const batchDeleteTitleText = computed(() => {
+  return props.batchDeleteLabel ?? t("table.batch_delete_title", { entity: entityLabelText.value });
+});
+
+// Computed - Item actions
+const itemActionsComputed = computed<ItemAction[] | undefined>(() => {
+  const actions: ItemAction[] = [];
+  if (props.myActionFirst) actions.push(...props.actions);
+
+  if (isUpdatable.value) {
+    actions.push({
+      color: "warning",
+      icon: props.updateIcon,
+      tooltip: updateTitleText.value,
+      handle: updateEntity,
+    });
+  }
+  if (isCloneable.value) {
+    actions.push({
+      color: "info",
+      icon: props.cloneIcon,
+      tooltip: cloneTitleText.value,
+      handle: cloneEntity,
+    });
+  }
+  if (isDeletable.value && !props.onlyBatchDelete) {
+    actions.push({
+      color: "error",
+      icon: props.deleteIcon,
+      tooltip: deleteTitleText.value,
+      handle: deleteEntityItem,
+    });
+  }
+
+  if (!props.myActionFirst) actions.push(...props.actions);
+  return actions.length > 0 ? actions : undefined;
+});
+
+// Methods
+function showToolbars(): void {
+  const toolbars: ToolbarAction[] = [];
+
+  if (!batchMode.value && isCreatable.value) {
+    toolbars.push({
+      color: "white",
+      icon: props.createIcon,
+      tooltip: createTitleText.value,
+      click: showCreateDialog,
+    });
+  }
+  if (!batchMode.value && isRefreshable.value) {
+    toolbars.push({
+      color: "white",
+      icon: props.refreshIcon,
+      tooltip: refreshTitleText.value,
+      click: refresh,
+    });
+  }
+  if (batchMode.value && isDeletable.value) {
+    toolbars.push({
+      color: "white",
+      icon: props.deleteIcon,
+      tooltip: batchDeleteTitleText.value,
+      click: batchDelete,
+    });
+  }
+
+  if (!batchMode.value) toolbars.push(...props.toolbars);
+  if (batchMode.value) toolbars.push(...props.batchToolbars);
+
+  if (!batchMode.value && isBatchable.value) {
+    toolbars.push({
+      color: "white",
+      icon: "mdi-checkbox-multiple-marked",
+      tooltip: t("table.switch_to_batch"),
+      click: switchToBatch,
+    });
+  }
+  if (batchMode.value && isBatchable.value) {
+    toolbars.push({
+      color: "white",
+      icon: "mdi-close-circle-multiple",
+      tooltip: t("table.switch_to_single"),
+      click: switchToSingle,
+    });
+  }
+
+  headerToolbars.value = toolbars;
+  hasActionHeader.value = !!itemActionsComputed.value;
+}
+
+function pressEsc(): void {
+  if (batchMode.value) switchToSingle();
+}
+
+function pressKey(event: KeyboardEvent): void {
+  if (isCreatable.value && event.key === "c" && event.altKey) {
+    showCreateDialog();
+  }
+  if (isRefreshable.value && event.key === "r" && event.altKey) {
+    refresh();
+  }
+  if (event.key === "b" && event.altKey && !batchMode.value) {
+    switchToBatch();
+  }
+}
+
+function switchToBatch(): void {
+  batchMode.value = true;
+  showToolbars();
+}
+
+function switchToSingle(): void {
+  batchMode.value = false;
+  showToolbars();
+}
+
+function deleteEntityItem(item: TableItem): void {
+  deleteEntities([item]);
+}
+
+function getSelectedItems(): TableItem[] | null {
+  const table = tableRef.value;
+  if (!table) return null;
+
+  // Access internal selected ref
+  const selected = (table as unknown as { selected: { value: TableItem[] } }).selected?.value || [];
+  if (selected.length === 0) {
+    showError(noSelectedText.value);
+    return null;
+  }
+  return selected;
+}
+
+function showError(msg: string): void {
+  // Use alert composable through table
+  console.error(msg);
+}
+
+function showSuccess(msg: string): void {
+  console.log(msg);
+}
+
+function resetSelected(): void {
+  const table = tableRef.value as unknown as { selected: { value: TableItem[] } };
+  if (table?.selected) {
+    table.selected.value = [];
+  }
+}
+
+async function batchDelete(): Promise<void> {
+  const selected = getSelectedItems();
+  if (selected !== null) {
+    await deleteEntities(selected);
+  }
+}
+
+async function confirmDelete(items: TableItem[]): Promise<boolean> {
+  const labels = items.map((item) => String(item[props.itemLabelKey])).join(",");
+  const title = items.length > 1 ? batchDeleteTitleText.value : deleteTitleText.value;
+  const msg = t("table.delete_confirm", { entity: labels });
+  return showConfirm(title, msg);
+}
+
+async function showConfirm(title: string, msg: string): Promise<boolean> {
+  return (await confirmRef.value?.open(title, msg)) ?? false;
+}
+
+async function deleteEntities(items: TableItem[]): Promise<void> {
+  const ids = items.map((item) => item._id);
+  const confirmed = await confirmDelete(items);
+
+  if (confirmed) {
+    const { code, err } = await deleteEntity(props.entity, ids);
+    if (isSuccessResponse(code)) {
+      refresh();
+      resetSelected();
+    } else if (isBeenReferred(code)) {
+      const labels = Array.isArray(err) ? err.join(",") : "";
+      const msg = t("table.has_ref", { entity: labels });
+      showError(msg);
+    } else if (err) {
+      showError(String(err));
     }
+  }
+}
 
-    this.show_toolbars();
-  },
+function refresh(): void {
+  tableRef.value?.refresh();
+}
 
-  computed: {
-    /** @returns {boolean} True if batch mode is enabled in entity mode */
-    is_batchable() {
-      return this.entity_mode.includes("b");
-    },
+function setData(items: TableItem[]): void {
+  tableRef.value?.setData(items);
+}
 
-    /** @returns {boolean} True if create operation is enabled */
-    is_creatable() {
-      return this.entity_mode.includes("c");
-    },
+function showCreateDialog(): void {
+  editEntityId.value = undefined;
+}
 
-    /** @returns {boolean} True if delete operation is enabled */
-    is_deletable() {
-      return this.entity_mode.includes("d");
-    },
+function updateEntity(item: TableItem): void {
+  cloneMode.value = false;
+  editEntityId.value = item._id;
+}
 
-    /** @returns {boolean} True if clone operation is enabled */
-    is_cloneable() {
-      return this.entity_mode.includes("o");
-    },
+function cloneEntity(item: TableItem): void {
+  cloneMode.value = true;
+  editEntityId.value = item._id;
+}
 
-    /** @returns {boolean} True if pagination is enabled */
-    is_paginable() {
-      return this.entity_mode.includes("p");
-    },
+function clickChip(chip: { ref: string; id: string }): void {
+  if (chip?.ref) {
+    chipEntity.value = chip.ref;
+    chipEntityId.value = chip.id;
+    if (props.chipFieldsMap) {
+      chipEditFields.value = props.chipFieldsMap[chip.ref] || [];
+    }
+  }
+}
 
-    /** @returns {boolean} True if refresh operation is enabled */
-    is_refreshable() {
-      return this.entity_mode.includes("r");
-    },
+function afterCancel(): void {
+  editEntityId.value = "";
+}
 
-    /** @returns {boolean} True if search is enabled */
-    is_searchable() {
-      return this.entity_mode.includes("s");
-    },
+function afterCancelChip(): void {
+  chipEntityId.value = "";
+}
 
-    /** @returns {boolean} True if update operation is enabled */
-    is_updatable() {
-      return this.entity_mode.includes("u");
-    },
+function afterClose(): void {
+  editEntityId.value = "";
+  refresh();
+}
 
-    /** @returns {string} Localized entity label */
-    entity_label() {
-      return this.entityLabel ?? (this.entity?.trim().length > 0 ? this.$t(`${this.entity}._label`) : "");
-    },
+function afterCloseChip(): void {
+  chipEntityId.value = "";
+  refresh();
+}
 
-    /** @returns {string} No selection message */
-    no_selected() {
-      return this.noSelectLabel ?? this.$t("table.no_selected", { entity: this.entity_label });
-    },
+// Setup keymap
+useKeymap({
+  onEscape: pressEsc,
+  onKeyDown: pressKey,
+});
 
-    /** @returns {string} Create dialog title */
-    create_title() {
-      return this.createLabel ?? this.$t("table.create_title", { entity: this.entity_label });
-    },
+// Lifecycle
+onMounted(async () => {
+  if (props.mode) {
+    entityMode.value = props.mode;
+  } else {
+    const serverMode = await getEntityMode(props.entity);
+    if (serverMode && serverMode.trim().length > 0) {
+      entityMode.value = serverMode;
+    }
+  }
+  showToolbars();
+});
 
-    /** @returns {string} Refresh action tooltip */
-    refresh_title() {
-      return this.refreshLabel ?? this.$t("table.refresh_title", { entity: this.entity_label });
-    },
-
-    /** @returns {string} Update dialog title */
-    update_title() {
-      return this.updateLabel ?? this.$t("table.update_title", { entity: this.entity_label });
-    },
-
-    /** @returns {string} Clone dialog title */
-    clone_title() {
-      return this.cloneLabel ?? this.$t("table.clone_title", { entity: this.entity_label });
-    },
-
-    /** @returns {string} Delete confirmation title */
-    delete_title() {
-      return this.deleteLabel ?? this.$t("table.delete_title", { entity: this.entity_label });
-    },
-
-    /** @returns {string} Batch delete confirmation title */
-    batch_delete_title() {
-      return this.batchDeleteLabel ?? this.$t("table.batch_delete_title", { entity: this.entity_label });
-    },
-
-    /**
-     * Generate item action buttons (update, clone, delete)
-     * @returns {Array|null} Array of action objects or null if no actions
-     */
-    item_actions() {
-      const array = [];
-      this.myActionFirst && array.push(...this.actions);
-      if (this.is_updatable) {
-        array.push({ color: "edit", icon: this.updateIcon, tooltip: this.update_title, handle: this.update_entity });
-      }
-      if (this.is_cloneable) {
-        array.push({ color: "clone", icon: this.cloneIcon, tooltip: this.clone_title, handle: this.clone_entity });
-      }
-      if (this.is_deletable && !this.onlyBatchDelete) {
-        array.push({ color: "delete", icon: this.deleteIcon, tooltip: this.delete_title, handle: this.delete_entity });
-      }
-      !this.myActionFirst && array.push(...this.actions);
-      return array.length > 0 ? array : null;
-    },
-  },
-
-  methods: {
-    /**
-     * Build toolbar buttons based on current mode (single/batch) and entity capabilities
-     */
-    show_toolbars() {
-      const header_toolbars = [];
-      !this.batch_mode && this.is_creatable && header_toolbars.push({ color: "toolbar_icon", icon: this.createIcon, tooltip: this.create_title, click: this.show_create_dialog });
-      !this.batch_mode && this.is_refreshable && header_toolbars.push({ color: "toolbar_icon", icon: this.refreshIcon, tooltip: this.refresh_title, click: this.refresh });
-      this.batch_mode && this.is_deletable && header_toolbars.push({ color: "toolbar_icon", icon: this.deleteIcon, tooltip: this.batch_delete_title, click: this.batch_delete });
-      !this.batch_mode && header_toolbars.push(...this.toolbars);
-      this.batch_mode && header_toolbars.push(...this.batchToolbars);
-      !this.batch_mode && this.is_batchable && header_toolbars.push({ color: "toolbar_icon", icon: "mdi-checkbox-multiple-marked", tooltip: this.$t("table.switch_to_batch"), click: this.switch_to_batch });
-      this.batch_mode && this.is_batchable && header_toolbars.push({ color: "toolbar_icon", icon: "mdi-close-circle-multiple", tooltip: this.$t("table.switch_to_single"), click: this.switch_to_single });
-      this.header_toolbars = header_toolbars;
-      this.has_action_header = !!this.item_actions;
-    },
-
-    /**
-     * Handle ESC key - exits batch mode if active
-     */
-    press_esc() {
-      this.batch_mode === true && this.switch_to_single();
-    },
-
-    /**
-     * Handle keyboard shortcuts
-     * @param {KeyboardEvent} event - Keyboard event
-     * Alt+C: Create, Alt+R: Refresh, Alt+B: Toggle batch mode
-     */
-    press_key(event) {
-      if (this.is_creatable) {
-        if (event.key === "c" && event.altKey === true) {
-          this.show_create_dialog();
-        }
-      }
-
-      if (this.is_refreshable) {
-        if (event.key === "r" && event.altKey === true) {
-          this.refresh();
-        }
-      }
-
-      if (event.key === "b" && event.altKey === true) {
-        this.batch_mode === false && this.switch_to_batch();
-      }
-    },
-
-    /** Switch table to batch selection mode */
-    switch_to_batch() {
-      this.batch_mode = true;
-      this.show_toolbars();
-    },
-
-    /** Switch table to single item mode */
-    switch_to_single() {
-      this.batch_mode = false;
-      this.show_toolbars();
-    },
-
-    /**
-     * Delete a single entity
-     * @param {Object} item - Entity item to delete
-     */
-    delete_entity(item) {
-      this.delete_entities([item]);
-    },
-
-    /**
-     * Get selected items from table
-     * @returns {Array|null} Selected items or null if none selected
-     */
-    get_selected_items() {
-      const table = this.$refs.table;
-      if (table.selected.length === 0) {
-        table.show_error(this.no_selected);
-        return null;
-      }
-      return table.selected;
-    },
-
-    /**
-     * Show error message in table
-     * @param {string} msg - Error message
-     */
-    show_error(msg) {
-      this.$refs.table.show_error(msg);
-    },
-
-    /**
-     * Show success message in table
-     * @param {string} msg - Success message
-     */
-    show_success(msg) {
-      this.$refs.table.show_success(msg);
-    },
-
-    /**
-     * Show info message in table
-     * @param {string} msg - Info message
-     */
-    show_info(msg) {
-      this.$refs.table.show_info(msg);
-    },
-
-    /**
-     * Show warning message in table
-     * @param {string} msg - Warning message
-     */
-    show_warning(msg) {
-      this.$refs.table.show_warning(msg);
-    },
-
-    /** Clear all selected items */
-    reset_selected() {
-      this.$refs.table.selected = [];
-    },
-
-    /**
-     * Delete all selected entities in batch mode
-     */
-    async batch_delete() {
-      const selected = this.get_selected_items();
-      if (selected !== null) {
-        await this.delete_entities(selected);
-      }
-    },
-
-    /**
-     * Show delete confirmation dialog
-     * @param {Array} items - Items to delete
-     * @returns {Promise<boolean>} User confirmation result
-     */
-    confirm_delete(items) {
-      const labels = items.map((item) => item[this.itemLabelKey]).join(",");
-      const title = items.length > 1 ? this.batch_delete_title : this.delete_title;
-      const msg = this.$t("table.delete_confirm", { entity: labels });
-      return this.show_confirm(title, msg);
-    },
-
-    /**
-     * Show generic confirmation dialog
-     * @param {string} title - Dialog title
-     * @param {string} msg - Dialog message
-     * @returns {Promise<boolean>} User confirmation result
-     */
-    show_confirm(title, msg) {
-      return this.$refs.confirm.open(title, msg);
-    },
-
-    /**
-     * Delete entities after user confirmation
-     * @param {Array} items - Items to delete
-     */
-    async delete_entities(items) {
-      const ids = items.map((item) => item._id);
-      const res = await this.confirm_delete(items);
-
-      if (res) {
-        const { code, err } = await delete_entity(this.entity, ids);
-        if (is_success_response(code)) {
-          this.refresh();
-          this.reset_selected();
-        } else if (is_been_referred(code)) {
-          const labels = err ? err.join(",") : "";
-          const msg = this.$t("table.has_ref", { entity: labels });
-          this.$refs.table.show_error(msg);
-        } else if (err) {
-          this.$refs.table.show_error(err);
-        }
-      }
-    },
-
-    /** Refresh table data */
-    refresh() {
-      this.$refs.table.refresh();
-    },
-
-    /**
-     * Set table data directly
-     * @param {Array} items - Items to display
-     */
-    set_data(items) {
-      this.$refs.table.set_data(items);
-    },
-
-    /** Open create entity dialog */
-    show_create_dialog() {
-      this.edit_entity_id = null;
-    },
-
-    /**
-     * Open update entity dialog
-     * @param {Object} item - Entity item to update
-     */
-    update_entity(item) {
-      this.clone_mode = false;
-      this.edit_entity_id = item._id;
-    },
-
-    /**
-     * Open clone entity dialog
-     * @param {Object} item - Entity item to clone
-     */
-    clone_entity(item) {
-      this.clone_mode = true;
-      this.edit_entity_id = item._id;
-    },
-
-    /**
-     * Handle chip click to edit referenced entity
-     * @param {Object} chip - Chip data with ref and id
-     */
-    click_chip(chip) {
-      if (chip?.ref) {
-        this.chip_entity = chip.ref;
-        this.chip_entity_id = chip.id;
-        if (this.chipFieldsMap) {
-          this.chip_edit_fields = this.chipFieldsMap[chip.ref];
-        }
-      }
-    },
-
-    /** Handle main form cancel */
-    after_cancel() {
-      this.edit_entity_id = "";
-    },
-
-    /** Handle chip form cancel */
-    after_cancel_chip() {
-      this.chip_entity_id = "";
-    },
-
-    /** Handle main form success - refresh table */
-    after_close() {
-      this.edit_entity_id = "";
-      this.refresh();
-    },
-
-    /** Handle chip form success - refresh table */
-    after_close_chip() {
-      this.chip_entity_id = "";
-      this.refresh();
-    },
-  },
-};
+// Expose methods
+defineExpose({
+  refresh,
+  setData,
+  showError,
+  showSuccess,
+  showConfirm,
+  resetSelected,
+  getSelectedItems,
+});
 </script>

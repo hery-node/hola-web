@@ -1,13 +1,15 @@
 <template>
-  <h-card class="v-card--material-chart" v-bind="$attrs" v-on="$listeners">
-    <h-simple-chart slot="header" :type="type" :options="options" :data="data"></h-simple-chart>
-    <h4 class="title font-weight-light black--text">{{ title }}</h4>
-    <v-icon class="mr-2" small :color="subIconColor">{{ subIcon }}</v-icon>
-    <span class="caption grey--text font-weight-light">{{ subText }}</span>
+  <h-card class="v-card--material-chart" v-bind="$attrs">
+    <template #header>
+      <h-simple-chart :type="type" :options="options" :data="data"></h-simple-chart>
+    </template>
+    <h4 class="title font-weight-light text-black">{{ title }}</h4>
+    <v-icon class="mr-2" size="small" :color="subIconColor">{{ subIcon }}</v-icon>
+    <span class="caption text-grey font-weight-light">{{ subText }}</span>
   </h-card>
 </template>
 
-<script>
+<script setup lang="ts">
 /**
  * ChartDashboardView Component
  *
@@ -21,42 +23,28 @@
  * - Title and subtitle text
  * - Chartist integration for simple charts
  */
-export default {
-  inheritAttrs: false,
 
-  props: {
-    /** Chart type: Pie, Line, or Bar */
-    type: {
-      type: String,
-      required: true,
-      validator(val) {
-        return val === "Pie" || val === "Line" || val === "Bar";
-      },
-    },
-    /** Card title text */
-    title: { type: String },
-    /** Subtitle text below icon */
-    subText: { type: String },
-    /** Material Design icon name */
-    subIcon: { type: String },
-    /** Icon color */
-    subIconColor: { type: String },
-    /** Chart data with series and labels */
-    data: {
-      type: Object,
-      default() {
-        return { series: [], labels: [] };
-      },
-    },
-    /** Chart configuration options */
-    options: {
-      type: Object,
-      default() {
-        return {};
-      },
-    },
-  },
-};
+interface ChartData {
+  series: unknown[];
+  labels?: string[];
+}
+
+// Props
+withDefaults(
+  defineProps<{
+    type: "Pie" | "Line" | "Bar";
+    title?: string;
+    subText?: string;
+    subIcon?: string;
+    subIconColor?: string;
+    data?: ChartData;
+    options?: Record<string, unknown>;
+  }>(),
+  {
+    data: () => ({ series: [], labels: [] }),
+    options: () => ({}),
+  }
+);
 </script>
 
 <style lang="scss">

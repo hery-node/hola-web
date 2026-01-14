@@ -1,10 +1,10 @@
 <template>
   <h-card v-bind="$attrs" :color="color" :title="title" :text="text">
-    <h-table v-bind="$attrs" v-on="$listeners" infinite hide-top :sort-key="sortKey" :sort-desc="sortDesc"> </h-table>
+    <h-table v-bind="$attrs" infinite hide-top :sort-key="sortKey" :sort-desc="sortDesc"> </h-table>
   </h-card>
 </template>
 
-<script>
+<script setup lang="ts">
 /**
  * DashboardTable Component
  *
@@ -17,19 +17,21 @@
  * - Card wrapper with customizable color and title
  * - Hide toolbar for compact display
  */
-import DataTable from "./DataTable";
 
-export default {
-  inheritAttrs: false,
-
-  props: {
-    ...DataTable.props,
-    /** Card title text */
-    title: { type: String },
-    /** Card subtitle text */
-    text: { type: String },
-    /** Card color theme */
-    color: { type: String, default: "secondary" },
-  },
-};
+// Props
+withDefaults(
+  defineProps<{
+    // DataTable required props
+    entity: string;
+    sortKey: string[];
+    sortDesc: boolean[];
+    // Card props
+    title?: string;
+    text?: string;
+    color?: string;
+  }>(),
+  {
+    color: "secondary",
+  }
+);
 </script>

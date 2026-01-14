@@ -1,289 +1,336 @@
 <template>
   <div>
+    <!-- Dialog mode -->
     <template v-if="dialog">
-      <h-window ref="win" :title="form_title" :width="dialogWidth" @close="close_window">
+      <BasicWindow ref="winRef" :title="formTitle" :width="dialogWidth" @close="closeWindow">
         <div style="overflow-x: hidden">
-          <h-form v-bind="$attrs" v-on="$listeners" ref="form" v-model="form" :fields="edit_fields" @submit="submit_form">
-            <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
-            <v-progress-linear v-if="loading" indeterminate :color="progressBarColor" class="mx-3"></v-progress-linear>
+          <BasicForm v-bind="$attrs" ref="formRef" v-model="form" :fields="editFields" hide-title @submit="submitForm">
+            <v-alert v-model="alert.shown" :type="alert.type" closable class="mx-3">
+              <span v-html="alert.msg" />
+            </v-alert>
+            <v-progress-linear v-if="loading" indeterminate :color="progressBarColor" class="mx-3" />
             <v-card-actions>
               <slot>
                 <v-row align="center" justify="center" class="my-0 py-0">
-                  <v-col cols="6" v-if="!hideCancel" align="center" justify="center">
-                    <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="cancel">{{ cancel_label }}</v-btn>
+                  <v-col v-if="!hideCancel" cols="6" class="text-center">
+                    <v-btn color="error" :block="mobile" @click="cancel">{{ cancelLabel }}</v-btn>
                   </v-col>
-                  <v-col :cols="hideCancel ? 12 : 6" align="center" justify="center">
-                    <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ submit_label }}</v-btn>
+                  <v-col :cols="hideCancel ? 12 : 6" class="text-center">
+                    <v-btn color="success" :block="mobile" type="submit">{{ submitLabel }}</v-btn>
                   </v-col>
                 </v-row>
               </slot>
             </v-card-actions>
-          </h-form>
+          </BasicForm>
         </div>
-      </h-window>
+      </BasicWindow>
     </template>
+
+    <!-- Inline mode -->
     <template v-else>
-      <h-form v-bind="$attrs" v-on="$listeners" ref="form" v-model="form" :fields="edit_fields" :title="form_title" @submit="submit_form">
-        <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
-        <v-progress-linear v-if="loading" indeterminate :color="progressBarColor" class="mx-3"></v-progress-linear>
+      <BasicForm v-bind="$attrs" ref="formRef" v-model="form" :fields="editFields" :title="formTitle" @submit="submitForm">
+        <v-alert v-model="alert.shown" :type="alert.type" closable class="mx-3">
+          <span v-html="alert.msg" />
+        </v-alert>
+        <v-progress-linear v-if="loading" indeterminate :color="progressBarColor" class="mx-3" />
         <v-card-actions>
           <slot>
             <v-row align="center" justify="center" class="my-0 py-0">
-              <v-col cols="6" v-if="!hideCancel" align="center" justify="center">
-                <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="cancel">{{ cancel_label }}</v-btn>
+              <v-col v-if="!hideCancel" cols="6" class="text-center">
+                <v-btn color="error" :block="mobile" @click="cancel">{{ cancelLabel }}</v-btn>
               </v-col>
-              <v-col :cols="hideCancel ? 12 : 6" align="center" justify="center">
-                <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ submit_label }}</v-btn>
+              <v-col :cols="hideCancel ? 12 : 6" class="text-center">
+                <v-btn color="success" :block="mobile" type="submit">{{ submitLabel }}</v-btn>
               </v-col>
             </v-row>
           </slot>
         </v-card-actions>
-      </h-form>
+      </BasicForm>
     </template>
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 /**
- * Edit form component
- * Provides create/update/clone form with entity metadata
+ * EditForm - Entity create/update/clone form component
+ * Provides form rendering with entity metadata and validation
  */
-import Meta from "../mixins/meta";
-import Alert from "../mixins/alert";
-import { read_property, save_entity, is_success_response, has_invalid_params, is_duplicated, is_unique_duplicated } from "../core/axios";
+import { ref, computed, watch, useTemplateRef, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
+import { useDisplay } from "vuetify";
+import BasicForm from "./BasicForm.vue";
+import BasicWindow from "./BasicWindow.vue";
+import { useAlert } from "@/composables/useAlert";
+import { useMeta } from "@/composables/useMeta";
+import { readProperty, saveEntity, isSuccessResponse, hasInvalidParams, isDuplicated, isUniqueDuplicated } from "@/core/axios";
+import type { FormField, FormData } from "./BasicForm.vue";
+import type { BasicFormInstance, BasicWindowInstance } from "./types";
 
-export default {
-  inheritAttrs: false,
-  mixins: [Alert, Meta],
+// Props
+const props = withDefaults(
+  defineProps<{
+    entity: string;
+    createFormView?: string;
+    updateFormView?: string;
+    createTitle?: string;
+    updateTitle?: string;
+    cloneTitle?: string;
+    cols?: number;
+    entityId?: string;
+    clone?: boolean;
+    hiddenValues?: Record<string, unknown>;
+    hideCancel?: boolean;
+    createCancelLabel?: string;
+    createSubmitLabel?: string;
+    updateCancelLabel?: string;
+    updateSubmitLabel?: string;
+    resetPost?: boolean;
+    initForm?: boolean;
+    hideHint?: boolean;
+    successHint?: string;
+    failHint?: string;
+    showDetailError?: boolean;
+    dialog?: boolean;
+    dialogWidth?: string;
+    progressBarColor?: string;
+  }>(),
+  {
+    createFormView: "*",
+    updateFormView: "*",
+    cols: 0,
+    clone: false,
+    hideCancel: false,
+    resetPost: true,
+    initForm: false,
+    hideHint: false,
+    showDetailError: false,
+    dialog: false,
+    dialogWidth: "800px",
+    progressBarColor: "indigo",
+  }
+);
 
-  props: {
-    createFormView: { type: String, default: "*" },
-    updateFormView: { type: String, default: "*" },
-    createTitle: { type: String },
-    updateTitle: { type: String },
-    cloneTitle: { type: String },
-    cols: { type: Number, default: 0 },
-    entityId: { type: String, default: undefined },
-    clone: { type: Boolean, default: false },
-    hiddenValues: { type: Object },
-    hideCancel: { type: Boolean, default: false },
-    createCancelLabel: { type: String },
-    createSubmitLabel: { type: String },
-    updateCancelLabel: { type: String },
-    updateSubmitLabel: { type: String },
-    resetPost: { type: Boolean, default: true },
-    initForm: { type: Boolean, default: false },
-    hideHint: { type: Boolean, default: false },
-    successHint: { type: String },
-    failHint: { type: String },
-    showDetailError: { type: Boolean, default: false },
-    dialog: { type: Boolean, default: false },
-    dialogWidth: { type: String, default: "800px" },
-    progressBarColor: { type: String, default: "indigo" },
-  },
+// Emits
+const emit = defineEmits<{
+  cancel: [];
+  success: [];
+}>();
 
-  data() {
-    return {
-      loading: false,
-      form: {},
-      edit_fields: [],
-    };
-  },
+// Composables
+const { t } = useI18n();
+const { mobile } = useDisplay();
+const { alert, showSuccess, showError } = useAlert();
+const { entityLabel, loadMeta, getEditFields, getCloneFields } = useMeta({ entity: props.entity });
 
-  async created() {
-    if (this.initForm) {
-      await this.init_form();
+// Template refs
+const formRef = useTemplateRef<BasicFormInstance>("formRef");
+const winRef = useTemplateRef<BasicWindowInstance>("winRef");
+
+// Local FormField type that extends the meta FormField
+interface EditFormField extends FormField {
+  update?: boolean;
+}
+
+// State
+const loading = ref(false);
+const form = ref<FormData>({});
+const editFields = ref<EditFormField[]>([]);
+
+// Computed
+const editView = computed(() => {
+  return updateMode.value ? props.updateFormView : props.createFormView;
+});
+
+const updateMode = computed(() => {
+  return props.entityId != null;
+});
+
+const formTitle = computed(() => {
+  if (updateMode.value) {
+    if (props.clone && props.cloneTitle && props.cloneTitle.length > 0) {
+      return props.cloneTitle;
+    }
+    if (!props.clone && props.updateTitle && props.updateTitle.length > 0) {
+      return props.updateTitle;
+    }
+    const key = props.clone ? "form.clone_title" : "form.update_title";
+    return t(key, { entity: entityLabel.value });
+  }
+
+  if (props.createTitle && props.createTitle.length > 0) {
+    return props.createTitle;
+  }
+  return t("form.create_title", { entity: entityLabel.value });
+});
+
+const cancelLabel = computed(() => {
+  if (updateMode.value && props.updateCancelLabel && props.updateCancelLabel.length > 0) {
+    return props.updateCancelLabel;
+  }
+  if (!updateMode.value && props.createCancelLabel && props.createCancelLabel.length > 0) {
+    return props.createCancelLabel;
+  }
+  return t("form.cancel_label");
+});
+
+const submitLabel = computed(() => {
+  if (updateMode.value && props.updateSubmitLabel && props.updateSubmitLabel.length > 0) {
+    return props.updateSubmitLabel;
+  }
+  if (!updateMode.value && props.createSubmitLabel && props.createSubmitLabel.length > 0) {
+    return props.createSubmitLabel;
+  }
+  return t("form.submit_label");
+});
+
+// Methods
+async function resetForm(): Promise<void> {
+  await formRef.value?.resetForm();
+}
+
+async function validate(): Promise<boolean> {
+  return (await formRef.value?.validate()) ?? false;
+}
+
+function cancel(): void {
+  alert.value.shown = false;
+  loading.value = false;
+  if (props.dialog) {
+    winRef.value?.close();
+  }
+  resetForm();
+  emit("cancel");
+}
+
+function closeWindow(): void {
+  alert.value.shown = false;
+  loading.value = false;
+  resetForm();
+  emit("cancel");
+}
+
+async function initFormData(): Promise<void> {
+  await loadMeta();
+  const metaFields = props.clone ? await getCloneFields() : await getEditFields(updateMode.value, editView.value);
+
+  // Cast to EditFormField and apply transformations
+  const fields = metaFields as unknown as EditFormField[];
+
+  // Apply cols to fields
+  fields.forEach((field) => {
+    if (!field.cols) {
+      field.cols = props.cols || undefined;
+    }
+  });
+
+  // Set disabled state for non-updatable fields
+  if (!props.clone) {
+    fields.forEach((field) => {
+      if (field.update === false) {
+        field.disabled = updateMode.value;
+      }
+    });
+  }
+
+  editFields.value = fields;
+
+  if (updateMode.value && props.entityId) {
+    const attrNames = fields.map((h) => h.name).join(",");
+    form.value = await readProperty(props.entity, props.entityId, attrNames);
+  }
+
+  if (props.dialog) {
+    winRef.value?.show();
+  }
+}
+
+async function submitForm(formData: FormData): Promise<void> {
+  alert.value.shown = false;
+
+  const isValid = await validate();
+  if (!isValid) {
+    return;
+  }
+
+  loading.value = true;
+  const submitData = props.hiddenValues ? { ...formData, ...props.hiddenValues } : formData;
+  (submitData as FormData & { _view: string })._view = editView.value;
+
+  const { code, err } = await saveEntity(props.entity, submitData, updateMode.value, props.clone);
+  loading.value = false;
+
+  if (isSuccessResponse(code)) {
+    if (props.resetPost) {
+      await resetForm();
+    }
+
+    const updateKey = props.clone ? "form.clone_success_hint" : "form.update_success_hint";
+    const createKey = "form.create_success_hint";
+    const successInfo = props.successHint ?? t(updateMode.value ? updateKey : createKey, { entity: entityLabel.value });
+
+    if (!props.hideHint) {
+      showSuccess(successInfo);
+    }
+    if (props.dialog) {
+      winRef.value?.close();
+    }
+    emit("success");
+  } else if (hasInvalidParams(code)) {
+    const fieldNames = err as string[] | undefined;
+    if (fieldNames && fieldNames.length === 1) {
+      const [fieldName] = fieldNames;
+      const labelField = editFields.value.find((f) => f.name === fieldName);
+      const errorInfo = t("form.err_invalid_value", { field: labelField?.label });
+      showError(errorInfo);
+    }
+  } else if (isDuplicated(code)) {
+    const errorInfo = t("form.err_duplicate", { entity: entityLabel.value });
+    showError(errorInfo);
+  } else if (isUniqueDuplicated(code)) {
+    const fieldNames = err as string[] | undefined;
+    if (fieldNames && fieldNames.length > 0) {
+      const labels = fieldNames.map((name) => {
+        const field = editFields.value.find((f) => f.name === name);
+        return field?.label || name;
+      });
+      const errorInfo = t("form.err_duplicate_unique", { fields: labels.join(", ") });
+      showError(errorInfo);
+    } else {
+      const errorInfo = t("form.err_duplicate_unique_generic");
+      showError(errorInfo);
+    }
+  } else {
+    const updateKey = props.clone ? "form.clone_fail_hint" : "form.update_fail_hint";
+    const createKey = "form.create_fail_hint";
+    const errorInfo = props.failHint ?? t(updateMode.value ? updateKey : createKey, { entity: entityLabel.value });
+    const errorDetail = props.showDetailError ? t("form.error", { err }) : t("form.check_log");
+    showError(errorInfo + errorDetail);
+  }
+}
+
+// Watch for entityId changes
+watch(
+  () => props.entityId,
+  async (newId) => {
+    if (newId !== "") {
+      await initFormData();
     }
   },
+  { deep: true }
+);
 
-  watch: {
-    entityId: {
-      async handler() {
-        if (this.entityId !== "") {
-          await this.init_form();
-        }
-      },
-      deep: true,
-    },
-  },
+// Lifecycle
+onMounted(async () => {
+  if (props.initForm) {
+    await initFormData();
+  }
+});
 
-  computed: {
-    /** Get current edit view */
-    edit_view() {
-      return this.update_mode ? this.updateFormView : this.createFormView;
-    },
-
-    /** Check if in update mode */
-    update_mode() {
-      return this.entityId != null;
-    },
-
-    /** Get form title based on mode */
-    form_title() {
-      if (this.update_mode) {
-        if (this.clone && this.cloneTitle?.length > 0) {
-          return this.cloneTitle;
-        }
-        if (!this.clone && this.updateTitle?.length > 0) {
-          return this.updateTitle;
-        }
-        const key = this.clone ? "form.clone_title" : "form.update_title";
-        return this.$t(key, { entity: this.entity_label });
-      }
-
-      if (this.createTitle?.length > 0) {
-        return this.createTitle;
-      }
-      return this.$t("form.create_title", { entity: this.entity_label });
-    },
-
-    /** Get cancel button label */
-    cancel_label() {
-      if (this.update_mode && this.updateCancelLabel?.length > 0) {
-        return this.updateCancelLabel;
-      }
-      if (!this.update_mode && this.createCancelLabel?.length > 0) {
-        return this.createCancelLabel;
-      }
-      return this.$t("form.cancel_label");
-    },
-
-    /** Get submit button label */
-    submit_label() {
-      if (this.update_mode && this.updateSubmitLabel?.length > 0) {
-        return this.updateSubmitLabel;
-      }
-      if (!this.update_mode && this.createSubmitLabel?.length > 0) {
-        return this.createSubmitLabel;
-      }
-      return this.$t("form.submit_label");
-    },
-  },
-
-  methods: {
-    /** Reset form */
-    reset_form() {
-      this.$refs.form?.reset_form();
-    },
-
-    /** Validate form */
-    is_validate() {
-      return this.$refs.form?.is_validate() ?? false;
-    },
-
-    /** Cancel edit */
-    cancel() {
-      this.alert.shown = false;
-      this.loading = false;
-      if (this.dialog) {
-        this.$refs.win?.close();
-      }
-      this.reset_form();
-      this.$emit("cancel");
-    },
-
-    /** Close window */
-    close_window() {
-      this.alert.shown = false;
-      this.loading = false;
-      this.reset_form();
-      this.$emit("cancel");
-    },
-
-    /** Initialize form with metadata and data */
-    async init_form() {
-      await this.load_meta();
-      const edit_fields = this.clone ? await this.get_clone_fields() : await this.get_edit_fields(this.update_mode, this.edit_view);
-
-      edit_fields.forEach((field) => {
-        if (!field.cols) {
-          field.cols = this.cols;
-        }
-      });
-      this.edit_fields = edit_fields;
-
-      // Set disabled state for non-updatable fields
-      if (!this.clone) {
-        this.edit_fields.forEach((field) => {
-          if (field.update === false) {
-            field.disabled = this.update_mode;
-          }
-        });
-      }
-
-      if (this.update_mode) {
-        const attr_names = this.edit_fields.map((h) => h.name).join(",");
-        this.form = await read_property(this.entity, this.entityId, attr_names);
-      }
-
-      if (this.dialog) {
-        this.$refs.win?.show();
-      }
-    },
-
-    /** Submit form */
-    async submit_form(form_data) {
-      this.alert.shown = false;
-
-      if (!this.is_validate()) {
-        return;
-      }
-
-      this.loading = true;
-      const form = this.hiddenValues ? { ...form_data, ...this.hiddenValues } : form_data;
-      form._view = this.edit_view;
-
-      const { code, err } = await save_entity(this.entity, form, this.update_mode, this.clone);
-      this.loading = false;
-
-      if (is_success_response(code)) {
-        if (this.resetPost) {
-          this.reset_form();
-        }
-
-        const update_key = this.clone ? "form.clone_success_hint" : "form.update_success_hint";
-        const create_key = "form.create_success_hint";
-        const success_info = this.successHint ?? this.$t(this.update_mode ? update_key : create_key, { entity: this.entity_label });
-
-        if (!this.hideHint) {
-          this.show_success(success_info);
-        }
-        if (this.dialog) {
-          this.$refs.win?.close();
-        }
-        this.$emit("success");
-      } else if (has_invalid_params(code)) {
-        const field_names = err;
-        if (field_names?.length === 1) {
-          const [field_name] = field_names;
-          const [label_field] = this.edit_fields.filter((f) => f.name === field_name);
-          const error_info = this.$t("form.err_invalid_value", { field: label_field?.label });
-          this.show_error(error_info);
-        }
-      } else if (is_duplicated(code)) {
-        const error_info = this.$t("form.err_duplicate", { entity: this.entity_label });
-        this.show_error(error_info);
-      } else if (is_unique_duplicated(code)) {
-        const field_names = err;
-        if (field_names?.length > 0) {
-          const labels = field_names.map((name) => {
-            const field = this.edit_fields.find((f) => f.name === name);
-            return field?.label || name;
-          });
-          const error_info = this.$t("form.err_duplicate_unique", { fields: labels.join(", ") });
-          this.show_error(error_info);
-        } else {
-          const error_info = this.$t("form.err_duplicate_unique_generic");
-          this.show_error(error_info);
-        }
-      } else {
-        const update_key = this.clone ? "form.clone_fail_hint" : "form.update_fail_hint";
-        const create_key = "form.create_fail_hint";
-        const error_info = this.failHint ?? this.$t(this.update_mode ? update_key : create_key, { entity: this.entity_label });
-        const error = this.showDetailError ? this.$t("form.error", { err }) : this.$t("form.check_log");
-        this.show_error(error_info + error);
-      }
-    },
-  },
-};
+// Expose methods
+defineExpose({
+  resetForm,
+  validate,
+  initFormData,
+  cancel,
+});
 </script>

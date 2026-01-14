@@ -1,7 +1,7 @@
 <template>
   <div id="nav">
-    <v-bottom-navigation color="primary" absolute grow>
-      <v-btn :to="menu.route" v-for="menu in menus" v-bind:key="menu.title">
+    <v-bottom-navigation color="primary" grow>
+      <v-btn v-for="menu in menus" :key="menu.title" :to="menu.route">
         <span>{{ menu.title }}</span>
         <v-icon>{{ menu.icon }}</v-icon>
       </v-btn>
@@ -9,21 +9,25 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 /**
- * Mobile menu component
- * Provides bottom navigation for mobile devices
+ * MobileMenu - Bottom navigation for mobile devices
  */
-export default {
-  inheritAttrs: false,
 
-  props: {
-    menus: { type: Array, required: true },
-  },
-};
+/** Menu item structure */
+interface MenuItem {
+  title: string;
+  icon?: string;
+  route?: string;
+}
+
+// Props
+defineProps<{
+  menus: MenuItem[];
+}>();
 </script>
 
-<style scoped lang="css">
+<style scoped>
 #nav {
   position: fixed;
   width: 100%;

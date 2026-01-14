@@ -2,56 +2,57 @@
   <h-compare v-bind="$attrs" :objs="items" :label-key="labelKey"></h-compare>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, onMounted, toRef } from "vue";
+import { useMeta } from "@/composables/useMeta";
+import { readEntity } from "@/core/axios";
+
 /**
  * Compare entity component
  * Compares multiple entities side by side
  */
-import Meta from "../mixins/meta";
-import { read_entity } from "../core/axios";
 
-export default {
-  inheritAttrs: false,
-  mixins: [Meta],
+// Props
+const props = defineProps<{
+  entity: string;
+  ids: string[];
+  labelKey: string;
+}>();
 
-  props: {
-    ids: { type: Array, required: true },
-    labelKey: { type: String, required: true },
-  },
+// Composables
+const { loadMeta, getPropertyFields, formatFieldValue } = useMeta({ entity: toRef(props, "entity") });
 
-  data() {
-    return {
-      items: [],
-    };
-  },
+// State
+const items = ref<Record<string, unknown>[]>([]);
 
-  async created() {
-    await this.load_meta();
-    const property_fields = await this.get_property_fields();
-    const attr_names = property_fields.map((h) => h.name).join(",");
+// Lifecycle
+onMounted(async () => {
+  await loadMeta();
+  const propertyFields = await getPropertyFields();
+  const attrNames = propertyFields.map((h) => h.name).join(",");
 
-    const objs = [];
-    for (let i = 0; i < this.ids.length; i++) {
-      objs.push(await read_entity(this.entity, this.ids[i], `${attr_names},${this.labelKey}`));
-    }
+  const objs: Record<string, unknown>[] = [];
+  for (let i = 0; i < props.ids.length; i++) {
+    const obj = await readEntity(props.entity, props.ids[i], `${attrNames},${props.labelKey}`);
+    if (obj) objs.push(obj);
+  }
 
-    const items = [];
-    for (let i = 0; i < objs.length; i++) {
-      const obj = objs[i];
-      const item = {};
-      item[this.labelKey] = obj[this.labelKey];
+  const resultItems: Record<string, unknown>[] = [];
+  for (let i = 0; i < objs.length; i++) {
+    const obj = objs[i];
+    const item: Record<string, unknown> = {};
+    item[props.labelKey] = obj[props.labelKey];
 
-      for (let j = 0; j < property_fields.length; j++) {
-        const field = property_fields[j];
-        if (field.type === "obj") {
-          Object.assign(item, obj[field.name]);
-        } else {
-          item[field.name] = this.format_field_value(field, obj[field.name], this);
-        }
+    for (let j = 0; j < propertyFields.length; j++) {
+      const field = propertyFields[j];
+      if (field.type === "obj") {
+        Object.assign(item, obj[field.name as string] as object);
+      } else {
+        item[field.name as string] = formatFieldValue(field, obj[field.name as string]);
       }
-      items.push(item);
     }
-    this.items = items;
-  },
-};
+    resultItems.push(item);
+  }
+  items.value = resultItems;
+});
 </script>

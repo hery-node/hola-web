@@ -1,120 +1,168 @@
 <template>
   <v-card v-bind="$attrs" flat>
-    <v-form ref="form" @submit.prevent="submit_form">
+    <v-form ref="formRef" @submit.prevent="submitForm">
       <v-card-title v-if="!hideTitle">
-        <span class="title">{{ form_title }}</span>
+        <span class="text-h6">{{ formTitle }}</span>
       </v-card-title>
       <v-card-text>
         <v-row dense>
-          <v-col v-for="(field, index) in fields" v-bind:key="index" cols="12" sm="12" xs="12" :md="field.cols ?? 12" :lg="field.cols ?? 12">
-            <template v-if="field.input_type === 'combobox'">
-              <v-combobox v-model="form_data[field.name]" :autofocus="index === 0" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :multiple="field.multiple" chips deletable-chips :disabled="!!field.disabled" dense outlined :clearable="!field.disabled"></v-combobox>
+          <v-col v-for="(field, index) in fields" :key="index" cols="12" sm="12" :md="field.cols ?? 12" :lg="field.cols ?? 12">
+            <!-- Combobox -->
+            <template v-if="field.inputType === 'combobox'">
+              <v-combobox v-model="formData[field.name]" :autofocus="index === 0" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :multiple="field.multiple" chips closable-chips :disabled="!!field.disabled" density="compact" variant="outlined" :clearable="!field.disabled" />
             </template>
-            <template v-else-if="field.input_type === 'password'">
-              <v-text-field v-model="form_data[field.name]" :autofocus="index === 0" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ?? []" :disabled="!!field.disabled" dense outlined :clearable="!field.disabled" :type="show_password ? 'text' : 'password'" :append-icon="show_password ? 'mdi-eye' : 'mdi-eye-off'" @click:append="show_password = !show_password" />
+
+            <!-- Password -->
+            <template v-else-if="field.inputType === 'password'">
+              <v-text-field v-model="formData[field.name]" :autofocus="index === 0" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ?? []" :disabled="!!field.disabled" density="compact" variant="outlined" :clearable="!field.disabled" :type="showPassword ? 'text' : 'password'" :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="showPassword = !showPassword" />
             </template>
-            <template v-else-if="field.input_type === 'date'">
-              <v-menu v-model="show_date_picker" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y max-width="290px" min-width="290px">
-                <template v-slot:activator="{ on }">
-                  <v-text-field :label="field.label" :hint="field.hint" v-model="form_data[field.name]" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" readonly :disabled="!!field.disabled" dense outlined :clearable="!field.disabled" v-on="on"></v-text-field>
+
+            <!-- Date Picker -->
+            <template v-else-if="field.inputType === 'date'">
+              <v-menu v-model="datePickerMenus[field.name]" :close-on-content-click="false">
+                <template #activator="{ props: menuProps }">
+                  <v-text-field v-bind="menuProps" :label="field.label" :hint="field.hint" :model-value="formData[field.name]" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" readonly :disabled="!!field.disabled" density="compact" variant="outlined" :clearable="!field.disabled" @click:clear="formData[field.name] = ''" />
                 </template>
-                <v-date-picker :first-day-of-week="0" v-model="form_data[field.name]" no-title scrollable @input="show_date_picker = false"></v-date-picker>
+                <v-date-picker v-model="formData[field.name]" @update:model-value="datePickerMenus[field.name] = false" />
               </v-menu>
             </template>
+
+            <!-- Autocomplete (when items provided) -->
             <template v-else-if="field.items">
-              <v-autocomplete :items="field.items" :autofocus="index === 0" v-model="form_data[field.name]" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ?? []" :multiple="field.multiple" chips :disabled="!!field.disabled" dense outlined :clearable="!field.disabled"></v-autocomplete>
+              <v-autocomplete :items="field.items" :autofocus="index === 0" v-model="formData[field.name]" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ?? []" :multiple="field.multiple" chips closable-chips :disabled="!!field.disabled" density="compact" variant="outlined" :clearable="!field.disabled" />
             </template>
-            <template v-else-if="field.input_type === 'switch'">
-              <v-switch align="center" justify="center" v-model="form_data[field.name]" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ?? []" :disabled="!!field.disabled" dense outlined :clearable="!field.disabled"></v-switch>
+
+            <!-- Switch -->
+            <template v-else-if="field.inputType === 'switch'">
+              <v-switch v-model="formData[field.name]" :label="field.label" :hint="field.hint" :prepend-icon="field.icon" :rules="field.rules ?? []" :disabled="!!field.disabled" density="compact" color="primary" hide-details="auto" />
             </template>
-            <template v-else-if="field.input_type === 'textarea'">
-              <v-textarea v-model="form_data[field.name]" :autofocus="index === 0" :type="field.input_type ?? 'text'" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ?? []" :disabled="!!field.disabled" dense outlined :clearable="!field.disabled" auto-grow></v-textarea>
+
+            <!-- Textarea -->
+            <template v-else-if="field.inputType === 'textarea'">
+              <v-textarea v-model="formData[field.name]" :autofocus="index === 0" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ?? []" :disabled="!!field.disabled" density="compact" variant="outlined" :clearable="!field.disabled" auto-grow />
             </template>
+
+            <!-- Default Text Field -->
             <template v-else>
-              <v-text-field v-model="form_data[field.name]" :autofocus="index === 0" :type="field.input_type ?? 'text'" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ?? []" :disabled="!!field.disabled" dense outlined :clearable="!field.disabled"></v-text-field>
+              <v-text-field v-model="formData[field.name]" :autofocus="index === 0" :type="field.inputType ?? 'text'" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ?? []" :disabled="!!field.disabled" density="compact" variant="outlined" :clearable="!field.disabled" />
             </template>
           </v-col>
         </v-row>
       </v-card-text>
-      <slot></slot>
+      <slot />
     </v-form>
   </v-card>
 </template>
 
-<script>
+<script setup lang="ts">
 /**
- * Basic form component
- * Provides form fields rendering based on field definitions
+ * BasicForm - Dynamic form component
+ * Renders form fields based on field definitions with validation support
  */
-export default {
-  inheritAttrs: false,
+import { ref, computed, watch, useTemplateRef, reactive } from "vue";
+import type { VForm } from "vuetify/components";
 
-  model: {
-    prop: "form",
+/** Form field definition */
+export interface FormField {
+  name: string;
+  label: string;
+  inputType?: "text" | "password" | "email" | "number" | "date" | "textarea" | "switch" | "combobox";
+  hint?: string;
+  suffix?: string;
+  prefix?: string;
+  icon?: string;
+  cols?: number;
+  multiple?: boolean;
+  disabled?: boolean;
+  default?: unknown;
+  rules?: ((value: unknown) => boolean | string)[];
+  items?: Array<{ title: string; value: unknown }> | string[];
+}
+
+/** Form data type */
+export type FormData = Record<string, unknown>;
+
+// Props
+const props = defineProps<{
+  fields: FormField[];
+  modelValue: FormData;
+  title?: string;
+  hideTitle?: boolean;
+}>();
+
+// Emits
+const emit = defineEmits<{
+  "update:modelValue": [value: FormData];
+  submit: [data: FormData];
+}>();
+
+// Template refs
+const formRef = useTemplateRef<VForm>("formRef");
+
+// State
+const showPassword = ref(false);
+const datePickerMenus = reactive<Record<string, boolean>>({});
+
+// Apply default values from field definitions
+function applyDefaults(form: FormData): FormData {
+  const result = { ...form };
+  for (const field of props.fields) {
+    if (field.default !== undefined && (result[field.name] === undefined || result[field.name] === null || result[field.name] === "")) {
+      result[field.name] = field.default;
+    }
+  }
+  return result;
+}
+
+// Reactive form data with defaults applied
+const formData = ref<FormData>(applyDefaults(props.modelValue));
+
+// Watch for external changes to modelValue
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    formData.value = applyDefaults(newValue);
   },
+  { deep: true }
+);
 
-  props: {
-    fields: { type: Array, required: true },
-    form: { type: Object, required: true },
-    title: { type: String },
-    hideTitle: { type: Boolean, default: false },
+// Sync internal changes back to parent
+watch(
+  formData,
+  (newValue) => {
+    emit("update:modelValue", newValue);
   },
+  { deep: true }
+);
 
-  data() {
-    return {
-      show_date_picker: false,
-      show_password: false,
-      form_data: this.apply_defaults(this.form),
-    };
-  },
+// Computed
+const formTitle = computed(() => {
+  return props.hideTitle ? "" : props.title ?? "";
+});
 
-  watch: {
-    form: {
-      handler() {
-        this.form_data = this.apply_defaults(this.form);
-      },
-      deep: true,
-    },
-  },
+// Methods
+async function resetForm(): Promise<void> {
+  formRef.value?.reset();
+}
 
-  computed: {
-    /** Get form title */
-    form_title() {
-      return this.hideTitle ? "" : this.title ?? "";
-    },
-  },
+async function resetValidation(): Promise<void> {
+  formRef.value?.resetValidation();
+}
 
-  methods: {
-    /** Apply default values from field definitions to empty form values */
-    apply_defaults(form) {
-      const result = { ...form };
-      for (const field of this.fields) {
-        if (field.default !== undefined && (result[field.name] === undefined || result[field.name] === null || result[field.name] === "")) {
-          result[field.name] = field.default;
-        }
-      }
-      return result;
-    },
+async function validate(): Promise<boolean> {
+  const result = await formRef.value?.validate();
+  return result?.valid ?? false;
+}
 
-    /** Reset form */
-    reset_form() {
-      this.$refs.form?.reset();
-    },
+function submitForm(): void {
+  emit("submit", formData.value);
+}
 
-    /** Reset validation */
-    reset_validation() {
-      this.$refs.form?.resetValidation();
-    },
-
-    /** Validate form */
-    is_validate() {
-      return this.$refs.form?.validate() ?? false;
-    },
-
-    /** Submit form */
-    submit_form() {
-      this.$emit("submit", this.form_data);
-    },
-  },
-};
+// Expose methods
+defineExpose({
+  resetForm,
+  resetValidation,
+  validate,
+  submitForm,
+});
 </script>

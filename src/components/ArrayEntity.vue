@@ -2,34 +2,34 @@
   <h-array v-bind="$attrs" :objs="items"></h-array>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, onMounted, toRef } from "vue";
+import { useMeta } from "@/composables/useMeta";
+import { readEntity } from "@/core/axios";
+
 /**
  * Array entity component
  * Displays array field from entity
  */
-import Meta from "../mixins/meta";
-import { read_entity } from "../core/axios";
 
-export default {
-  inheritAttrs: false,
-  mixins: [Meta],
+// Props
+const props = defineProps<{
+  entity: string;
+  id: string;
+  fieldName: string;
+}>();
 
-  props: {
-    id: { type: String, required: true },
-    fieldName: { type: String, required: true },
-  },
+// Composables
+useMeta({ entity: toRef(props, "entity") });
 
-  data() {
-    return {
-      items: [],
-    };
-  },
+// State
+const items = ref<Record<string, unknown>[]>([]);
 
-  async created() {
-    const obj = await read_entity(this.entity, this.id, this.fieldName);
-    if (obj?.[this.fieldName]) {
-      this.items = obj[this.fieldName];
-    }
-  },
-};
+// Lifecycle
+onMounted(async () => {
+  const obj = await readEntity(props.entity, props.id, props.fieldName);
+  if (obj?.[props.fieldName]) {
+    items.value = obj[props.fieldName] as Record<string, unknown>[];
+  }
+});
 </script>

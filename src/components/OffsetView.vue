@@ -4,34 +4,38 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed } from "vue";
+
 /**
  * Offset view component
  * Provides container with negative top margin offset
  */
-export default {
-  props: {
-    fullWidth: { type: Boolean, default: false },
-    offset: { type: [Number, String], default: 0 },
-  },
 
-  computed: {
-    /** Get CSS classes */
-    classes() {
-      return {
-        "v-offset--full-width": this.fullWidth,
-      };
-    },
+// Props
+const props = withDefaults(
+  defineProps<{
+    fullWidth?: boolean;
+    offset?: number | string;
+  }>(),
+  {
+    fullWidth: false,
+    offset: 0,
+  }
+);
 
-    /** Get offset styles */
-    styles() {
-      return {
-        top: `-${this.offset}px`,
-        marginBottom: `-${this.offset}px`,
-      };
-    },
-  },
-};
+// Computed
+const classes = computed(() => ({
+  "v-offset--full-width": props.fullWidth,
+}));
+
+const styles = computed(() => {
+  const offsetNum = typeof props.offset === "string" ? parseInt(props.offset) : props.offset;
+  return {
+    top: `-${offsetNum}px`,
+    marginBottom: `-${offsetNum}px`,
+  };
+});
 </script>
 
 <style>

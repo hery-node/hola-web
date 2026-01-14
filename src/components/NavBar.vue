@@ -1,73 +1,80 @@
 <template>
   <nav>
-    <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app dark flat :color="barColor">
+    <v-app-bar app flat :color="barColor">
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-toolbar-title :style="drawer_width" class="ml-0 pl-4">
-        <span class="hidden-sm-and-down">{{ app_title }}</span>
+      <v-toolbar-title :style="drawerWidthStyle" class="ml-0 pl-4">
+        <span class="hidden-sm-and-down">{{ appTitle }}</span>
       </v-toolbar-title>
       <v-spacer />
       <slot name="toolbar" />
     </v-app-bar>
-    <v-navigation-drawer v-bind="$attrs" v-on="$listeners" v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" app>
-      <v-list v-for="menu in menu_items" :key="menu.title">
-        <v-list subheader dense>
-          <v-subheader>{{ menu.title }}</v-subheader>
-          <v-list-item v-for="child in menu.menus" :key="child.title" router :to="child.route">
-            <v-list-item-icon>
-              <v-icon>{{ child.icon }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title>{{ child.title }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-        <v-divider></v-divider>
+
+    <v-navigation-drawer v-bind="$attrs" v-model="drawer" app>
+      <v-list v-for="menu in menuItems" :key="menu.title" density="compact">
+        <v-list-subheader>{{ menu.title }}</v-list-subheader>
+        <v-list-item v-for="child in menu.menus" :key="child.title" :to="child.route" :prepend-icon="child.icon" :title="child.title" />
+        <v-divider />
       </v-list>
     </v-navigation-drawer>
   </nav>
 </template>
 
-<script>
+<script setup lang="ts">
 /**
- * Navigation bar component with drawer
- * Provides app bar and navigation menu
+ * NavBar - Navigation bar with drawer menu
  */
-export default {
-  inheritAttrs: false,
+import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
-  props: {
-    title: { type: String },
-    menus: { type: Array, required: true },
-    barColor: { type: String, default: "teal" },
-    drawerWidth: { type: Number, default: 300 },
+/** Menu item structure */
+interface MenuItem {
+  title: string;
+  icon?: string;
+  route?: string;
+}
+
+/** Menu group structure */
+interface MenuGroup {
+  title: string;
+  menus: MenuItem[];
+}
+
+// Props
+const props = withDefaults(
+  defineProps<{
+    title?: string;
+    menus: MenuGroup[];
+    barColor?: string;
+    drawerWidth?: number;
+  }>(),
+  {
+    barColor: "primary",
+    drawerWidth: 300,
+  }
+);
+
+// Composables
+const { t } = useI18n();
+
+// State
+const drawer = ref(true);
+const menuItems = ref<MenuGroup[]>([]);
+
+// Computed
+const drawerWidthStyle = computed(() => {
+  return `width: ${props.drawerWidth}px`;
+});
+
+const appTitle = computed(() => {
+  return props.title ?? t("app.title");
+});
+
+// Watch
+watch(
+  () => props.menus,
+  (newMenus) => {
+    menuItems.value = newMenus;
   },
-
-  data() {
-    return {
-      drawer: true,
-      menu_items: [],
-    };
-  },
-
-  watch: {
-    menus: {
-      handler() {
-        this.menu_items = this.menus;
-      },
-      deep: true,
-    },
-  },
-
-  computed: {
-    /** Get drawer width CSS style */
-    drawer_width() {
-      return `width: ${this.drawerWidth}px`;
-    },
-
-    /** Get app title from prop or i18n */
-    app_title() {
-      return this.title ?? this.$t("app.title");
-    },
-  },
-};
+  { deep: true, immediate: true }
+);
 </script>

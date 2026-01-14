@@ -1,378 +1,407 @@
 <template>
   <v-card v-bind="$attrs">
-    <v-toolbar :class="toolbarClass" dark v-if="showToolbar">
-      <v-text-field v-model="search" append-icon="mdi-magnify" :label="search_hint" single-line hide-details clearable></v-text-field>
-      <div v-if="show_threshold">
+    <v-toolbar :class="toolbarClass" v-if="showToolbar">
+      <v-text-field v-model="search" append-inner-icon="mdi-magnify" :label="searchHintText" single-line hide-details clearable></v-text-field>
+      <div v-if="showThreshold">
         <v-text-field v-model="threshold" prefix="max*100/min > " suffix="%" class="ml-5" single-line hide-details></v-text-field>
       </div>
-      <template v-if="show_only_show_diff">
-        <v-checkbox class="ml-5" v-model="only_show_diff" hide-details :label="show_diff_label"></v-checkbox>
+      <template v-if="showOnlyShowDiff">
+        <v-checkbox class="ml-5" v-model="onlyShowDiff" hide-details :label="showDiffLabelText"></v-checkbox>
       </template>
-      <template v-if="show_fuzzy_match">
-        <v-checkbox class="ml-5" v-model="fuzzy_match" hide-details :label="show_fuzzy_label"></v-checkbox>
+      <template v-if="showFuzzyMatch">
+        <v-checkbox class="ml-5" v-model="fuzzyMatch" hide-details :label="showFuzzyLabel"></v-checkbox>
       </template>
-      <template v-if="show_download_icon">
-        <v-btn class="ml-2" color="title_button" plain @click="download_result"> <v-icon class="mr-3">mdi-cloud-download</v-icon>{{ $t("compare.download") }} </v-btn>
+      <template v-if="showDownloadIcon">
+        <v-btn class="ml-2" color="title_button" variant="plain" @click="downloadResult"> <v-icon class="mr-3">mdi-cloud-download</v-icon>{{ t("compare.download") }} </v-btn>
       </template>
     </v-toolbar>
-    <template v-if="regexSearch">
-      <v-data-table ref="table" v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" :custom-filter="regex_search" disable-pagination hide-default-footer> </v-data-table>
-    </template>
-    <template v-else>
-      <v-data-table ref="table" v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :item-class="get_item_class" :search="search" disable-pagination hide-default-footer> </v-data-table>
-    </template>
+    <v-data-table ref="tableRef" v-bind="$attrs" :headers="tableHeaders" :items="items" :row-class="getItemClass" :search="search" :custom-filter="regexSearch ? regexSearchFn : undefined" :items-per-page="-1">
+      <template #bottom></template>
+    </v-data-table>
   </v-card>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRegex } from "@/composables/useRegex";
+import { useFuzzy } from "@/composables/useFuzzy";
+import { useWrap } from "@/composables/useWrap";
+import { utils, writeFileXLSX } from "xlsx";
+
 /**
  * Compare table component
  * Compares multiple objects with diff highlighting
  */
-import Regex from "../mixins/regex";
-import Simple from "../mixins/simple";
-import Fuzzy from "../mixins/fuzzy";
-import Wrap from "../mixins/wrap";
-import { utils, writeFileXLSX } from "xlsx";
 
-export default {
-  inheritAttrs: false,
-  mixins: [Regex, Simple, Fuzzy, Wrap],
+interface TableHeader {
+  title: string;
+  key: string;
+  width?: string;
+  align?: "start" | "center" | "end";
+  headerProps?: { class: string };
+  sortable?: boolean;
+  sort?: (a: string, b: string) => number;
+}
 
-  props: {
-    objs: { type: Array, required: true },
-    labelKey: { type: String, required: true },
-    attrWidth: { type: String, default: "120px" },
-    valueWidth: { type: String, default: "80%" },
-    headerWidth: { type: String, default: "120px" },
-    headerAlign: { type: String, default: "center" },
-    headerClass: { type: String, default: "table_header subtitle-2" },
-    headerUppcase: { type: Boolean, default: false },
-    showToolbar: { type: Boolean, default: false },
-    toolbarClass: { type: String, default: "app_bar subtitle-2" },
-    searchHint: { type: String },
-    showDiffLabel: { type: String },
-    topFields: { type: Array, default: () => [] },
-    colors: { type: Object, default: () => ({}) },
-    filterFields: { type: Array, default: () => [] },
-    showRatio: { type: Boolean, default: false },
-    showDiff: { type: Boolean, default: false },
-    downloadExcelName: { type: String, default: "" },
-    diffThreshold: { type: Number, default: 0 },
-  },
+interface TableItem extends Record<string, unknown> {
+  attr: string;
+  attrs?: string[];
+  ratio?: string;
+  diff1?: string;
+  diff2?: string;
+}
 
-  data() {
-    return {
-      only_show_diff: false,
-      simple_value: this.simpleValue,
-      search: "",
-      threshold: 0,
-      all_items: [],
-      items: [],
-      table_headers: [],
-    };
-  },
+// Props
+const props = withDefaults(
+  defineProps<{
+    objs: Record<string, unknown>[];
+    labelKey: string;
+    attrWidth?: string;
+    valueWidth?: string;
+    headerWidth?: string;
+    headerAlign?: "start" | "center" | "end";
+    headerClass?: string;
+    headerUppcase?: boolean;
+    showToolbar?: boolean;
+    toolbarClass?: string;
+    searchHint?: string;
+    showDiffLabel?: string;
+    topFields?: string[];
+    colors?: Record<string, string>;
+    filterFields?: string[];
+    showRatio?: boolean;
+    showDiff?: boolean;
+    downloadExcelName?: string;
+    diffThreshold?: number;
+    regexSearch?: boolean;
+    simpleValue?: boolean;
+  }>(),
+  {
+    attrWidth: "120px",
+    valueWidth: "80%",
+    headerWidth: "120px",
+    headerAlign: "center",
+    headerClass: "table_header subtitle-2",
+    headerUppcase: false,
+    showToolbar: false,
+    toolbarClass: "app_bar subtitle-2",
+    topFields: () => [],
+    colors: () => ({}),
+    filterFields: () => [],
+    showRatio: false,
+    showDiff: false,
+    downloadExcelName: "",
+    diffThreshold: 0,
+    regexSearch: false,
+    simpleValue: false,
+  }
+);
 
-  created() {
-    this.parse_data();
-  },
+// Composables
+const { t } = useI18n();
+const { regexSearch: regexSearchFn } = useRegex();
+const { showFuzzyMatch, showFuzzyLabel, fuzzyMatch, mergeAttributes } = useFuzzy();
+const { hasValue, convertLongToNewline, convertToSimpleValue } = useWrap();
 
-  watch: {
-    only_show_diff: {
-      handler() {
-        this.filter_fields();
+// Refs
+const tableRef = ref<HTMLElement | null>(null);
+
+// State
+const onlyShowDiff = ref(false);
+const simpleValueState = ref(props.simpleValue);
+const search = ref("");
+const threshold = ref(0);
+const allItems = ref<TableItem[]>([]);
+const items = ref<TableItem[]>([]);
+const tableHeaders = ref<TableHeader[]>([]);
+
+// Computed
+const searchHintText = computed(() => {
+  return props.searchHint ?? t("compare.search");
+});
+
+const showOnlyShowDiff = computed(() => {
+  return props.objs.length > 1;
+});
+
+const showDownloadIcon = computed(() => {
+  return props.downloadExcelName.length > 0 && props.objs.length > 0;
+});
+
+const showThreshold = computed(() => {
+  return props.diffThreshold > 0 && props.objs.length > 1;
+});
+
+const showDiffLabelText = computed(() => {
+  return props.showDiffLabel ?? t("compare.show_diff");
+});
+
+// Methods
+function downloadResult() {
+  const tables = document.getElementsByTagName("table");
+  if (tables.length >= 1) {
+    const table = tables[0];
+    if (simpleValueState.value) {
+      simpleValueState.value = false;
+      parseData();
+      setTimeout(() => {
+        const workbook = utils.table_to_book(table);
+        writeFileXLSX(workbook, props.downloadExcelName);
+        simpleValueState.value = true;
+        parseData();
+      }, 2000);
+    } else {
+      const workbook = utils.table_to_book(table);
+      writeFileXLSX(workbook, props.downloadExcelName);
+    }
+  }
+}
+
+function setRatioValues(itemsToUpdate: TableItem[]) {
+  for (let i = 0; i < itemsToUpdate.length; i++) {
+    const item = itemsToUpdate[i];
+    const left = parseFloat(item.value0 as string);
+    const right = parseFloat(item.value1 as string);
+
+    if (!isNaN(left) && !isNaN(right) && left !== right) {
+      item.ratio = left !== 0 ? `${((right * 100) / left).toFixed(2)}%` : "";
+    } else {
+      item.ratio = "";
+    }
+  }
+}
+
+function setDiffValues(itemsToUpdate: TableItem[], columns: number) {
+  for (let i = 0; i < itemsToUpdate.length; i++) {
+    const item = itemsToUpdate[i];
+    const values: number[] = [];
+
+    for (let j = 0; j < columns; j++) {
+      values.push(parseFloat(item[`value${j}`] as string));
+    }
+
+    const max = Math.max(...values);
+    const min = Math.min(...values);
+
+    if (!isNaN(max) && !isNaN(min) && max !== min) {
+      item.diff1 = min !== 0 ? `${((max * 100) / min).toFixed(2)}%` : "";
+      item.diff2 = max !== 0 ? `${((min * 100) / max).toFixed(2)}%` : "";
+    } else {
+      item.diff1 = "";
+      item.diff2 = "";
+    }
+  }
+}
+
+function uppcaseHeader(headerTitle: string): string {
+  return props.headerUppcase ? headerTitle.toUpperCase() : headerTitle;
+}
+
+function parseData() {
+  const objs = JSON.parse(JSON.stringify(props.objs)) as Record<string, unknown>[];
+
+  const headers: TableHeader[] = [];
+  headers.push({
+    title: uppcaseHeader(t("table.attribute")),
+    key: "attr",
+    width: props.attrWidth,
+    align: props.headerAlign,
+    headerProps: { class: props.headerClass },
+  });
+
+  if (objs.length > 1) {
+    for (let i = 0; i < objs.length; i++) {
+      headers.push({
+        title: uppcaseHeader(objs[i][props.labelKey] as string),
+        key: "value" + i,
+        width: props.valueWidth,
+        align: props.headerAlign,
+        headerProps: { class: props.headerClass },
+      });
+    }
+  } else if (objs.length === 1) {
+    headers.push({
+      title: uppcaseHeader(objs[0][props.labelKey] as string),
+      key: "value",
+      width: props.valueWidth,
+      align: props.headerAlign,
+      headerProps: { class: props.headerClass },
+    });
+  }
+
+  if (props.showRatio && objs.length === 2) {
+    headers.push({
+      title: uppcaseHeader(t("compare.ratio")),
+      key: "ratio",
+      width: props.headerWidth,
+      align: props.headerAlign,
+      headerProps: { class: props.headerClass },
+      sort: (a: string, b: string) => {
+        const a1 = isNaN(parseFloat(a)) ? 0 : parseFloat(a);
+        const b1 = isNaN(parseFloat(b)) ? 0 : parseFloat(b);
+        return a1 - b1;
       },
-      deep: true,
-    },
+    });
+  }
 
-    threshold: {
-      handler() {
-        this.filter_fields();
+  if (props.showDiff && objs.length >= 2) {
+    headers.push({
+      title: uppcaseHeader(t("compare.diff1")),
+      key: "diff1",
+      width: props.headerWidth,
+      align: props.headerAlign,
+      headerProps: { class: props.headerClass },
+      sort: (a: string, b: string) => {
+        const a1 = isNaN(parseFloat(a)) ? 0 : parseFloat(a);
+        const b1 = isNaN(parseFloat(b)) ? 0 : parseFloat(b);
+        return a1 - b1;
       },
-      deep: true,
-    },
-
-    objs: {
-      handler() {
-        this.parse_data();
+    });
+    headers.push({
+      title: uppcaseHeader(t("compare.diff2")),
+      key: "diff2",
+      width: props.headerWidth,
+      align: props.headerAlign,
+      headerProps: { class: props.headerClass },
+      sort: (a: string, b: string) => {
+        const a1 = isNaN(parseFloat(a)) ? 0 : parseFloat(a);
+        const b1 = isNaN(parseFloat(b)) ? 0 : parseFloat(b);
+        return a1 - b1;
       },
-      deep: true,
-    },
-  },
+    });
+  }
 
-  computed: {
-    /** Get search hint */
-    search_hint() {
-      return this.searchHint ?? this.$t("compare.search");
-    },
+  const resultItems: TableItem[] = [];
+  if (objs.length > 1) {
+    const propertyObjs = objs;
+    const { mergedAttributes, map } = mergeAttributes(propertyObjs);
 
-    /** Show diff checkbox for multiple objects */
-    show_only_show_diff() {
-      return this.objs.length > 1;
-    },
+    for (let i = 0; i < mergedAttributes.length; i++) {
+      const attribute = mergedAttributes[i];
+      if (attribute !== props.labelKey) {
+        const obj: TableItem = { attr: attribute };
 
-    /** Show download icon */
-    show_download_icon() {
-      return this.downloadExcelName.length > 0 && this.objs.length > 0;
-    },
-
-    /** Show threshold filter */
-    show_threshold() {
-      return this.diffThreshold > 0 && this.objs.length > 1;
-    },
-
-    /** Get diff label */
-    show_diff_label() {
-      return this.showDiffLabel ?? this.$t("compare.show_diff");
-    },
-
-    /** Get threshold label */
-    threshold_label() {
-      return this.thresholdLabel;
-    },
-  },
-
-  methods: {
-    /** Download table as Excel */
-    download_result() {
-      const tables = this.$el.getElementsByTagName("table");
-      if (tables.length === 1) {
-        if (this.simple_value) {
-          // Convert to raw format for download
-          this.simple_value = false;
-          this.parse_data();
-          setTimeout(() => {
-            const workbook = utils.table_to_book(tables[0]);
-            writeFileXLSX(workbook, this.downloadExcelName);
-            this.simple_value = true;
-            this.parse_data();
-          }, 2000);
-        } else {
-          const workbook = utils.table_to_book(tables[0]);
-          writeFileXLSX(workbook, this.downloadExcelName);
-        }
-      }
-    },
-
-    /** Set ratio values for comparison */
-    set_ratio_values(items) {
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-        const left = parseFloat(item.value0);
-        const right = parseFloat(item.value1);
-
-        if (!isNaN(left) && !isNaN(right) && left !== right) {
-          item.ratio = left !== 0 ? `${((right * 100) / left).toFixed(2)}%` : "";
-        } else {
-          item.ratio = "";
-        }
-      }
-    },
-
-    /** Set diff values for comparison */
-    set_diff_values(items, columns) {
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-        const values = [];
-
-        for (let j = 0; j < columns; j++) {
-          values.push(parseFloat(item[`value${j}`]));
-        }
-
-        const max = Math.max(...values);
-        const min = Math.min(...values);
-
-        if (!isNaN(max) && !isNaN(min) && max !== min) {
-          item.diff1 = min !== 0 ? `${((max * 100) / min).toFixed(2)}%` : "";
-          item.diff2 = max !== 0 ? `${((min * 100) / max).toFixed(2)}%` : "";
-        } else {
-          item.diff1 = "";
-          item.diff2 = "";
-        }
-      }
-    },
-
-    parse_data() {
-      const objs = JSON.parse(JSON.stringify(this.objs));
-
-      const headers = [];
-      headers.push({ text: this.uppcase_header(this.$t("table.attribute")), value: "attr", width: this.attrWidth, align: this.headerAlign, class: this.headerClass });
-
-      if (objs.length > 1) {
-        for (let i = 0; i < objs.length; i++) {
-          headers.push({ text: this.uppcase_header(objs[i][this.labelKey]), value: "value" + i, width: this.valueWidth, align: this.headerAlign, class: this.headerClass });
-        }
-      } else if (objs.length == 1) {
-        headers.push({ text: this.uppcase_header(objs[0][this.labelKey]), value: "value", width: this.valueWidth, align: this.headerAlign, class: this.headerClass });
-      }
-
-      if (this.showRatio && objs.length == 2) {
-        headers.push({
-          text: this.uppcase_header(this.$t("compare.ratio")),
-          value: "ratio",
-          width: this.headerWidth,
-          align: this.headerAlign,
-          class: this.headerClass,
-          sort: function (a, b) {
-            const a1 = isNaN(parseFloat(a)) ? 0 : parseFloat(a);
-            const b1 = isNaN(parseFloat(b)) ? 0 : parseFloat(b);
-            return a1 - b1;
-          },
-        });
-      }
-
-      if (this.showDiff && objs.length >= 2) {
-        headers.push({
-          text: this.uppcase_header(this.$t("compare.diff1")),
-          value: "diff1",
-          width: this.headerWidth,
-          align: this.headerAlign,
-          class: this.headerClass,
-          sort: function (a, b) {
-            const a1 = isNaN(parseFloat(a)) ? 0 : parseFloat(a);
-            const b1 = isNaN(parseFloat(b)) ? 0 : parseFloat(b);
-            return a1 - b1;
-          },
-        });
-        headers.push({
-          text: this.uppcase_header(this.$t("compare.diff2")),
-          value: "diff2",
-          width: this.headerWidth,
-          align: this.headerAlign,
-          class: this.headerClass,
-          sort: function (a, b) {
-            const a1 = isNaN(parseFloat(a)) ? 0 : parseFloat(a);
-            const b1 = isNaN(parseFloat(b)) ? 0 : parseFloat(b);
-            return a1 - b1;
-          },
-        });
-      }
-
-      const items = [];
-      if (objs.length > 1) {
-        const property_objs = objs;
-        const { merged_attributes, map } = this.merge_attributes(property_objs);
-        for (let i = 0; i < merged_attributes.length; i++) {
-          const attribute = merged_attributes[i];
-          if (attribute != this.labelKey) {
-            const obj = {};
-            obj["attr"] = attribute;
-            if (this.show_fuzzy_match) {
-              obj["attrs"] = [];
-              for (let j = 0; j < objs.length; j++) {
-                let value = "";
-                if (property_objs[j]) {
-                  value = property_objs[j][attribute];
-                  if (!value && map[attribute]) {
-                    map[attribute] && obj["attrs"].push(map[attribute]);
-                    obj["attrs"].push(attribute);
-                    value = property_objs[j][map[attribute]];
-                  }
-                }
-                obj["value" + j] = this.has_value(value) ? this.convert_long_to_newline(value) : "";
+        if (showFuzzyMatch.value) {
+          obj.attrs = [];
+          for (let j = 0; j < objs.length; j++) {
+            let value: unknown = "";
+            if (propertyObjs[j]) {
+              value = propertyObjs[j][attribute];
+              if (!value && map[attribute]) {
+                obj.attrs.push(map[attribute]);
+                obj.attrs.push(attribute);
+                value = propertyObjs[j][map[attribute]];
               }
-            } else {
-              for (let j = 0; j < objs.length; j++) {
-                obj["value" + j] = property_objs[j] && this.has_value(property_objs[j][attribute]) ? this.convert_long_to_newline(property_objs[j][attribute]) : "";
-              }
             }
-            if (this.filterFields.length == 0) {
-              items.push(obj);
-            } else if (this.filterFields.includes(attribute)) {
-              items.push(obj);
-            }
+            obj["value" + j] = hasValue(value) ? convertLongToNewline(value) : "";
+          }
+        } else {
+          for (let j = 0; j < objs.length; j++) {
+            obj["value" + j] = propertyObjs[j] && hasValue(propertyObjs[j][attribute]) ? convertLongToNewline(propertyObjs[j][attribute]) : "";
           }
         }
-      } else {
-        const object = objs[0];
-        const { merged_attributes } = this.recommend ? this.merge_attributes([object, this.recommend]) : this.merge_attributes([object]);
 
-        for (let i = 0; i < merged_attributes.length; i++) {
-          const attribute = merged_attributes[i];
-          if (attribute != this.labelKey) {
-            const obj = {};
-            obj["attr"] = attribute;
-            obj["value"] = this.has_value(object[attribute]) ? this.convert_long_to_newline(object[attribute]) : "";
-            if (this.filterFields.length == 0) {
-              items.push(obj);
-            } else if (this.filterFields.includes(attribute)) {
-              items.push(obj);
-            }
-          }
+        if (props.filterFields.length === 0 || props.filterFields.includes(attribute)) {
+          resultItems.push(obj);
         }
       }
+    }
+  } else if (objs.length === 1) {
+    const object = objs[0];
+    const { mergedAttributes } = mergeAttributes([object]);
 
-      if (this.showRatio && objs.length == 2) {
-        this.set_ratio_values(items, objs.length);
-      }
+    for (let i = 0; i < mergedAttributes.length; i++) {
+      const attribute = mergedAttributes[i];
+      if (attribute !== props.labelKey) {
+        const obj: TableItem = { attr: attribute };
+        obj.value = hasValue(object[attribute]) ? convertLongToNewline(object[attribute]) : "";
 
-      //calculate the diff values
-      if (this.showDiff && objs.length >= 2) {
-        this.set_diff_values(items, objs.length);
-      }
-
-      if (this.simple_value) {
-        this.convert_to_simple_value(items, objs.length);
-      }
-
-      const ordered_items = [];
-      if (this.filterFields && this.filterFields.length > 0 && items.length > 0) {
-        for (let i = 0; i < this.filterFields.length; i++) {
-          const attr = this.filterFields[i];
-          ordered_items.push(items.filter((o) => o.attr == attr)[0]);
+        if (props.filterFields.length === 0 || props.filterFields.includes(attribute)) {
+          resultItems.push(obj);
         }
       }
+    }
+  }
 
-      this.table_headers = headers;
-      this.all_items = this.filterFields && this.filterFields.length > 0 ? ordered_items : items;
-      this.threshold = this.diffThreshold;
-      this.filter_fields();
-    },
+  if (props.showRatio && objs.length === 2) {
+    setRatioValues(resultItems);
+  }
 
-    /** Uppercase header if enabled */
-    uppcase_header(header_title) {
-      return this.headerUppcase ? header_title.toUpperCase() : header_title;
-    },
+  if (props.showDiff && objs.length >= 2) {
+    setDiffValues(resultItems, objs.length);
+  }
 
-    /** Check if item has different values */
-    is_diff_value(item) {
-      if (this.objs.length > 1 && this.threshold > 0) {
-        return this.has_value(item.diff1) ? Math.abs(parseFloat(item.diff1)) > this.threshold : false;
-      } else if (this.objs.length > 1) {
-        const value = item.value0;
-        for (let i = 0; i < this.objs.length; i++) {
-          if (item[`value${i}`] !== value) {
-            return true;
-          }
-        }
-        return false;
+  if (simpleValueState.value) {
+    convertToSimpleValue(resultItems, objs.length);
+  }
+
+  const orderedItems: TableItem[] = [];
+  if (props.filterFields.length > 0 && resultItems.length > 0) {
+    for (let i = 0; i < props.filterFields.length; i++) {
+      const attr = props.filterFields[i];
+      const found = resultItems.find((o) => o.attr === attr);
+      if (found) orderedItems.push(found);
+    }
+  }
+
+  tableHeaders.value = headers;
+  allItems.value = props.filterFields.length > 0 ? orderedItems : resultItems;
+  threshold.value = props.diffThreshold;
+  filterFields();
+}
+
+function isDiffValue(item: TableItem): boolean {
+  if (props.objs.length > 1 && threshold.value > 0) {
+    return hasValue(item.diff1) ? Math.abs(parseFloat(item.diff1 as string)) > threshold.value : false;
+  } else if (props.objs.length > 1) {
+    const value = item.value0;
+    for (let i = 0; i < props.objs.length; i++) {
+      if (item[`value${i}`] !== value) {
+        return true;
       }
-      return false;
-    },
+    }
+    return false;
+  }
+  return false;
+}
 
-    /** Get item CSS class based on attributes */
-    get_item_class(item) {
-      const attr = item.attr;
+function getItemClass(item: TableItem): string {
+  const attr = item.attr;
 
-      if (this.colors?.[attr]) {
-        return this.colors[attr];
-      }
+  if (props.colors?.[attr]) {
+    return props.colors[attr];
+  }
 
-      if (this.topFields.includes(attr)) {
-        return "top_item";
-      }
+  if (props.topFields.includes(attr)) {
+    return "top_item";
+  }
 
-      return this.is_diff_value(item) ? "diff_item" : "compare_item";
-    },
+  return isDiffValue(item) ? "diff_item" : "compare_item";
+}
 
-    /** Filter items based on diff toggle */
-    filter_fields() {
-      const items = this.only_show_diff ? this.all_items.filter((item) => this.is_diff_value(item)) : this.all_items;
-      this.items = items;
-    },
-  },
-};
+function filterFields() {
+  const filteredItems = onlyShowDiff.value ? allItems.value.filter((item) => isDiffValue(item)) : allItems.value;
+  items.value = filteredItems;
+}
+
+// Watchers
+watch(onlyShowDiff, filterFields);
+watch(threshold, filterFields);
+watch(() => props.objs, parseData, { deep: true });
+
+// Lifecycle
+onMounted(() => {
+  parseData();
+});
+
+// Expose methods
+defineExpose({
+  parseData,
+  filterFields,
+});
 </script>
+
 <style scoped>
 .diff_item {
   color: #37474f;

@@ -1,90 +1,122 @@
 <template>
   <v-expansion-panels flat>
     <v-expansion-panel>
-      <v-expansion-panel-header :class="searchToolbarClass">
-        <span>{{ form_title }}</span>
-        <template v-slot:actions>
-          <v-icon color="white"> $expand </v-icon>
+      <v-expansion-panel-title :class="searchToolbarClass">
+        <span>{{ formTitle }}</span>
+        <template #actions>
+          <v-icon color="white">mdi-chevron-down</v-icon>
         </template>
-      </v-expansion-panel-header>
-      <v-expansion-panel-content>
-        <h-form v-bind="$attrs" v-on="$listeners" ref="form" v-model="form" :fields="search_fields" hide-title @submit="submit_form">
+      </v-expansion-panel-title>
+      <v-expansion-panel-text>
+        <BasicForm v-bind="$attrs" ref="formRef" v-model="form" :fields="searchFields" hide-title @submit="submitForm">
           <v-card-actions>
             <slot>
               <v-row align="center" justify="center" class="my-0 py-0">
-                <v-col cols="6" align="center" justify="center">
-                  <v-btn color="error" :block="$vuetify.breakpoint.xsOnly" @click="clear">{{ clearLabel ? clearLabel : $t("form.clear_label") }}</v-btn>
+                <v-col cols="6" class="text-center">
+                  <v-btn color="error" :block="mobile" @click="clear">
+                    {{ clearLabelText }}
+                  </v-btn>
                 </v-col>
-                <v-col :cols="6" align="center" justify="center">
-                  <v-btn color="success" :block="$vuetify.breakpoint.xsOnly" type="submit">{{ searchLabel ? searchLabel : $t("form.search_label") }}</v-btn>
+                <v-col cols="6" class="text-center">
+                  <v-btn color="success" :block="mobile" type="submit">
+                    {{ searchLabelText }}
+                  </v-btn>
                 </v-col>
               </v-row>
             </slot>
           </v-card-actions>
-        </h-form>
-      </v-expansion-panel-content>
+        </BasicForm>
+      </v-expansion-panel-text>
     </v-expansion-panel>
   </v-expansion-panels>
 </template>
 
-<script>
+<script setup lang="ts">
 /**
- * Search form component
- * Provides collapsible search form with entity metadata
+ * SearchForm - Collapsible search form with entity metadata
  */
-import Meta from "../mixins/meta";
+import { ref, computed, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
+import { useDisplay } from "vuetify";
+import BasicForm from "./BasicForm.vue";
+import { useMeta } from "@/composables/useMeta";
+import type { FormField, FormData } from "./BasicForm.vue";
+import type { BasicFormInstance } from "./types";
 
-export default {
-  inheritAttrs: false,
-  mixins: [Meta],
+// Props
+const props = withDefaults(
+  defineProps<{
+    entity: string;
+    title?: string;
+    cols?: number;
+    clearLabel?: string;
+    searchLabel?: string;
+    searchToolbarClass?: string;
+  }>(),
+  {
+    cols: 0,
+    searchToolbarClass: "bg-primary text-subtitle-2 text-white",
+  }
+);
 
-  props: {
-    title: { type: String },
-    cols: { type: Number, default: 0 },
-    clearLabel: { type: String },
-    searchLabel: { type: String },
-    searchToolbarClass: { type: String, default: "app_bar subtitle-2 white--text" },
-  },
+// Emits
+const emit = defineEmits<{
+  clear: [];
+  search: [data: FormData];
+}>();
 
-  data() {
-    return {
-      form: {},
-      search_fields: [],
-    };
-  },
+// Composables
+const { t } = useI18n();
+const { mobile } = useDisplay();
+const { entityLabel, loadMeta, getSearchFields } = useMeta({ entity: props.entity });
 
-  async created() {
-    await this.load_meta();
-    const search_fields = await this.get_search_fields();
-    search_fields.forEach((field) => {
-      if (!field.cols) {
-        field.cols = this.cols;
-      }
-    });
-    this.search_fields = search_fields;
-  },
+// Template refs
+const formRef = ref<BasicFormInstance | null>(null);
 
-  computed: {
-    /** Get form title from prop or i18n */
-    form_title() {
-      if (this.title?.length > 0) {
-        return this.title;
-      }
-      return this.$t("form.search_title", { entity: this.entity_label });
-    },
-  },
+// State
+const form = ref<FormData>({});
+const searchFields = ref<FormField[]>([]);
 
-  methods: {
-    /** Clear search form */
-    clear() {
-      this.$refs.form?.reset_form();
-      this.$emit("clear");
-    },
+// Computed
+const formTitle = computed(() => {
+  if (props.title && props.title.length > 0) {
+    return props.title;
+  }
+  return t("form.search_title", { entity: entityLabel.value });
+});
 
-    /** Submit search form */
-    submit_form() {
-      this.$emit("search", this.form);
-    },
-  },
-};
+const clearLabelText = computed(() => {
+  return props.clearLabel ?? t("form.clear_label");
+});
+
+const searchLabelText = computed(() => {
+  return props.searchLabel ?? t("form.search_label");
+});
+
+// Methods
+async function clear(): Promise<void> {
+  await formRef.value?.resetForm();
+  emit("clear");
+}
+
+function submitForm(): void {
+  emit("search", form.value);
+}
+
+// Lifecycle
+onMounted(async () => {
+  await loadMeta();
+  const fields = (await getSearchFields()) as unknown as FormField[];
+  fields.forEach((field) => {
+    if (!field.cols) {
+      field.cols = props.cols || undefined;
+    }
+  });
+  searchFields.value = fields;
+});
+
+// Expose methods
+defineExpose({
+  clear,
+});
 </script>

@@ -1,13 +1,13 @@
 <template>
   <div>
-    <v-alert v-model="alert.shown" :type="alert.type" dismissible><span v-html="alert.msg"></span></v-alert>
-    <v-toolbar flat dense :class="toolbarClass" dark v-if="!hideToolbar">
-      <span class="ml-3" v-if="!hideTitle">{{ table_title }}</span>
-      <span class="ml-3">{{ total_records_title }}</span>
+    <v-alert v-model="alert.shown" :type="alert.type" closable><span v-html="alert.msg"></span></v-alert>
+    <v-toolbar flat density="compact" :class="toolbarClass" v-if="!hideToolbar">
+      <span class="ml-3" v-if="!hideTitle">{{ tableTitle }}</span>
+      <span class="ml-3">{{ totalRecordsTitle }}</span>
       <v-spacer></v-spacer>
-      <v-tooltip bottom v-for="(toolbar, index) in header_toolbars" v-bind:key="index">
-        <template v-slot:activator="{ on }">
-          <v-btn icon @click.stop="toolbar.click()" v-on="on" class="mr-3">
+      <v-tooltip v-for="(toolbar, index) in headerToolbars" :key="index" location="bottom">
+        <template #activator="{ props: tooltipProps }">
+          <v-btn icon @click.stop="toolbar.click()" v-bind="tooltipProps" class="mr-3">
             <v-icon :color="toolbar.color">{{ toolbar.icon }}</v-icon> {{ toolbar.label ? toolbar.label : "" }}
           </v-btn>
         </template>
@@ -17,7 +17,7 @@
     <span v-for="(item, index) in items" :key="index">
       <slot :item="item"></slot>
       <template v-if="item._last === true">
-        <span v-intersect="infinite_scroll">.</span>
+        <span v-intersect="infiniteScroll">.</span>
       </template>
     </span>
     <template v-if="items.length === 0">
@@ -27,12 +27,19 @@
         </v-col>
       </v-row>
     </template>
-    <h-confirm ref="confirm" />
-    <h-edit-form ref="form" v-bind="$attrs" dialog hide-hint :entity="entity" :fields="editFields" :entity-id="edit_entity_id" @cancel="after_cancel" @success="after_close" :create-title="create_title" :update-title="update_title" :create-form-view="createView" :update-form-view="updateView"> </h-edit-form>
+    <h-confirm ref="confirmRef" />
+    <h-edit-form ref="formRef" v-bind="$attrs" dialog hide-hint :entity="entity" :fields="editFields" :entity-id="editEntityId" @cancel="afterCancel" @success="afterClose" :create-title="createTitle" :update-title="updateTitle" :create-form-view="createView" :update-form-view="updateView" />
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
+import { useAlert } from "@/composables/useAlert";
+import { useKeymap } from "@/composables/useKeymap";
+import { isSuccessResponse, listEntity, deleteEntity, isBeenReferred } from "@/core/axios";
+import type { EntityField } from "@/types";
+
 /**
  * DataList Component
  *
@@ -48,297 +55,260 @@
  * - Empty state message
  * - Alert notifications for operations
  */
-import Alert from "../mixins/alert";
-import Keymap from "../mixins/keymap";
 
-import { is_success_response, list_entity, delete_entity, is_been_referred } from "../core/axios";
+interface ToolbarItem {
+  icon: string;
+  tooltip: string;
+  click: () => void;
+  color?: string;
+  label?: string;
+}
 
-export default {
-  inheritAttrs: false,
-  mixins: [Alert, Keymap],
+interface ListItem extends Record<string, unknown> {
+  _id?: string;
+  _last?: boolean;
+}
 
-  props: {
-    //required attributes
-    entity: { type: String, required: true },
-    //show delete name in batch delete dialog
-    itemLabelKey: { type: String, required: true },
-    sortDesc: { type: Array, required: true },
-    sortKey: { type: Array, required: true },
-    attrs: { type: Array, required: true },
-    //end
-    entityLabel: { type: String },
-    createLabel: { type: String },
-    updateLabel: { type: String },
-    deleteLabel: { type: String },
-    noDataText: { type: String, default: "" },
-    mode: { type: String, default: "" },
-    //action to do list
-    listAction: { type: String },
-    //used to add filter conditions
-    filter: { type: Object },
-    //this is to control the page size for infinite scroll mode
-    itemPerPage: { type: Number, default: 30 },
-    hideToolbar: { type: Boolean, default: false },
-    hideTitle: { type: Boolean, default: false },
-    toolbarClass: { type: String, default: "app_bar subtitle-2" },
-    title: { type: String },
-    editFields: { type: Array, default: () => [] },
-    //views used for create form
-    createView: { type: String, default: "*" },
-    //views used for update form
-    updateView: { type: String, default: "*" },
-    //add more toolbars for single mode
-    toolbars: { type: Array, default: () => [] },
-    createIcon: { type: String, default: "mdi-plus-circle" },
-    refreshIcon: { type: String, default: "mdi-refresh" },
-  },
+// Props
+const props = withDefaults(
+  defineProps<{
+    entity: string;
+    itemLabelKey: string;
+    sortDesc: boolean[];
+    sortKey: string[];
+    attrs: string[];
+    entityLabel?: string;
+    createLabel?: string;
+    updateLabel?: string;
+    deleteLabel?: string;
+    noDataText?: string;
+    mode?: string;
+    listAction?: string;
+    filter?: Record<string, unknown>;
+    itemPerPage?: number;
+    hideToolbar?: boolean;
+    hideTitle?: boolean;
+    hideTableTitle?: boolean;
+    toolbarClass?: string;
+    title?: string;
+    editFields?: EntityField[];
+    createView?: string;
+    updateView?: string;
+    toolbars?: ToolbarItem[];
+    createIcon?: string;
+    refreshIcon?: string;
+  }>(),
+  {
+    noDataText: "",
+    mode: "",
+    itemPerPage: 30,
+    hideToolbar: false,
+    hideTitle: false,
+    hideTableTitle: false,
+    toolbarClass: "app_bar subtitle-2",
+    editFields: () => [],
+    createView: "*",
+    updateView: "*",
+    toolbars: () => [],
+    createIcon: "mdi-plus-circle",
+    refreshIcon: "mdi-refresh",
+  }
+);
 
-  data() {
-    return {
-      loading: false,
-      total: 0,
-      next_page: 1,
-      items: [],
-      options: {},
-      //used to pass id value to edit form
-      edit_entity_id: "",
-    };
-  },
+// Emits
+const emit = defineEmits<{
+  loaded: [items: ListItem[]];
+}>();
 
-  /**
-   * Initialize component
-   * Setup toolbars and load initial data
-   */
-  async created() {
-    this.show_toolbars();
-    this.load_data();
-  },
+// Composables
+const { t } = useI18n();
+const { alert, showError } = useAlert();
 
-  computed: {
-    /** @returns {string} Localized entity label */
-    entity_label() {
-      return this.entityLabel ?? (this.entity?.trim().length > 0 ? this.$t(`${this.entity}._label`) : "");
-    },
+// Refs
+const confirmRef = ref<InstanceType<typeof import("./ConfirmDialog.vue").default> | null>(null);
+const formRef = ref<InstanceType<typeof import("./EditForm.vue").default> | null>(null);
 
-    /** @returns {string} Create dialog title */
-    create_title() {
-      return this.createLabel ?? this.$t("table.create_title", { entity: this.entity_label });
-    },
+// State
+const loading = ref(false);
+const total = ref(0);
+const nextPage = ref(1);
+const items = ref<ListItem[]>([]);
+const editEntityId = ref<string | null>("");
+const headerToolbars = ref<ToolbarItem[]>([]);
 
-    /** @returns {string} Update dialog title */
-    update_title() {
-      return this.updateLabel ?? this.$t("table.update_title", { entity: this.entity_label });
-    },
+// Computed
+const entityLabelText = computed(() => {
+  return props.entityLabel ?? (props.entity?.trim().length > 0 ? t(`${props.entity}._label`) : "");
+});
 
-    /** @returns {string} Delete confirmation title */
-    delete_title() {
-      return this.deleteLabel ?? this.$t("table.delete_title", { entity: this.entity_label });
-    },
+const createTitle = computed(() => {
+  return props.createLabel ?? t("table.create_title", { entity: entityLabelText.value });
+});
 
-    /** @returns {boolean} True if create mode is enabled */
-    is_creatable() {
-      return this.mode.includes("c");
-    },
+const updateTitle = computed(() => {
+  return props.updateLabel ?? t("table.update_title", { entity: entityLabelText.value });
+});
 
-    /** @returns {boolean} True if refresh mode is enabled */
-    is_refreshable() {
-      return this.mode.includes("r");
-    },
+const deleteTitle = computed(() => {
+  return props.deleteLabel ?? t("table.delete_title", { entity: entityLabelText.value });
+});
 
-    /** @returns {string} Table title with entity label */
-    table_title() {
-      if (this.hideTableTitle) {
-        return "";
+const isCreatable = computed(() => props.mode.includes("c"));
+const isRefreshable = computed(() => props.mode.includes("r"));
+
+const tableTitle = computed(() => {
+  if (props.hideTableTitle) return "";
+  return props.title ?? t("table.title", { entity: entityLabelText.value });
+});
+
+const totalRecordsTitle = computed(() => {
+  return t("table.total_record", { total: total.value });
+});
+
+// Methods
+function showToolbars() {
+  const toolbarList: ToolbarItem[] = [];
+  if (isCreatable.value) {
+    toolbarList.push({ color: "toolbar_icon", icon: props.createIcon, tooltip: createTitle.value, click: showCreateDialog });
+  }
+  if (isRefreshable.value) {
+    toolbarList.push({ color: "toolbar_icon", icon: props.refreshIcon, tooltip: t("table.refresh"), click: refresh });
+  }
+  toolbarList.push(...props.toolbars);
+  headerToolbars.value = toolbarList;
+}
+
+function showCreateDialog() {
+  editEntityId.value = null;
+}
+
+function infiniteScroll(isIntersecting: boolean, entries: IntersectionObserverEntry[]) {
+  const entry = entries[0];
+  const target = entry.target as HTMLElement & { page?: number };
+
+  if (items.value.length < total.value && isIntersecting && !target.page) {
+    target.page = nextPage.value;
+    setTimeout(() => {
+      loadData();
+    }, 500);
+  }
+}
+
+function resetValues() {
+  nextPage.value = 1;
+}
+
+function refresh() {
+  resetValues();
+  loadData();
+}
+
+function setData(newItems: ListItem[]) {
+  items.value = newItems;
+}
+
+function afterCancel() {
+  editEntityId.value = "";
+}
+
+function afterClose() {
+  editEntityId.value = "";
+  refresh();
+}
+
+function pressKey(event: KeyboardEvent) {
+  if (isCreatable.value && event.key === "c" && event.altKey) {
+    showCreateDialog();
+  }
+  if (isRefreshable.value && event.key === "r" && event.altKey) {
+    refresh();
+  }
+}
+
+async function confirmDelete(deleteItems: ListItem[]): Promise<boolean> {
+  const labels = deleteItems.map((item) => item[props.itemLabelKey]).join(",");
+  const title = deleteTitle.value;
+  const msg = t("table.delete_confirm", { entity: labels });
+  return showConfirm(title, msg);
+}
+
+async function showConfirm(title: string, msg: string): Promise<boolean> {
+  return confirmRef.value?.open(title, msg) ?? false;
+}
+
+async function deleteEntities(deleteItems: ListItem[]) {
+  const ids = deleteItems.map((item) => item._id).filter(Boolean) as string[];
+  const confirmed = await confirmDelete(deleteItems);
+
+  if (confirmed) {
+    const { code, err } = await deleteEntity(props.entity, ids);
+    if (isSuccessResponse(code)) {
+      refresh();
+    } else if (isBeenReferred(code)) {
+      const labels = err ? (err as string[]).join(",") : "";
+      const msg = t("table.has_ref", { entity: labels });
+      showError(msg);
+    } else if (err) {
+      showError(err as string);
+    }
+  }
+}
+
+async function loadData() {
+  loading.value = true;
+  const sortBy = props.sortKey.join(",");
+  const desc = props.sortDesc.join(",");
+  const attrNames = props.attrs.join(",");
+  const params: Record<string, unknown> = { attr_names: attrNames, sort_by: sortBy, desc };
+  params.page = nextPage.value;
+  params.limit = props.itemPerPage;
+
+  const queryObj = props.filter ?? {};
+  const { code, total: resTotal, data } = await listEntity(props.entity, queryObj, params, props.listAction);
+  loading.value = false;
+
+  if (isSuccessResponse(code)) {
+    total.value = resTotal ?? 0;
+    if (data && data.length > 0) {
+      data[data.length - 1]._last = true;
+      if (nextPage.value === 1) {
+        items.value = data as ListItem[];
+      } else {
+        items.value.push(...(data as ListItem[]));
       }
-      return this.title ?? this.$t("table.title", { entity: this.entity_label });
-    },
+      emit("loaded", items.value);
+      nextPage.value++;
+    }
+  }
+}
 
-    /** @returns {string} Total records count message */
-    total_records_title() {
-      return this.$t("table.total_record", { total: this.total });
-    },
+// Keyboard shortcuts
+useKeymap(pressKey);
+
+// Watchers
+watch(() => props.toolbars, showToolbars, { deep: true });
+
+watch(
+  () => props.filter,
+  () => {
+    resetValues();
+    loadData();
   },
+  { deep: true }
+);
 
-  watch: {
-    options: {
-      handler() {
-        this.reset_values();
-        this.load_data();
-      },
-      deep: true,
-    },
+// Lifecycle
+onMounted(() => {
+  showToolbars();
+  loadData();
+});
 
-    toolbars: {
-      handler() {
-        this.show_toolbars();
-      },
-      deep: true,
-    },
-
-    filter: {
-      handler() {
-        this.reset_values();
-        this.load_data();
-      },
-      deep: true,
-    },
-  },
-
-  methods: {
-    /**
-     * Build toolbar buttons based on mode capabilities
-     */
-    show_toolbars() {
-      const header_toolbars = [];
-      this.is_creatable && header_toolbars.push({ color: "toolbar_icon", icon: this.createIcon, tooltip: this.create_title, click: this.show_create_dialog });
-      this.is_refreshable && header_toolbars.push({ color: "toolbar_icon", icon: this.refreshIcon, tooltip: this.refresh_title, click: this.refresh });
-      header_toolbars.push(...this.toolbars);
-      this.header_toolbars = header_toolbars;
-    },
-
-    /** Open create entity dialog */
-    show_create_dialog() {
-      this.edit_entity_id = null;
-    },
-
-    /**
-     * Handle infinite scroll intersection
-     * @param {Array} entries - Intersection observer entries
-     */
-    infinite_scroll(entries) {
-      const intersection = entries[0].intersectionRatio > 0;
-
-      if (this.items.length < this.total && intersection && !entries[0].target.page) {
-        entries[0].target.page = this.next_page;
-        setTimeout(() => {
-          this.load_data();
-        }, 500);
-      }
-    },
-
-    /** Reset pagination to first page */
-    reset_values() {
-      this.next_page = 1;
-    },
-
-    /** Refresh list data from server */
-    refresh() {
-      this.reset_values();
-      this.load_data();
-    },
-
-    /**
-     * Set list items directly
-     * @param {Array} items - Items to display
-     */
-    set_data(items) {
-      this.items = items;
-    },
-
-    /** Handle edit form cancel */
-    after_cancel() {
-      this.edit_entity_id = "";
-    },
-
-    /** Handle edit form success - refresh list */
-    after_close() {
-      this.edit_entity_id = "";
-      this.refresh();
-    },
-
-    /**
-     * Handle keyboard shortcuts
-     * @param {KeyboardEvent} event - Keyboard event
-     * Alt+C: Create, Alt+R: Refresh
-     */
-    press_key(event) {
-      if (this.is_creatable) {
-        if (event.key === "c" && event.altKey === true) {
-          this.show_create_dialog();
-        }
-      }
-
-      if (this.is_refreshable) {
-        if (event.key === "r" && event.altKey === true) {
-          this.refresh();
-        }
-      }
-    },
-
-    /**
-     * Show delete confirmation dialog
-     * @param {Array} items - Items to delete
-     * @returns {Promise<boolean>} User confirmation result
-     */
-    confirm_delete(items) {
-      const labels = items.map((item) => item[this.itemLabelKey]).join(",");
-      const title = this.delete_title;
-      const msg = this.$t("table.delete_confirm", { entity: labels });
-      return this.show_confirm(title, msg);
-    },
-
-    /**
-     * Show generic confirmation dialog
-     * @param {string} title - Dialog title
-     * @param {string} msg - Dialog message
-     * @returns {Promise<boolean>} User confirmation result
-     */
-    show_confirm(title, msg) {
-      return this.$refs.confirm.open(title, msg);
-    },
-
-    /**
-     * Delete entities after user confirmation
-     * @param {Array} items - Items to delete
-     */
-    async delete_entities(items) {
-      const ids = items.map((item) => item._id);
-      const res = await this.confirm_delete(items);
-
-      if (res) {
-        const { code, err } = await delete_entity(this.entity, ids);
-        if (is_success_response(code)) {
-          this.refresh();
-        } else if (is_been_referred(code)) {
-          const labels = err ? err.join(",") : "";
-          const msg = this.$t("table.has_ref", { entity: labels });
-          this.show_error(msg);
-        } else if (err) {
-          this.show_error(err);
-        }
-      }
-    },
-
-    /**
-     * Load list data from server
-     * Handles infinite scroll pagination and filtering
-     */
-    async load_data() {
-      this.loading = true;
-      const sort_by = this.sortKey.join(",");
-      const desc = this.sortDesc.join(",");
-      const attr_names = this.attrs.join(",");
-      const params = { attr_names, sort_by, desc };
-      params.page = this.next_page;
-      params.limit = this.itemPerPage;
-
-      const query_obj = this.filter ?? {};
-      const { code, total, data } = await list_entity(this.entity, query_obj, params, this.listAction);
-      this.loading = false;
-      if (is_success_response(code)) {
-        this.total = total;
-        if (data.length > 0) {
-          data[data.length - 1]._last = true;
-          if (this.next_page === 1) {
-            this.items = data;
-          } else {
-            this.items.push(...data);
-          }
-          this.$emit("loaded", this.items);
-          this.next_page++;
-        }
-      }
-    },
-  },
-};
+// Expose methods for parent components
+defineExpose({
+  refresh,
+  setData,
+  showConfirm,
+  deleteEntities,
+  loadData,
+});
 </script>

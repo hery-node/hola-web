@@ -1,176 +1,210 @@
 <template>
   <v-card v-bind="$attrs">
-    <v-toolbar :class="toolbarClass" dark v-if="showToolbar">
-      <v-text-field v-model="search" append-icon="mdi-magnify" :label="search_hint" single-line hide-details clearable></v-text-field>
-      <template v-if="show_download_icon">
-        <v-btn class="ml-2" color="title_button" plain @click="download_result"><v-icon class="mr-3">mdi-cloud-download</v-icon>{{ $t("compare.download") }} </v-btn>
+    <v-toolbar v-if="showToolbar" :class="toolbarClass">
+      <v-text-field v-model="search" append-inner-icon="mdi-magnify" :label="searchHintText" single-line hide-details clearable density="compact" variant="outlined" />
+      <template v-if="showDownloadIcon">
+        <v-btn class="ml-2" color="primary" variant="text" @click="downloadResult">
+          <v-icon class="mr-3">mdi-cloud-download</v-icon>
+          {{ t("compare.download") }}
+        </v-btn>
       </template>
     </v-toolbar>
-    <v-data-table v-bind="$attrs" v-on="$listeners" :headers="table_headers" :items="items" :search="search" disable-pagination hide-default-footer fixed-header :custom-filter="regex_search">
-      <template v-slot:[`item._action`]="{ item }">
-        <v-tooltip v-for="(action, index) in actions" bottom v-bind:key="index">
-          <template v-slot:activator="{ on }">
-            <v-btn icon @click.stop="click_action(action, item)" v-on="on" v-show="!action.shown || action.shown(item)" :loading="icon_loading[item._id + action.icon]" :disabled="icon_loading[item._id + action.icon]">
+
+    <v-data-table v-bind="$attrs" :headers="tableHeaders" :items="items" :search="search" :items-per-page="-1" :custom-filter="regexSearch">
+      <template #[`item._action`]="{ item }">
+        <v-tooltip v-for="(action, index) in actions" :key="index" location="bottom">
+          <template #activator="{ props: tooltipProps }">
+            <v-btn v-show="!action.shown || action.shown(item)" v-bind="tooltipProps" icon variant="text" :loading="iconLoading[item._id + action.icon]" :disabled="iconLoading[item._id + action.icon]" @click.stop="clickAction(action, item)">
               <v-icon :color="action.color">{{ action.icon }}</v-icon>
             </v-btn>
-          </template>
-          <template v-slot:loader>
-            <span class="custom-loader">
-              <v-icon light>mdi-cached</v-icon>
-            </span>
           </template>
           <span>{{ action.tooltip }}</span>
         </v-tooltip>
       </template>
+
+      <template #bottom />
     </v-data-table>
   </v-card>
 </template>
 
-<script>
+<script setup lang="ts">
 /**
- * Array table component
- * Displays array of objects in table format
+ * ArrayTable - Display array of objects in table format
  */
-import Regex from "../mixins/regex";
-import Wrap from "../mixins/wrap";
+import { ref, computed, watch, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRegex } from "@/composables/useRegex";
+import { useWrap } from "@/composables/useWrap";
 import { utils, writeFileXLSX } from "xlsx";
 
-export default {
-  inheritAttrs: false,
-  mixins: [Regex, Wrap],
+/** Action configuration */
+interface TableAction {
+  icon: string;
+  color?: string;
+  tooltip?: string;
+  handle: (item: TableItem) => void | Promise<void>;
+  shown?: (item: TableItem) => boolean;
+  animate?: boolean;
+}
 
-  props: {
-    objs: { type: Array, required: true },
-    hiddenProperties: { type: Array, default: () => [] },
-    headerWidth: { type: String, default: "120px" },
-    headerAlign: { type: String, default: "center" },
-    headerClass: { type: String, default: "table_header subtitle-2" },
-    headerUppcase: { type: Boolean, default: false },
-    showToolbar: { type: Boolean, default: false },
-    toolbarClass: { type: String, default: "app_bar subtitle-2" },
-    searchHint: { type: String },
-    actions: { type: Array, default: () => [] },
-    actionWidth: { type: String, default: "120px" },
-    actionAlign: { type: String, default: "start" },
-    actionClass: { type: String, default: "table_header subtitle-2" },
-    downloadExcelName: { type: String, default: "" },
+/** Table header */
+interface TableHeader {
+  title: string;
+  key: string;
+  width?: string;
+  align?: "start" | "center" | "end";
+  class?: string;
+  sortable?: boolean;
+}
+
+/** Table item */
+type TableItem = Record<string, unknown> & { _id?: string };
+
+// Props
+const props = withDefaults(
+  defineProps<{
+    objs: TableItem[];
+    hiddenProperties?: string[];
+    headerWidth?: string;
+    headerAlign?: "start" | "center" | "end";
+    headerClass?: string;
+    headerUppercase?: boolean;
+    showToolbar?: boolean;
+    toolbarClass?: string;
+    searchHint?: string;
+    actions?: TableAction[];
+    actionWidth?: string;
+    actionAlign?: "start" | "center" | "end";
+    actionClass?: string;
+    downloadExcelName?: string;
+  }>(),
+  {
+    hiddenProperties: () => [],
+    headerWidth: "120px",
+    headerAlign: "center",
+    headerClass: "bg-cyan-lighten-4 text-subtitle-2",
+    headerUppercase: false,
+    showToolbar: false,
+    toolbarClass: "bg-primary text-subtitle-2",
+    actions: () => [],
+    actionWidth: "120px",
+    actionAlign: "start",
+    actionClass: "bg-cyan-lighten-4 text-subtitle-2",
+    downloadExcelName: "",
+  }
+);
+
+// Composables
+const { t } = useI18n();
+const { regexSearch } = useRegex();
+const { convertLongToNewline } = useWrap();
+
+// State
+const search = ref("");
+const items = ref<TableItem[]>([]);
+const tableHeaders = ref<TableHeader[]>([]);
+const iconLoading = ref<Record<string, boolean>>({});
+
+// Computed
+const searchHintText = computed(() => {
+  return props.searchHint ?? t("table.search");
+});
+
+const showDownloadIcon = computed(() => {
+  return props.downloadExcelName.length > 0 && props.objs.length > 0;
+});
+
+// Methods
+function downloadResult(): void {
+  const tables = document.getElementsByTagName("table");
+  if (tables.length >= 1) {
+    const workbook = utils.table_to_book(tables[0]);
+    writeFileXLSX(workbook, props.downloadExcelName);
+  }
+}
+
+function mergeProperties(): string[] {
+  const properties: string[] = [];
+  for (const obj of props.objs) {
+    if (obj) {
+      properties.push(...Object.keys(obj));
+    }
+  }
+  return [...new Set(properties)];
+}
+
+async function clickAction(action: TableAction, item: TableItem): Promise<void> {
+  if (action.animate && item._id) {
+    iconLoading.value[item._id + action.icon] = true;
+    await action.handle(item);
+    iconLoading.value[item._id + action.icon] = false;
+  } else {
+    action.handle(item);
+  }
+}
+
+function uppercaseHeader(headerTitle: string): string {
+  return props.headerUppercase ? headerTitle.toUpperCase() : headerTitle;
+}
+
+function parseData(): void {
+  if (!props.objs?.length) {
+    return;
+  }
+
+  const headers: TableHeader[] = [];
+  const tableItems: TableItem[] = [];
+  const properties = mergeProperties().filter((o) => !props.hiddenProperties.includes(o) && o !== "_id");
+
+  for (const property of properties) {
+    headers.push({
+      title: uppercaseHeader(property),
+      key: property,
+      width: props.headerWidth,
+      align: props.headerAlign,
+      class: props.headerClass,
+    });
+  }
+
+  if (props.actions.length > 0) {
+    headers.push({
+      title: uppercaseHeader(t("table.action_header")),
+      key: "_action",
+      sortable: false,
+      width: props.actionWidth,
+      align: props.actionAlign,
+      class: props.actionClass,
+    });
+  }
+
+  for (const obj of props.objs) {
+    const item: TableItem = {};
+    for (const property in obj) {
+      item[property] = property === "_id" ? obj[property] : convertLongToNewline(obj[property]);
+    }
+    tableItems.push(item);
+  }
+
+  tableHeaders.value = headers;
+  items.value = tableItems;
+}
+
+// Watch
+watch(
+  () => props.objs,
+  () => {
+    parseData();
   },
+  { deep: true }
+);
 
-  data() {
-    return {
-      search: "",
-      items: [],
-      table_headers: [],
-      icon_loading: {},
-    };
-  },
+// Lifecycle
+onMounted(() => {
+  parseData();
+});
 
-  async created() {
-    this.parse_data();
-  },
-
-  computed: {
-    /** Get search hint */
-    search_hint() {
-      return this.searchHint ?? this.$t("table.search");
-    },
-
-    /** Show download icon if excel name and data exist */
-    show_download_icon() {
-      return this.downloadExcelName.length > 0 && this.objs.length > 0;
-    },
-  },
-
-  watch: {
-    objs: {
-      handler() {
-        this.parse_data();
-      },
-      deep: true,
-    },
-  },
-
-  methods: {
-    /** Download table as Excel */
-    download_result() {
-      const tables = this.$el.getElementsByTagName("table");
-      if (tables.length === 1) {
-        const workbook = utils.table_to_book(tables[0]);
-        writeFileXLSX(workbook, this.downloadExcelName);
-      }
-    },
-
-    /** Merge all properties from objects */
-    merge_properties() {
-      const properties = [];
-      for (let i = 0; i < this.objs.length; i++) {
-        const obj = this.objs[i];
-        if (obj) {
-          properties.push(...Object.keys(obj));
-        }
-      }
-      return [...new Set(properties)];
-    },
-
-    /** Handle action click with optional animation */
-    async click_action(action, item) {
-      if (action.animate) {
-        this.icon_loading[item._id + action.icon] = true;
-        await action.handle(item);
-        this.icon_loading[item._id + action.icon] = false;
-      } else {
-        action.handle(item);
-      }
-    },
-
-    /** Uppercase header if enabled */
-    uppcase_header(header_title) {
-      return this.headerUppcase ? header_title.toUpperCase() : header_title;
-    },
-
-    /** Parse objects into table data */
-    parse_data() {
-      if (!this.objs?.length) {
-        return;
-      }
-
-      const headers = [];
-      const items = [];
-      const properties = this.merge_properties().filter((o) => !this.hiddenProperties.includes(o) && o !== "_id");
-
-      for (const property of properties) {
-        headers.push({
-          text: this.uppcase_header(property),
-          value: property,
-          width: this.headerWidth,
-          align: this.headerAlign,
-          class: this.headerClass,
-        });
-      }
-
-      if (this.actions.length > 0) {
-        const action = {
-          text: this.uppcase_header(this.$t("table.action_header")),
-          value: "_action",
-          sortable: false,
-          width: this.actionWidth,
-          align: this.actionAlign,
-          class: this.actionClass,
-        };
-        headers.push(action);
-      }
-
-      for (const obj of this.objs) {
-        const item = {};
-        for (const property in obj) {
-          item[property] = property === "_id" ? obj[property] : this.convert_long_to_newline(obj[property]);
-        }
-        items.push(item);
-      }
-
-      this.table_headers = headers;
-      this.items = items;
-    },
-  },
-};
+// Expose
+defineExpose({
+  downloadResult,
+});
 </script>
