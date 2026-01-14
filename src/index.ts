@@ -30,6 +30,9 @@ export type { FormField, FormData } from './components/BasicForm.vue'
 // Export components
 export { ConfirmDialog, BasicWindow, BasicForm, EditForm }
 
+// Re-export installComponents from components
+export { installComponents } from './components'
+
 // Re-export core utilities
 export {
   saveValue,

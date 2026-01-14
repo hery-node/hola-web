@@ -4,7 +4,12 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
-import Chartist from "chartist";
+import { LineChart, BarChart, PieChart } from "chartist";
+import type { LineChartData, BarChartData, PieChartData, LineChartOptions, BarChartOptions, PieChartOptions } from "chartist";
+
+type ChartData = LineChartData | BarChartData | PieChartData;
+type ChartOptions = LineChartOptions | BarChartOptions | PieChartOptions;
+type ChartInstance = LineChart | BarChart | PieChart;
 
 /**
  * ChartSimpleView Component
@@ -36,10 +41,10 @@ const props = withDefaults(
   defineProps<{
     type: "Pie" | "Line" | "Bar";
     ratio?: string;
-    data?: Chartist.IChartistData;
-    options?: Chartist.IChartOptions;
+    data?: ChartData;
+    options?: ChartOptions;
     eventHandlers?: EventHandler[];
-    responsiveOptions?: Chartist.IResponsiveOptionTuple<Chartist.IChartOptions>[];
+    responsiveOptions?: [string, ChartOptions][];
     noData?: NoDataOptions;
   }>(),
   {
@@ -54,7 +59,7 @@ const props = withDefaults(
 
 // Refs
 const chartRef = ref<HTMLElement | null>(null);
-const chart = ref<Chartist.IChartistBase<Chartist.IChartOptions> | null>(null);
+const chart = ref<ChartInstance | null>(null);
 const message = ref("");
 
 // Computed
@@ -95,11 +100,11 @@ function draw() {
     chart.value = null;
   } else {
     if (props.type === "Bar") {
-      chart.value = new Chartist.Bar(chartRef.value, props.data, props.options, props.responsiveOptions);
+      chart.value = new BarChart(chartRef.value, props.data as BarChartData, props.options as BarChartOptions, props.responsiveOptions as [string, BarChartOptions][]);
     } else if (props.type === "Pie") {
-      chart.value = new Chartist.Pie(chartRef.value, props.data, props.options, props.responsiveOptions);
+      chart.value = new PieChart(chartRef.value, props.data as PieChartData, props.options as PieChartOptions, props.responsiveOptions as [string, PieChartOptions][]);
     } else {
-      chart.value = new Chartist.Line(chartRef.value, props.data, props.options, props.responsiveOptions);
+      chart.value = new LineChart(chartRef.value, props.data as LineChartData, props.options as LineChartOptions, props.responsiveOptions as [string, LineChartOptions][]);
     }
   }
 

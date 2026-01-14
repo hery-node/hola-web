@@ -122,7 +122,7 @@ import { useI18n } from "vue-i18n";
 import SearchForm from "./SearchForm.vue";
 import { useAlert } from "@/composables/useAlert";
 import { useMeta } from "@/composables/useMeta";
-import { isSuccessResponse, listEntity } from "@/core/axios";
+import { isSuccessResponse, listEntity, type ListParams } from "@/core/axios";
 import type { FormData } from "./BasicForm.vue";
 
 /** Item action configuration */
@@ -419,10 +419,10 @@ async function loadData(): Promise<void> {
   attrs = attrs.concat(props.hiddenFields);
   const attrNames = attrs.join(",");
 
-  const params: Record<string, unknown> = {
-    attr_names: attrNames,
-    sort_by: sortByStr,
-    desc: descStr,
+  const params: ListParams = {
+    attrNames: attrNames,
+    sortBy: sortByStr,
+    desc: descStr === "true",
   };
 
   if (pagination.value) {

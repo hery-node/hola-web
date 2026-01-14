@@ -1,6 +1,6 @@
 <template>
   <CardView v-bind="$attrs" :color="color" :title="title" :text="text">
-    <DataTable v-bind="$attrs" infinite hide-top :sort-key="sortKey" :sort-desc="sortDesc"> </DataTable>
+    <DataTable v-bind="$attrs" :entity="entity" infinite hide-top :sort-key="sortKey" :sort-desc="sortDesc"> </DataTable>
   </CardView>
 </template>
 

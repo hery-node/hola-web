@@ -1,7 +1,7 @@
 <template>
   <CardView class="v-card--material-chart" v-bind="$attrs">
     <template #header>
-      <ChartSimpleView :type="type" :options="options" :data="data"></ChartSimpleView>
+      <ChartSimpleView :type="type" :options="options" :data="(data as ChartSimpleData)"></ChartSimpleView>
     </template>
     <h4 class="title font-weight-light text-black">{{ title }}</h4>
     <v-icon class="mr-2" size="small" :color="subIconColor">{{ subIcon }}</v-icon>
@@ -12,6 +12,9 @@
 <script setup lang="ts">
 import CardView from "./CardView.vue";
 import ChartSimpleView from "./ChartSimpleView.vue";
+import type { LineChartData, BarChartData, PieChartData } from "chartist";
+
+type ChartSimpleData = LineChartData | BarChartData | PieChartData;
 
 /**
  * ChartDashboardView Component

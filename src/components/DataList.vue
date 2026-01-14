@@ -135,7 +135,7 @@ const loading = ref(false);
 const total = ref(0);
 const nextPage = ref(1);
 const items = ref<ListItem[]>([]);
-const editEntityId = ref<string | null>("");
+const editEntityId = ref<string | undefined>("");
 const headerToolbars = ref<ToolbarItem[]>([]);
 
 // Computed
@@ -181,7 +181,7 @@ function showToolbars() {
 }
 
 function showCreateDialog() {
-  editEntityId.value = null;
+  editEntityId.value = undefined;
 }
 
 function infiniteScroll(isIntersecting: boolean, entries: IntersectionObserverEntry[]) {
