@@ -13,12 +13,12 @@
             <slot>
               <v-row align="center" justify="center" class="my-0 py-0">
                 <v-col cols="6" class="text-center">
-                  <v-btn color="error" :block="mobile" @click="clear">
+                  <v-btn variant="elevated" color="error" :block="mobile" @click="clear">
                     {{ clearLabelText }}
                   </v-btn>
                 </v-col>
                 <v-col cols="6" class="text-center">
-                  <v-btn color="success" :block="mobile" type="submit">
+                  <v-btn variant="elevated" color="success" :block="mobile" type="submit">
                     {{ searchLabelText }}
                   </v-btn>
                 </v-col>

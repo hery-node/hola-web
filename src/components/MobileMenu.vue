@@ -1,7 +1,7 @@
 <template>
   <div id="nav">
     <v-bottom-navigation color="primary" grow>
-      <v-btn v-for="menu in menus" :key="menu.title" :to="menu.route">
+      <v-btn v-for="menu in menus" :key="menu.title" :to="menu.route" variant="elevated">
         <span>{{ menu.title }}</span>
         <v-icon>{{ menu.icon }}</v-icon>
       </v-btn>

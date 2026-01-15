@@ -13,10 +13,10 @@
               <slot>
                 <v-row align="center" justify="center" class="my-0 py-0">
                   <v-col v-if="!hideCancel" cols="6" class="text-center">
-                    <v-btn color="error" :block="mobile" @click="cancel">{{ cancelLabel }}</v-btn>
+                    <v-btn variant="elevated" color="error" :block="mobile" @click="cancel">{{ cancelLabel }}</v-btn>
                   </v-col>
                   <v-col :cols="hideCancel ? 12 : 6" class="text-center">
-                    <v-btn color="success" :block="mobile" type="submit">{{ submitLabel }}</v-btn>
+                    <v-btn variant="elevated" color="success" :block="mobile" type="submit">{{ submitLabel }}</v-btn>
                   </v-col>
                 </v-row>
               </slot>
@@ -37,10 +37,10 @@
           <slot>
             <v-row align="center" justify="center" class="my-0 py-0">
               <v-col v-if="!hideCancel" cols="6" class="text-center">
-                <v-btn color="error" :block="mobile" @click="cancel">{{ cancelLabel }}</v-btn>
+                <v-btn variant="elevated" color="error" :block="mobile" @click="cancel">{{ cancelLabel }}</v-btn>
               </v-col>
               <v-col :cols="hideCancel ? 12 : 6" class="text-center">
-                <v-btn color="success" :block="mobile" type="submit">{{ submitLabel }}</v-btn>
+                <v-btn variant="elevated" color="success" :block="mobile" type="submit">{{ submitLabel }}</v-btn>
               </v-col>
             </v-row>
           </slot>

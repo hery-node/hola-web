@@ -2,7 +2,7 @@
   <v-app>
     <NavBar :title="'Hola Web Component Showcase'" :menus="sideMenus">
       <template #toolbar>
-        <v-btn icon @click="toggleTheme">
+        <v-btn icon variant="elevated" @click="toggleTheme">
           <v-icon>{{ isDark ? "mdi-brightness-7" : "mdi-brightness-4" }}</v-icon>
         </v-btn>
       </template>
@@ -240,7 +240,7 @@
                 <v-icon size="48" color="primary" class="mb-2">mdi-comment-question</v-icon>
                 <h3 class="text-h6">ConfirmDialog</h3>
                 <p class="text-body-2 mb-4">Promise-based confirmation dialog</p>
-                <v-btn color="primary" @click="openConfirmDialog">Open Dialog</v-btn>
+                <v-btn variant="elevated" color="primary" @click="openConfirmDialog">Open Dialog</v-btn>
               </v-card>
             </v-col>
 
@@ -249,7 +249,7 @@
                 <v-icon size="48" color="secondary" class="mb-2">mdi-window-restore</v-icon>
                 <h3 class="text-h6">BasicWindow</h3>
                 <p class="text-body-2 mb-4">Draggable window with controls</p>
-                <v-btn color="secondary" @click="openBasicWindow">Open Window</v-btn>
+                <v-btn variant="elevated" color="secondary" @click="openBasicWindow">Open Window</v-btn>
               </v-card>
             </v-col>
 
@@ -258,7 +258,7 @@
                 <v-icon size="48" color="success" class="mb-2">mdi-alert-circle</v-icon>
                 <h3 class="text-h6">Alert System</h3>
                 <p class="text-body-2 mb-4">useAlert composable demo</p>
-                <v-btn color="success" @click="showSuccessAlert">Show Alert</v-btn>
+                <v-btn variant="elevated" color="success" @click="showSuccessAlert">Show Alert</v-btn>
               </v-card>
             </v-col>
 
@@ -267,7 +267,7 @@
                 <v-icon size="48" color="warning" class="mb-2">mdi-information</v-icon>
                 <h3 class="text-h6">Snackbar</h3>
                 <p class="text-body-2 mb-4">Notification system</p>
-                <v-btn color="warning" @click="showSnackbar">Show Snackbar</v-btn>
+                <v-btn variant="elevated" color="warning" @click="showSnackbar">Show Snackbar</v-btn>
               </v-card>
             </v-col>
           </v-row>
