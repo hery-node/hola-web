@@ -157,7 +157,8 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
     if (field.view) {
       return Array.isArray(field.view) ? field.view.includes(view) : field.view === view
     }
-    return false
+    // Fields without view restriction should show in all views
+    return true
   }
 
   /**
@@ -228,13 +229,15 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
     const editFields = updateMode
       ? meta.value.fields.filter(
           (field) =>
-            field.editable !== false &&
+            field.create !== false &&
+            field.update !== false &&
             field.sys !== true &&
             field.name !== meta.value?.userField &&
             fieldInView(field, view)
         )
       : meta.value.fields.filter(
           (field) =>
+            field.create !== false &&
             field.sys !== true &&
             field.name !== meta.value?.userField &&
             fieldInView(field, view)
@@ -321,6 +324,7 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
     const tableHeaders: HeaderField[] = []
     const serverFields = meta.value.fields.filter(
       (field) =>
+        field.list !== false &&
         field.hidden !== true &&
         field.sys !== true &&
         field.name !== meta.value?.userField &&

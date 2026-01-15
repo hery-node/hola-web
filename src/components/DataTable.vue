@@ -449,7 +449,7 @@ async function loadData(): Promise<void> {
       for (const obj of tableData) {
         for (const header of tableHeaders.value) {
           if (header.format && header.name) {
-            obj[header.name] = header.format(obj[header.name], null);
+            obj[header.name] = header.format(obj[header.name], t);
           }
         }
       }

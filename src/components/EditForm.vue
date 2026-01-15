@@ -142,7 +142,7 @@ const editView = computed(() => {
 });
 
 const updateMode = computed(() => {
-  return props.entityId != null;
+  return props.entityId != null && props.entityId !== "";
 });
 
 const formTitle = computed(() => {

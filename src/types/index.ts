@@ -67,6 +67,9 @@ export interface EntityField {
   searchable?: boolean
   editable?: boolean
   hidden?: boolean
+  list?: boolean
+  create?: boolean
+  update?: boolean
   sys?: boolean
   auto?: boolean
   ref?: string
