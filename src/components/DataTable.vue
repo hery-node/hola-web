@@ -551,8 +551,9 @@ defineExpose({
 </script>
 
 <style>
-tr th:first-of-type {
-  background-color: #b2ebf2;
+/* Vuetify 3 data table header styling */
+.v-data-table thead th {
+  background-color: #b2ebf2 !important;
 }
 
 tr td {
