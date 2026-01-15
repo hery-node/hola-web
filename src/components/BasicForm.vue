@@ -158,7 +158,13 @@ async function resetForm(): Promise<void> {
   // Reset form data to defaults manually to avoid recursive updates
   const defaultData: FormData = {};
   for (const field of props.fields) {
-    defaultData[field.name] = field.default ?? (field.inputType === "switch" ? false : "");
+    if (field.default !== undefined) {
+      defaultData[field.name] = field.default;
+    } else if (field.inputType === "switch") {
+      defaultData[field.name] = false;
+    }
+    // For select/autocomplete fields, leave undefined to avoid empty item in dropdown
+    // For other fields without default, also leave undefined (Vuetify handles this properly)
   }
   isInternalUpdate.value = true;
   formData.value = defaultData;
