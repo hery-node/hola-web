@@ -293,8 +293,9 @@ function getSelectedItems(): TableItem[] | null {
   const table = tableRef.value;
   if (!table) return null;
 
-  // Access internal selected ref
-  const selected = (table as unknown as { selected: { value: TableItem[] } }).selected?.value || [];
+  // When refs are exposed via defineExpose, Vue unwraps them automatically
+  // So table.selected is the array directly, not a ref
+  const selected = (table as unknown as { selected: TableItem[] }).selected || [];
   if (selected.length === 0) {
     showError(noSelectedText.value);
     return null;
@@ -312,9 +313,9 @@ function showSuccess(msg: string): void {
 }
 
 function resetSelected(): void {
-  const table = tableRef.value as unknown as { selected: { value: TableItem[] } };
+  const table = tableRef.value as unknown as { selected: TableItem[] };
   if (table?.selected) {
-    table.selected.value = [];
+    table.selected.length = 0;
   }
 }
 
