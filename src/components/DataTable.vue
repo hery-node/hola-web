@@ -7,7 +7,7 @@
     </div>
 
     <!-- Data table -->
-    <v-data-table v-bind="$attrs" v-model="selected" :headers="tableHeaders" :items="items" :loading="loading" :items-per-page="pagination ? undefined : -1" :page="currentPage" :items-length="total" item-value="_id" class="elevation-0" :show-expand="isExpanded" :show-select="showSelect" @update:options="handleOptionsUpdate">
+    <v-data-table v-bind="$attrs" v-model="selected" :headers="tableHeaders" :items="items" :loading="loading" :items-per-page="pagination ? undefined : -1" :hide-default-footer="!pagination" :page="currentPage" :items-length="total" item-value="_id" class="elevation-0" :show-expand="isExpanded" :show-select="showSelect" @update:options="handleOptionsUpdate">
       <!-- Top slot with alert and toolbar -->
       <template v-if="!hideTop" #top>
         <v-alert v-model="alert.shown" :type="alert.type" closable class="mx-3">
