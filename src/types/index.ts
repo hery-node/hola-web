@@ -103,8 +103,7 @@ export interface EntityMeta {
 /** Select/autocomplete item */
 export interface SelectItem {
   value: string | number | boolean
-  text: string
-  title?: string
+  title: string
 }
 
 /** Validation rule function */

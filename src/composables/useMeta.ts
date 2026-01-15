@@ -104,7 +104,7 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
       field.multiple = type.multiple
     }
     if (type.items) {
-      field.items = type.items(null) // Note: ctx not available in composable
+      field.items = type.items({ t })
     }
     if (field.ref) {
       field.items = await getRefLabels(field.ref, getEntity(), field.query ?? '')
@@ -118,8 +118,8 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
   const setFieldPrefixSuffix = (field: FormField, type: TypeDefinition): void => {
     const prefix = field.prefix ?? type.prefix ?? null
     const suffix = field.suffix ?? type.suffix ?? null
-    field.prefix = typeof prefix === 'function' ? prefix(null) : prefix ?? ''
-    field.suffix = typeof suffix === 'function' ? suffix(null) : suffix ?? ''
+    field.prefix = typeof prefix === 'function' ? prefix({ t }) : prefix ?? ''
+    field.suffix = typeof suffix === 'function' ? suffix({ t }) : suffix ?? ''
     field.icon = field.icon ?? type.icon ?? undefined
   }
 

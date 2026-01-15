@@ -75,7 +75,7 @@ const createEnumType = (
     const t = (ctx as { $t?: (key: string) => string }).$t ?? ((k: string) => k)
     return itemsConfig.map(({ value, label }) => ({
       value,
-      text: t(label),
+      title: t(label),
     }))
   },
   format: (value, t) => {
