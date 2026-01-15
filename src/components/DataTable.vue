@@ -235,7 +235,7 @@ const emit = defineEmits<{
 
 // Composables
 const { t } = useI18n();
-const { alert } = useAlert();
+const { alert, showError, showSuccess } = useAlert();
 const { entityLabel, loadMeta, getTableHeaders, getFieldLabelByName } = useMeta({
   entity: props.entity,
   headers: props.searchFields as unknown as undefined,
@@ -545,6 +545,8 @@ defineExpose({
   clearSearch,
   loadData,
   selected,
+  showError,
+  showSuccess,
 });
 </script>
 

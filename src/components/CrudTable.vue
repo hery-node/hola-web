@@ -304,12 +304,13 @@ function getSelectedItems(): TableItem[] | null {
 }
 
 function showError(msg: string): void {
-  // Use alert composable through table
-  console.error(msg);
+  const table = tableRef.value as unknown as { showError: (msg: string) => void };
+  table?.showError?.(msg);
 }
 
 function showSuccess(msg: string): void {
-  console.log(msg);
+  const table = tableRef.value as unknown as { showSuccess: (msg: string) => void };
+  table?.showSuccess?.(msg);
 }
 
 function resetSelected(): void {
