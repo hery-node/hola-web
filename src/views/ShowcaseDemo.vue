@@ -142,10 +142,6 @@
                 <v-card-title>BasicForm</v-card-title>
                 <v-card-subtitle>Versatile form with multiple field types</v-card-subtitle>
                 <BasicForm ref="basicFormRef" v-model="basicFormData" :fields="basicFormFields" title="User Registration" @submit="handleBasicFormSubmit" />
-                <v-card-actions>
-                  <v-btn color="primary" @click="basicFormRef?.submitForm()">Submit</v-btn>
-                  <v-btn color="secondary" @click="basicFormRef?.resetForm()">Reset</v-btn>
-                </v-card-actions>
               </v-card>
             </v-col>
 
