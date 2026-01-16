@@ -3,6 +3,24 @@ import vue from '@vitejs/plugin-vue'
 import vuetify from 'vite-plugin-vuetify'
 import dts from 'vite-plugin-dts'
 import { resolve } from 'path'
+import { copyFileSync, mkdirSync, readdirSync } from 'fs'
+
+// Copy locale files to dist after build
+function copyLocales() {
+  return {
+    name: 'copy-locales',
+    closeBundle() {
+      const srcDir = resolve(__dirname, 'src/locales')
+      const destDir = resolve(__dirname, 'dist/locales')
+      mkdirSync(destDir, { recursive: true })
+      readdirSync(srcDir).forEach((file) => {
+        if (file.endsWith('.json')) {
+          copyFileSync(resolve(srcDir, file), resolve(destDir, file))
+        }
+      })
+    },
+  }
+}
 
 export default defineConfig({
   plugins: [
@@ -16,6 +34,7 @@ export default defineConfig({
       rollupTypes: true,
       logLevel: 'warn',
     }),
+    copyLocales(),
   ],
   resolve: {
     alias: {

@@ -20,10 +20,12 @@
       "import": "./dist/hola-web.js",
       "require": "./dist/hola-web.umd.cjs"
     },
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/style.css",
+    "./locales/*": "./dist/locales/*"
   },
   "files": [
-    "dist"
+    "dist",
+    "dist/locales"
   ],
   "dependencies": {
     "axios": "^1.7.0",
