@@ -1,5 +1,5 @@
 <template>
-  <DataTable v-bind="$attrs" ref="tableRef" :entity="entity" :headers="headers" :searchable="isSearchable" :infinite="!isPaginable" :search-fields="searchFieldsProp" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="batchMode" :has-action-header="hasActionHeader" :item-actions="itemActionsComputed" :expand-fields="expandFields" :merge-with-server="mergeWithServer" @chip="clickChip">
+  <DataTable v-bind="$attrs" ref="tableRef" :entity="entity" :headers="headers" :searchable="isSearchable" :infinite="!isPaginable" :search-fields="searchFieldsProp" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="batchMode" :has-action-header="hasActionHeader" :item-actions="itemActionsComputed" :action-width="actionWidthComputed" :expand-fields="expandFields" :merge-with-server="mergeWithServer" @chip="clickChip">
     <template v-if="!mobile" #toolbar>
       <v-tooltip v-for="(toolbar, index) in headerToolbars" :key="index" location="bottom">
         <template #activator="{ props: tooltipProps }">
@@ -208,6 +208,13 @@ const itemActionsComputed = computed<ItemAction[] | undefined>(() => {
 
   if (!props.myActionFirst) actions.push(...props.actions);
   return actions.length > 0 ? actions : undefined;
+});
+
+// Computed - Action column width based on number of actions (approx 40px per action button)
+const actionWidthComputed = computed(() => {
+  const count = itemActionsComputed.value?.length || 0;
+  const width = Math.max(count * 44, 50); // 44px per button, minimum 50px
+  return `${width}px`;
 });
 
 // Methods

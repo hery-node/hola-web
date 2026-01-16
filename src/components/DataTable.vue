@@ -84,13 +84,15 @@
       <!-- Expanded row -->
       <template v-if="expandFieldsProp && expandFieldsProp.length > 0" #expanded-row="{ columns, item }">
         <tr>
-          <td :colspan="columns.length" style="white-space: pre-wrap; word-wrap: break-word">
-            <div style="margin: 15px">
+          <td :colspan="columns.length" style="padding: 0">
+            <div style="margin: 10px 15px">
               <template v-if="expandAsText">
                 <span v-text="getExpanded(item)" />
               </template>
               <template v-else>
-                <span v-html="getExpanded(item)" />
+                <table style="width: 100%; border-collapse: collapse">
+                  <tbody v-html="getExpanded(item)" />
+                </table>
               </template>
             </div>
           </td>
