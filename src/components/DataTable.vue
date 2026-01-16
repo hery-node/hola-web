@@ -466,6 +466,10 @@ async function loadData(): Promise<void> {
 
       emit("loaded", items.value);
       nextPage.value++;
+    } else if (nextPage.value === 1) {
+      // Clear items when search returns no results on first page
+      items.value = [];
+      emit("loaded", items.value);
     }
   }
 }
