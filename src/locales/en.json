@@ -48,6 +48,7 @@
     "submit_label": "Submit",
     "clear_label": "Clear",
     "search_label": "Search",
+    "numeric_search_hint": "Use >, <, >=, <= for comparison (e.g., >100)",
     "required": "{field} is required.",
     "create_success_hint": "{entity} created successfully.",
     "create_fail_hint": "Failed to create {entity}.",

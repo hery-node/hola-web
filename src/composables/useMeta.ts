@@ -206,6 +206,9 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
     )
     const metaFields = getMetaFields(getFields(), serverFields)
 
+    // Numeric types that support comparison operators
+    const numericTypes = ['number', 'int', 'uint', 'float', 'ufloat', 'decimal', 'percentage', 'currency']
+
     for (const field of metaFields) {
       const formField = field as FormField
       formField.label = t(`${getEntity()}.${field.name}`)
@@ -214,6 +217,11 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
       formField.inputType = type.searchInputType ?? type.inputType
       await setFieldType(formField, type)
       formField.rules = []
+
+      // Add hint for numeric fields to indicate comparison operators are supported
+      if (numericTypes.includes(field.type ?? 'string') && !formField.hint) {
+        formField.hint = t('form.numeric_search_hint')
+      }
 
       formFields.push(formField)
     }
