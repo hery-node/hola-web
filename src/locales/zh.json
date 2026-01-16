@@ -48,6 +48,7 @@
     "submit_label": "提交",
     "clear_label": "清空",
     "search_label": "搜索",
+    "numeric_search_hint": "使用 >, <, >=, <= 进行比较 (例如: >100)",
     "required": "{field} 是必填项。",
     "create_success_hint": "{entity}创建成功。",
     "create_fail_hint": "{entity}创建失败。",

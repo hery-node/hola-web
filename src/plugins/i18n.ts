@@ -100,5 +100,6 @@ export function setupI18n(config: I18nConfig = {}) {
     locale,
     fallbackLocale,
     messages,
+    warnHtmlMessage: false, // Disable HTML warning - Vue's templating auto-escapes content
   })
 }
