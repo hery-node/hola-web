@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { toRef, watch } from "vue";
-import VChart from "vue-echarts";
+import { VChart } from "@/plugins/echarts";
 import { useChart } from "@/composables/useChart";
 import type { ChartData, ChartStyle } from "@/types";
 

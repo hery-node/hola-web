@@ -50,7 +50,14 @@ export default defineConfig({
     },
     rollupOptions: {
       // Externalize deps that shouldn't be bundled
-      external: ['vue', 'vuetify', 'vue-router', 'pinia', 'vue-i18n', 'axios', 'echarts', 'vue-echarts'],
+      // Use function to avoid externalizing echarts subpaths (core, renderers, charts, etc.)
+      external: (id) => {
+        const exactExternals = ['vue', 'vuetify', 'vue-router', 'pinia', 'vue-i18n', 'axios', 'vue-echarts']
+        if (exactExternals.includes(id)) return true
+        // Only externalize exact 'echarts' match, not subpaths like 'echarts/core'
+        if (id === 'echarts') return true
+        return false
+      },
       output: {
         exports: 'named',
         globals: {

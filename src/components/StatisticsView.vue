@@ -79,25 +79,23 @@ const textClass = computed(() => {
 });
 </script>
 
-<style lang="scss" scoped>
-/* Scoped styles for StatisticsView */
-:deep(.v-card--material-stats) {
+<style lang="scss">
+/* Styles for StatisticsView - unscoped to properly target nested CardView elements */
+.v-card--material-stats {
   display: flex;
   flex-wrap: wrap;
   position: relative;
 
-  .v-offset {
+  > .v-offset {
     display: inline-block;
     flex: 0 1;
-    margin-top: 0;
     margin-left: 0;
     margin-right: auto;
-    margin-bottom: 0 !important;
     max-width: auto;
     padding: 0 16px 0;
   }
 
-  .v-card--material__header {
+  .v-card {
     border-radius: 4px;
     flex: 0 1 auto;
   }
@@ -113,5 +111,13 @@ const textClass = computed(() => {
   .v-card__actions {
     flex: 1 0 100%;
   }
+}
+
+.v-card--material-stats.v-card .v-offset .v-card {
+  max-width: 65px;
+  max-height: 65px;
+  line-height: 65px;
+  padding: 12px !important;
+  margin-top: 35px;
 }
 </style>
