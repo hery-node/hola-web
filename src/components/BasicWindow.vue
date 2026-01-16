@@ -94,7 +94,7 @@ defineExpose({
   <v-dialog v-model="dialog" :width="winWidth" :max-width="windowWidth" :fullscreen="fullscreen" :style="{ zIndex }" persistent no-click-animation @keydown.esc="close">
     <v-toolbar :collapse="minimized" color="secondary">
       <v-icon class="ml-3 mr-3">mdi-microsoft-windows</v-icon>
-      <v-toolbar-title>{{ title }}</v-toolbar-title>
+      <span>{{ title }}</span>
       <v-spacer />
       <v-btn v-show="!minimized" icon :disabled="buttonDisabled" @click.stop="minimize">
         <v-icon>mdi-window-minimize</v-icon>
