@@ -100,6 +100,7 @@ export {
   setupI18n,
   loadLocaleMessages,
   loadLocaleMessagesEager,
+  deepMerge,
 } from './plugins'
 
 // Component map for global registration

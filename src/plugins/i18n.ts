@@ -51,6 +51,37 @@ export function loadLocaleMessagesEager(
   return messages
 }
 
+/**
+ * Deep merge two objects recursively
+ * Used for merging locale messages so nested keys (e.g., type.*) are preserved
+ * @param target - Base object (e.g., hola-web messages)
+ * @param source - Object to merge on top (e.g., app-specific messages)
+ */
+export function deepMerge(
+  target: Record<string, unknown>,
+  source: Record<string, unknown>
+): Record<string, unknown> {
+  const result = { ...target };
+  for (const key of Object.keys(source)) {
+    if (
+      source[key] &&
+      typeof source[key] === 'object' &&
+      !Array.isArray(source[key]) &&
+      target[key] &&
+      typeof target[key] === 'object' &&
+      !Array.isArray(target[key])
+    ) {
+      result[key] = deepMerge(
+        target[key] as Record<string, unknown>,
+        source[key] as Record<string, unknown>
+      );
+    } else {
+      result[key] = source[key];
+    }
+  }
+  return result;
+}
+
 export interface I18nConfig {
   locale?: string
   fallbackLocale?: string
