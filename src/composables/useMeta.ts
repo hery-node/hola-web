@@ -131,14 +131,14 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
       if (mergeWithServer) {
         return serverFields.map((field) => {
           const found = customFields.find((f) => f.name === field.name)
-          return found ? { ...found, ...field } : { ...field }
+          return found ? { ...field, ...found } : { ...field }
         })
       } else {
         const mergeFields: EntityField[] = []
         for (const field of customFields) {
           const found = serverFields.find((f) => f.name === field.name)
           if (found) {
-            mergeFields.push({ ...field, ...found })
+            mergeFields.push({ ...found, ...field })
           } else {
             console.log(`Field not found in server metadata: ${JSON.stringify(field)}`)
           }
@@ -338,7 +338,7 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
       headerField.value = header.name
 
       const type = getFieldType(header)
-      if (type.format) {
+      if (type.format && !headerField.format) {
         headerField.format = type.format
       }
       tableHeaders.push(headerField)

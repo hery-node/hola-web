@@ -41,13 +41,13 @@
       <template v-for="chip in chips" :key="chip" #[`item.${chip}`]="{ item }">
         <v-row class="d-flex flex-nowrap" :justify="getHeaderAlign(chip)" :align="getHeaderAlign(chip)" style="margin-top: 5px; margin-bottom: 5px">
           <template v-if="Array.isArray(item[chip])">
-            <v-chip v-for="(tag, tagIndex) in item[chip]" :key="tagIndex" :class="getItemStyle(chip, item[chip], 'ma-1')" style="margin: 3px" @click.stop="chipClickable ? clickChip(item, chip, tagIndex) : undefined">
-              {{ tag }}
+            <v-chip v-for="(tag, tagIndex) in item[chip]" :key="tagIndex" :color="getItemStyle(chip, item[chip], '')" class="ma-1" style="margin: 3px" @click.stop="chipClickable ? clickChip(item, chip, tagIndex) : undefined">
+              {{ getFormattedValue(chip, tag) }}
             </v-chip>
           </template>
-          <template v-else-if="item[chip]">
-            <v-chip :class="getItemStyle(chip, item[chip], 'ma-1')" @click.stop="chipClickable ? clickChip(item, chip) : undefined">
-              {{ item[chip] }}
+          <template v-else-if="item[chip] !== undefined && item[chip] !== null">
+            <v-chip :color="getItemStyle(chip, item[chip], '')" class="ma-1" @click.stop="chipClickable ? clickChip(item, chip) : undefined">
+              {{ getFormattedValue(chip, item[chip]) }}
             </v-chip>
           </template>
         </v-row>
@@ -83,16 +83,18 @@
 
       <!-- Expanded row -->
       <template v-if="expandFieldsProp && expandFieldsProp.length > 0" #expanded-row="{ columns, item }">
-        <td :colspan="columns.length" style="white-space: pre-wrap; word-wrap: break-word">
-          <div style="margin: 15px">
-            <template v-if="expandAsText">
-              <span v-text="getExpanded(item)" />
-            </template>
-            <template v-else>
-              <span v-html="getExpanded(item)" />
-            </template>
-          </div>
-        </td>
+        <tr>
+          <td :colspan="columns.length" style="white-space: pre-wrap; word-wrap: break-word">
+            <div style="margin: 15px">
+              <template v-if="expandAsText">
+                <span v-text="getExpanded(item)" />
+              </template>
+              <template v-else>
+                <span v-html="getExpanded(item)" />
+              </template>
+            </div>
+          </td>
+        </tr>
       </template>
 
       <!-- No data slot -->
@@ -192,6 +194,8 @@ const props = withDefaults(
     itemPerPage?: number;
     expandFields?: string[];
     hiddenFields?: string[];
+    headers?: TableHeader[];
+    mergeWithServer?: boolean;
   }>(),
   {
     searchable: false,
@@ -220,6 +224,8 @@ const props = withDefaults(
     itemPerPage: 30,
     expandFields: () => [],
     hiddenFields: () => [],
+    headers: () => [],
+    mergeWithServer: false,
   }
 );
 
@@ -238,8 +244,12 @@ const { t } = useI18n();
 const { alert, showError, showSuccess } = useAlert();
 const { entityLabel, loadMeta, getTableHeaders, getFieldLabelByName } = useMeta({
   entity: props.entity,
-  headers: props.searchFields as unknown as undefined,
+  headers: props.headers as unknown as undefined,
+  mergeWithServer: props.mergeWithServer,
 });
+
+// Store expand field headers separately (since they're excluded from tableHeaders)
+const expandHeaders = ref<TableHeader[]>([]);
 
 // State
 const tableHeaders = ref<TableHeader[]>([]);
@@ -297,6 +307,14 @@ function getItemStyle(fieldName: string, fieldValue: unknown, defaultValue: stri
   return defaultValue;
 }
 
+function getFormattedValue(fieldName: string, fieldValue: unknown): string {
+  const field = tableHeaders.value.find((f) => f.name === fieldName);
+  if (field?.format) {
+    return field.format(fieldValue, t);
+  }
+  return String(fieldValue ?? "");
+}
+
 async function clickChip(item: TableItem, fieldName: string, index?: number): Promise<void> {
   const field = tableHeaders.value.find((f) => f.name === fieldName);
   if (field?.ref) {
@@ -332,7 +350,8 @@ function getExpanded(item: TableItem): string {
     const fieldName = fieldNames[i];
     const value = item[fieldName] ?? "";
     if (value) {
-      const field = tableHeaders.value.find((f) => f.name === fieldName);
+      // Look up expand function from expandHeaders (since expand fields are excluded from tableHeaders)
+      const field = expandHeaders.value.find((f) => f.name === fieldName);
       if (field?.expand) {
         values.push(field.expand(value));
       } else {
@@ -445,10 +464,10 @@ async function loadData(): Promise<void> {
       const tableData = data as TableItem[];
       tableData[tableData.length - 1]._last = true;
 
-      // Apply formatters
+      // Apply formatters only for non-chip fields (chips handle formatting in template)
       for (const obj of tableData) {
         for (const header of tableHeaders.value) {
-          if (header.format && header.name) {
+          if (header.format && header.name && !header.chip && !header.style) {
             obj[header.name] = header.format(obj[header.name], t);
           }
         }
@@ -477,6 +496,11 @@ async function loadData(): Promise<void> {
 async function initTable(): Promise<void> {
   await loadMeta();
   const headers = (await getTableHeaders(expandFieldsProp.value)) as unknown as TableHeader[];
+
+  // Store expand field headers from props.headers (they have the expand functions)
+  if (props.headers && props.headers.length > 0) {
+    expandHeaders.value = props.headers.filter((h) => expandFieldsProp.value.includes(h.name || ""));
+  }
 
   for (const header of headers) {
     header.title = uppercaseHeader(header.title || header.name || "");

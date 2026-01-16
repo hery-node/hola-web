@@ -1,5 +1,5 @@
 <template>
-  <DataTable v-bind="$attrs" ref="tableRef" :entity="entity" :headers="headers" :searchable="isSearchable" :infinite="!isPaginable" :search-fields="searchFieldsProp" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="batchMode" :has-action-header="hasActionHeader" :item-actions="itemActionsComputed" @chip="clickChip">
+  <DataTable v-bind="$attrs" ref="tableRef" :entity="entity" :headers="headers" :searchable="isSearchable" :infinite="!isPaginable" :search-fields="searchFieldsProp" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="batchMode" :has-action-header="hasActionHeader" :item-actions="itemActionsComputed" :expand-fields="expandFields" :merge-with-server="mergeWithServer" @chip="clickChip">
     <template v-if="!mobile" #toolbar>
       <v-tooltip v-for="(toolbar, index) in headerToolbars" :key="index" location="bottom">
         <template #activator="{ props: tooltipProps }">
@@ -38,7 +38,7 @@ import EditForm from "./EditForm.vue";
 import ConfirmDialog from "./ConfirmDialog.vue";
 import { useKeymap } from "@/composables/useKeymap";
 import { deleteEntity, isSuccessResponse, isBeenReferred, getEntityMode } from "@/core/axios";
-import type { ItemAction, TableItem } from "./DataTable.vue";
+import type { ItemAction, TableItem, TableHeader } from "./DataTable.vue";
 import type { ConfirmDialogInstance, EditFormInstance } from "./types";
 import type { FormField } from "./BasicForm.vue";
 
@@ -65,7 +65,9 @@ export interface CrudTableProps {
   batchToolbars?: ToolbarAction[];
   searchFields?: string[];
   editFields?: FormField[];
-  headers?: unknown[];
+  headers?: TableHeader[];
+  expandFields?: string[];
+  mergeWithServer?: boolean;
   chipFieldsMap?: Record<string, FormField[]>;
   noSelectLabel?: string;
   entityLabel?: string;
@@ -95,6 +97,8 @@ const props = withDefaults(defineProps<CrudTableProps>(), {
   searchFields: () => [],
   editFields: () => [],
   headers: () => [],
+  expandFields: () => [],
+  mergeWithServer: true,
   createIcon: "mdi-plus-circle",
   refreshIcon: "mdi-refresh",
   updateIcon: "mdi-square-edit-outline",
