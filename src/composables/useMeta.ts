@@ -29,6 +29,7 @@ export interface FormField extends Omit<EntityField, 'inputType'> {
   inputType: string
   rules: ValidationRule[]
   items?: SelectItem[]
+  default?: unknown
 }
 
 export interface HeaderField extends EntityField {
@@ -222,6 +223,9 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
       if (numericTypes.includes(field.type ?? 'string') && !formField.hint) {
         formField.hint = t('form.numeric_search_hint')
       }
+
+      // Search fields should not have defaults - reset should clear to empty
+      formField.default = undefined
 
       formFields.push(formField)
     }
