@@ -30,7 +30,7 @@
  * - Customizable toolbars and actions
  * - Entity mode configuration
  */
-import { ref, computed, useTemplateRef } from "vue";
+import { ref, computed, useTemplateRef, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
 import DataTable from "./DataTable.vue";
@@ -424,9 +424,8 @@ useKeymap({
   onKeyDown: pressKey,
 });
 
-// Initialize entity mode (equivalent to Vue 2 created hook)
-// Must run immediately, not in onMounted, to set mode before first render
-(async () => {
+// Initialize entity mode on mount and watch for changes
+onMounted(async () => {
   if (props.mode) {
     entityMode.value = props.mode;
   } else {
@@ -436,7 +435,12 @@ useKeymap({
     }
   }
   showToolbars();
-})();
+});
+
+// Watch entityMode to update toolbars when mode changes
+watch(entityMode, () => {
+  showToolbars();
+});
 
 // Expose methods
 defineExpose({
