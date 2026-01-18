@@ -2,9 +2,9 @@
 
 **Meta-Programming Framework for Vue.js Applications**
 
-A powerful Vue.js framework that automatically generates CRUD interfaces from entity metadata, built with Vue 2.7 and Vuetify 2.6.
+A powerful Vue.js framework that automatically generates CRUD interfaces from entity metadata, built with Vue 3 and Vuetify 3.
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/hery-node/hola-web) [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)](https://github.com/hery-node/hola-web) [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ---
 
@@ -12,12 +12,13 @@ A powerful Vue.js framework that automatically generates CRUD interfaces from en
 
 - **42 Production-Ready Components** - Tables, forms, charts, calendars, kanban boards, and more
 - **Meta-Programming** - Automatic UI generation from entity metadata
-- **8 Powerful Mixins** - Reusable logic for metadata, alerts, charts, search, and validation
-- **Vuetify 2.6** - Material Design components with full theming support
-- **TypeScript Support** - Comprehensive JSDoc documentation
+- **8 Powerful Composables** - Reusable logic for metadata, alerts, charts, search, and validation
+- **Vuetify 3** - Material Design components with full theming support
+- **TypeScript Support** - Comprehensive type definitions
 - **Responsive Design** - Mobile-first approach with adaptive layouts
 - **Dark Mode** - Complete light/dark theme switching
 - **Internationalization** - Built-in i18n support
+- **Bun & Elysia** - Optimized for modern stack
 
 ---
 
@@ -31,13 +32,13 @@ git clone https://github.com/hery-node/hola-web.git
 cd hola-web
 
 # Install dependencies
-npm install
+bun install
 
 # Start development server
-npm run serve
+bun run dev
 ```
 
-The application will be available at `http://localhost:8080`
+The application will be available at `http://localhost:5173`
 
 ### Basic Usage
 
@@ -48,17 +49,13 @@ Create a simple CRUD page - the `h-crud` component handles all operations automa
   <h-crud :entity="entity" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc"></h-crud>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      entity: "user",
-      item_label_key: "name",
-      sort_key: ["name"],
-      sort_desc: [false],
-    };
-  },
-};
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const entity = ref("user");
+const item_label_key = ref("name");
+const sort_key = ref(["name"]);
+const sort_desc = ref([false]);
 </script>
 ```
 
@@ -82,7 +79,7 @@ That's it! The `h-crud` component automatically:
 | `h-edit-form` | EditForm  | Meta-aware entity form                   |
 | `h-list`      | DataList  | Mobile-friendly list view                |
 
-### Meta-Integrated Components (New in v2.0)
+### Meta-Integrated Components
 
 | Component          | Purpose                               |
 | ------------------ | ------------------------------------- |
@@ -121,44 +118,47 @@ See [Component Documentation](docs/COMPONENTS.md) for complete reference.
 
 Customize your application with Vuetify themes:
 
-```javascript
-// src/plugins/vuetify.js
-export default new Vuetify({
+```typescript
+// src/plugins/vuetify.ts
+import { createVuetify } from 'vuetify'
+
+export default createVuetify({
   theme: {
     themes: {
       light: {
-        primary: "#1976D2",
-        secondary: "#424242",
-        accent: "#82B1FF",
+        colors: {
+          primary: "#1976D2",
+          secondary: "#424242",
+          accent: "#82B1FF",
+        }
       },
       dark: {
-        primary: "#2196F3",
-        secondary: "#616161",
-        accent: "#FF4081",
+        colors: {
+          primary: "#2196F3",
+          secondary: "#616161",
+          accent: "#FF4081",
+        }
       },
     },
   },
-});
+})
 ```
 
 See [Theming Guide](docs/THEMING.md) for advanced customization.
 
 ---
 
-## 🧩 Mixins
+## 🧩 Composables
 
-Reusable functionality through Vue mixins:
+Reusable functionality through Vue Composables:
 
-| Mixin      | Purpose                       | Key Methods                                                       |
-| ---------- | ----------------------------- | ----------------------------------------------------------------- |
-| **Meta**   | Entity metadata integration   | `load_meta()`, `get_table_headers()`, `get_form_fields()`         |
-| **Alert**  | Notifications & confirmations | `show_alert()`, `show_error()`, `confirm()`                       |
-| **Simple** | Basic CRUD operations         | `load_items()`, `create_item()`, `update_item()`, `delete_item()` |
-| **Chart**  | ECharts integration           | `create_line_chart()`, `create_bar_chart()`, `create_pie_chart()` |
-| **Fuzzy**  | Client-side search            | `fuzzy_search()`, `fuzzy_match()`                                 |
-| **Keymap** | Keyboard shortcuts            | `register_keymap()`                                               |
-| **Regex**  | Input validation              | `validate_email()`, `validate_url()`, `validate_password()`       |
-| **Wrap**   | Async wrappers                | `wrap_async()`, `wrap_action()`                                   |
+| Composable  | Purpose                       | Key Functions                                                     |
+| ----------- | ----------------------------- | ----------------------------------------------------------------- |
+| **Meta**    | Entity metadata integration   | `useMeta()`, `getHeaders()`, `getFormFields()`                    |
+| **Alert**   | Notifications & confirmations | `useAlert()`, `showError()`, `confirm()`                          |
+| **Crud**    | Basic CRUD operations         | `useCrud()`, `createItem()`, `updateItem()`, `deleteItem()`       |
+| **Chart**   | ECharts integration           | `useChart()`, `createLineChart()`                                 |
+| **Keymap**  | Keyboard shortcuts            | `useKeymap()`                                                     |
 
 See [Composables Documentation](docs/COMPOSABLES.md) for detailed API reference.
 
@@ -178,39 +178,24 @@ See [Composables Documentation](docs/COMPOSABLES.md) for detailed API reference.
 ```
 hola-web/
 ├── public/
-│   └── index.html
 ├── src/
 │   ├── assets/              # Static assets
 │   ├── components/          # 42 Vue components
-│   │   ├── ArrayEntity.vue
-│   │   ├── CrudTable.vue
-│   │   ├── EntityCalendarView.vue
-│   │   ├── EntityKanbanView.vue
-│   │   └── ...
 │   ├── core/                # Core utilities
-│   │   ├── axios.js         # HTTP client
-│   │   ├── chart.js         # Chart utilities
-│   │   ├── storage.js       # Local storage
-│   │   └── type.js          # Type utilities
-│   ├── mixins/              # 8 Vue mixins
-│   │   ├── meta.js
-│   │   ├── alert.js
-│   │   ├── simple.js
-│   │   └── ...
+│   │   ├── api.ts           # Eden/Axios client
+│   │   ├── chart.ts         # Chart utilities
+│   ├── composables/         # Vue Composables
+│   │   ├── useMeta.ts
+│   │   ├── useAlert.ts
 │   ├── plugins/             # Vue plugins
-│   │   ├── vuetify.js
-│   │   ├── echarts.js
-│   │   └── i18n.js
+│   │   ├── vuetify.ts
+│   │   ├── i18n.ts
 │   ├── locales/             # Translations
-│   │   └── en.json
 │   ├── App.vue              # Root component
-│   ├── main.js              # Entry point
-│   └── i18n.js              # i18n configuration
+│   ├── main.ts              # Entry point
 ├── docs/                    # Documentation
-├── babel.config.js
-├── jsconfig.json
-├── vue.config.js
-└── package.json
+├── package.json
+└── vite.config.ts
 ```
 
 ---
@@ -219,32 +204,22 @@ hola-web/
 
 ### Prerequisites
 
-- Node.js 14+ and npm
-- Vue CLI 4+
+- Bun 1.0+
 
 ### Setup
 
 ```bash
 # Install dependencies
-npm install
+bun install
 
 # Start development server
-npm run serve
+bun run dev
 
 # Build for production
-npm run build
+bun run build
 
 # Lint and fix files
-npm run lint
-```
-
-### Environment Variables
-
-Create a `.env.local` file:
-
-```env
-VUE_APP_API_URL=http://localhost:3000
-VUE_APP_GRIDFS_URL=http://localhost:3000/gridfs
+bun run lint
 ```
 
 ---
@@ -253,59 +228,19 @@ VUE_APP_GRIDFS_URL=http://localhost:3000/gridfs
 
 ### API Integration
 
-Configure axios in `src/core/axios.js`:
-
-```javascript
-import axios from "axios";
-
-const instance = axios.create({
-  baseURL: process.env.VUE_APP_API_URL || "http://localhost:3000",
-  timeout: 30000,
-});
-
-// Request interceptor
-instance.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-export default instance;
-```
-
-### Vuetify Configuration
-
-Customize Vuetify in `src/plugins/vuetify.js`:
-
-```javascript
-import Vue from "vue";
-import Vuetify from "vuetify/lib";
-
-Vue.use(Vuetify);
-
-export default new Vuetify({
-  theme: {
-    themes: {
-      light: { primary: "#1976D2" },
-      dark: { primary: "#2196F3" },
-    },
-  },
-});
-```
+Configure Eden/Axios in `src/core/api.ts`.
 
 ---
 
 ## 🌐 Backend Integration
 
-Hola-web works seamlessly with [hola-server](https://github.com/hery-node/hola-server), a Node.js + MongoDB backend. Define your entity metadata using `init_router()`:
+Hola-web works seamlessly with [hola-server](https://github.com/hery-node/hola-server), a Bun + Elysia + MongoDB backend. Define your entity metadata using `init_router()`:
 
-```javascript
-// routes/user.js
-const { init_router } = require("hola-server");
+```typescript
+// router/user.ts
+import { init_router } from "hola-server";
 
-module.exports = init_router({
+export const router = init_router({
   collection: "user",
   primary_keys: ["email"],
   ref_label: "name",
@@ -334,21 +269,21 @@ module.exports = init_router({
 
 ## 📋 Requirements
 
-- **Node.js:** 14.x or higher
-- **Vue:** 2.7.8
-- **Vuetify:** 2.6.6
+- **Runtime:** Bun 1.0+
+- **Vue:** 3.5.0+
+- **Vuetify:** 3.7.0+
 - **Browsers:** Modern browsers (Chrome, Firefox, Safari, Edge)
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome!
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
 5. Open a Pull Request
 
 ---
@@ -363,8 +298,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Built with [Vue.js](https://vuejs.org/)
 - UI components by [Vuetify](https://vuetifyjs.com/)
-- Charts powered by [Apache ECharts](https://echarts.apache.org/)
-- Icons from [Material Design Icons](https://materialdesignicons.com/)
+- Optimized for [Bun](https://bun.sh/) & [Elysia](https://elysiajs.com/)
 
 ---
 
@@ -376,5 +310,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Version:** 2.0.0  
-**Last Updated:** January 9, 2026
+**Version:** 3.0.0
+**Last Updated:** January 18, 2026
