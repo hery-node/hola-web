@@ -81,6 +81,15 @@ export {
   clearCache,
 } from './core/axios'
 
+// Eden Treaty client for type-safe API calls
+export {
+  initEden,
+  getEden,
+  getBaseUrl,
+  handleEdenResponse,
+  type EdenConfig,
+} from './core/eden'
+
 // Re-export composables
 export {
   useAlert,
