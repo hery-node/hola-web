@@ -8,8 +8,8 @@
 
 /** Response codes matching hola-server HTTP codes */
 export const ResponseCode = {
-  ERROR: 0,
-  SUCCESS: 1,
+  SUCCESS: 0,
+  ERROR: 1,
   IMPORT_EMPTY_KEY: 100,
   IMPORT_WRONG_FIELDS: 101,
   IMPORT_DUPLICATE_KEY: 102,
