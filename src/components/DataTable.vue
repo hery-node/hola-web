@@ -500,7 +500,7 @@ async function loadData(): Promise<void> {
   }
 }
 
-async function initTable(): Promise<void> {
+async function initTable(skipLoad = false): Promise<void> {
   // Reset categorized columns to avoid duplicates on re-initialization
   chips.value = [];
   arrays.value = [];
@@ -551,7 +551,9 @@ async function initTable(): Promise<void> {
 
   firstColumn.value = headers[0]?.key || "";
   tableHeaders.value = headers;
-  loadData();
+  if (!skipLoad) {
+    loadData();
+  }
 }
 
 // Watch for filter changes
@@ -565,11 +567,19 @@ watch(
 );
 
 // Watch for hasActionHeader changes (async entity mode loading)
+// Skip first change to avoid duplicate load when entityMode is set after mount
+let hasActionHeaderInitialized = false;
 watch(
   () => props.hasActionHeader,
   (newVal, oldVal) => {
     if (newVal !== oldVal) {
-      initTable();
+      if (!hasActionHeaderInitialized) {
+        hasActionHeaderInitialized = true;
+        // On first change, just re-init headers without reloading data
+        initTable(true);
+      } else {
+        initTable();
+      }
     }
   },
 );
