@@ -30,7 +30,7 @@
  * - Customizable toolbars and actions
  * - Entity mode configuration
  */
-import { ref, computed, useTemplateRef, onMounted, watch } from "vue";
+import { ref, computed, useTemplateRef, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
 import DataTable from "./DataTable.vue";
@@ -130,8 +130,6 @@ const chipEntity = ref("");
 const chipEntityId = ref("");
 const chipEditFields = ref<FormField[]>([]);
 const cloneMode = ref(false);
-const hasActionHeader = ref(false);
-const headerToolbars = ref<ToolbarAction[]>([]);
 
 // Computed - Mode checks
 const isBatchable = computed(() => entityMode.value.includes("b"));
@@ -217,8 +215,11 @@ const actionWidthComputed = computed(() => {
   return `${width}px`;
 });
 
-// Methods
-function showToolbars(): void {
+// Computed - Has action header (reactive based on itemActionsComputed)
+const hasActionHeader = computed(() => !!itemActionsComputed.value);
+
+// Computed - Header toolbars (reactive based on mode and batch state)
+const headerToolbars = computed<ToolbarAction[]>(() => {
   const toolbars: ToolbarAction[] = [];
 
   if (!batchMode.value && isCreatable.value) {
@@ -266,10 +267,10 @@ function showToolbars(): void {
     });
   }
 
-  headerToolbars.value = toolbars;
-  hasActionHeader.value = !!itemActionsComputed.value;
-}
+  return toolbars;
+});
 
+// Methods
 function pressEsc(): void {
   if (batchMode.value) switchToSingle();
 }
@@ -288,12 +289,10 @@ function pressKey(event: KeyboardEvent): void {
 
 function switchToBatch(): void {
   batchMode.value = true;
-  showToolbars();
 }
 
 function switchToSingle(): void {
   batchMode.value = false;
-  showToolbars();
 }
 
 function deleteEntityItem(item: TableItem): void {
@@ -424,7 +423,7 @@ useKeymap({
   onKeyDown: pressKey,
 });
 
-// Initialize entity mode on mount and watch for changes
+// Initialize entity mode on mount
 onMounted(async () => {
   if (props.mode) {
     entityMode.value = props.mode;
@@ -434,12 +433,6 @@ onMounted(async () => {
       entityMode.value = serverMode;
     }
   }
-  showToolbars();
-});
-
-// Watch entityMode to update toolbars when mode changes
-watch(entityMode, () => {
-  showToolbars();
 });
 
 // Expose methods

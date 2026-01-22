@@ -1,4 +1,22 @@
 {
+  "error": {
+    "internal": "An internal server error occurred. Please try again later.",
+    "unknown": "An unknown error occurred.",
+    "no_session": "Your session has expired. Please log in again.",
+    "no_rights": "You do not have permission to perform this action.",
+    "missing_params": "Required fields are missing: {fields}",
+    "not_found": "The requested resource was not found.",
+    "invalid_params": "Invalid field values: {fields}",
+    "ref_not_found": "Referenced record not found: {fields}",
+    "ref_not_unique": "Multiple matching references found. Please be more specific.",
+    "has_ref": "Cannot delete: this record is referenced by other records.",
+    "duplicate": "A record with these values already exists: {fields}",
+    "no_resource": "The requested resource is no longer available.",
+    "import_empty_key": "Import failed: missing key field.",
+    "import_wrong_fields": "Import failed: invalid field format.",
+    "import_duplicate": "Import failed: duplicate key found.",
+    "import_ref_not_found": "Import failed: referenced record not found."
+  },
   "type": {
     "boolean": "{field} must be a valid boolean value.",
     "int": "{field} must be a valid integer.",

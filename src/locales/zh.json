@@ -1,4 +1,22 @@
 {
+  "error": {
+    "internal": "服务器内部错误，请稍后重试。",
+    "unknown": "发生未知错误。",
+    "no_session": "会话已过期，请重新登录。",
+    "no_rights": "您没有执行此操作的权限。",
+    "missing_params": "缺少必填字段：{fields}",
+    "not_found": "请求的资源未找到。",
+    "invalid_params": "字段值无效：{fields}",
+    "ref_not_found": "未找到引用的记录：{fields}",
+    "ref_not_unique": "找到多个匹配的引用，请更具体地指定。",
+    "has_ref": "无法删除：此记录被其他记录引用。",
+    "duplicate": "已存在相同值的记录：{fields}",
+    "no_resource": "请求的资源已不可用。",
+    "import_empty_key": "导入失败：缺少关键字段。",
+    "import_wrong_fields": "导入失败：字段格式无效。",
+    "import_duplicate": "导入失败：发现重复键。",
+    "import_ref_not_found": "导入失败：未找到引用的记录。"
+  },
   "type": {
     "boolean": "{field} 必须是有效的布尔值。",
     "int": "{field} 必须是有效的整数。",

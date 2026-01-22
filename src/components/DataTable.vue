@@ -127,6 +127,7 @@ import SearchForm from "./SearchForm.vue";
 import { useAlert } from "@/composables/useAlert";
 import { useMeta } from "@/composables/useMeta";
 import { isSuccessResponse, listEntity, type ListParams } from "@/core/axios";
+import { formatErrorMessage } from "@/core/code";
 import type { FormData } from "./BasicForm.vue";
 
 /** Item action configuration */
@@ -228,7 +229,7 @@ const props = withDefaults(
     hiddenFields: () => [],
     headers: () => [],
     mergeWithServer: false,
-  }
+  },
 );
 
 // Rename props for internal use
@@ -456,7 +457,7 @@ async function loadData(): Promise<void> {
 
   const queryObj = props.filter ? { ...searchForm.value, ...props.filter } : searchForm.value;
 
-  const { code, total: responseTotal, data } = await listEntity(props.entity, queryObj, params, props.listAction);
+  const { code, total: responseTotal, data, err } = await listEntity(props.entity, queryObj, params, props.listAction);
 
   loading.value = false;
 
@@ -492,10 +493,19 @@ async function loadData(): Promise<void> {
       items.value = [];
       emit("loaded", items.value);
     }
+  } else {
+    // Show error message
+    const errorMessage = formatErrorMessage(code, err, t);
+    showError(errorMessage);
   }
 }
 
 async function initTable(): Promise<void> {
+  // Reset categorized columns to avoid duplicates on re-initialization
+  chips.value = [];
+  arrays.value = [];
+  styles.value = [];
+
   await loadMeta();
   const headers = (await getTableHeaders(expandFieldsProp.value)) as unknown as TableHeader[];
 
@@ -551,7 +561,17 @@ watch(
     resetValues();
     loadData();
   },
-  { deep: true }
+  { deep: true },
+);
+
+// Watch for hasActionHeader changes (async entity mode loading)
+watch(
+  () => props.hasActionHeader,
+  (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+      initTable();
+    }
+  },
 );
 
 // Lifecycle

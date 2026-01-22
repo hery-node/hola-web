@@ -63,6 +63,7 @@ import BasicWindow from "./BasicWindow.vue";
 import { useAlert } from "@/composables/useAlert";
 import { useMeta } from "@/composables/useMeta";
 import { readProperty, saveEntity, isSuccessResponse, hasInvalidParams, isDuplicated, isUniqueDuplicated } from "@/core/axios";
+import { formatErrorMessage } from "@/core/code";
 import type { FormField, FormData } from "./BasicForm.vue";
 import type { BasicFormInstance, BasicWindowInstance } from "./types";
 
@@ -107,7 +108,7 @@ const props = withDefaults(
     dialog: false,
     dialogWidth: "800px",
     progressBarColor: "indigo",
-  }
+  },
 );
 
 // Emits
@@ -300,11 +301,9 @@ async function submitForm(formData: FormData): Promise<void> {
       showError(errorInfo);
     }
   } else {
-    const updateKey = props.clone ? "form.clone_fail_hint" : "form.update_fail_hint";
-    const createKey = "form.create_fail_hint";
-    const errorInfo = props.failHint ?? t(updateMode.value ? updateKey : createKey, { entity: entityLabel.value });
-    const errorDetail = props.showDetailError ? t("form.error", { err }) : t("form.check_log");
-    showError(errorInfo + errorDetail);
+    // Use formatErrorMessage for meaningful error display
+    const errorInfo = formatErrorMessage(code, err, t);
+    showError(errorInfo);
   }
 }
 
@@ -316,7 +315,7 @@ watch(
       await initFormData();
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 // Lifecycle
