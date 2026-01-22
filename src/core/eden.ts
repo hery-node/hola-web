@@ -21,7 +21,7 @@
 
 import { treaty } from '@elysiajs/eden';
 import type { Elysia } from 'elysia';
-import { ResponseCode, type ApiResponse, type ResponseHandler } from '@/types';
+import { type ApiResponse, type ResponseHandler } from '@/types';
 
 /** Eden client configuration options. */
 export interface EdenConfig {
@@ -98,15 +98,6 @@ export const getBaseUrl = (): string => {
  * Get the response handler.
  */
 export const getResponseHandler = (): ResponseHandler => _responseHandler;
-
-// Re-export response code utilities for convenience
-export const isSuccessResponse = (code: number): boolean => code === ResponseCode.SUCCESS;
-export const isErrorResponse = (code: number): boolean => code === ResponseCode.ERROR;
-export const hasInvalidParams = (code: number): boolean => code === ResponseCode.INVALID_PARAMS;
-export const isDuplicated = (code: number): boolean => code === ResponseCode.DUPLICATE_KEY;
-export const isUniqueDuplicated = (code: number): boolean => code === ResponseCode.DUPLICATE_UNIQUE;
-export const isBeenReferred = (code: number): boolean => code === ResponseCode.HAS_REF;
-export const isNoSession = (code: number): boolean => code === ResponseCode.NO_SESSION;
 
 /**
  * Helper to handle Eden response with proper type narrowing.

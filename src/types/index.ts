@@ -6,28 +6,10 @@
 // API Response Types
 // ============================================================================
 
-/** Response codes matching hola-server HTTP codes */
-export const ResponseCode = {
-  SUCCESS: 0,
-  ERROR: 1,
-  IMPORT_EMPTY_KEY: 100,
-  IMPORT_WRONG_FIELDS: 101,
-  IMPORT_DUPLICATE_KEY: 102,
-  IMPORT_NO_FOUND_REF: 103,
-  NO_SESSION: 200,
-  NO_RIGHTS: 201,
-  NO_PARAMS: 202,
-  NOT_FOUND: 203,
-  INVALID_PARAMS: 204,
-  REF_NOT_FOUND: 205,
-  REF_NOT_UNIQUE: 206,
-  HAS_REF: 207,
-  DUPLICATE_KEY: 300,
-  DUPLICATE_UNIQUE: 301,
-  NO_RESOURCE: 404,
-} as const
+/** Response codes - re-export from core/code */
+export * from '@/core/code'
 
-export type ResponseCodeType = (typeof ResponseCode)[keyof typeof ResponseCode]
+export type ResponseCodeType = number
 
 /** API response structure */
 export interface ApiResponse<T = unknown> {

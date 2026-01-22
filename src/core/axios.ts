@@ -4,7 +4,8 @@
  */
 
 import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios'
-import { ResponseCode, type ApiResponse, type EntityMeta, type SelectItem, type AxiosConfig, type ResponseHandler } from '@/types'
+import { type ApiResponse, type EntityMeta, type SelectItem, type AxiosConfig, type ResponseHandler } from '@/types'
+import { SUCCESS, isSuccessResponse } from './code'
 
 // Configure axios defaults
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
@@ -147,41 +148,6 @@ export const axiosDelete = <T = ApiResponse>(url: string, params?: Record<string
   const instance = getAxios()
   return instance.delete(url, { params }) as Promise<T>
 }
-
-/**
- * Check if response code indicates success
- */
-export const isSuccessResponse = (code: number): boolean => code === ResponseCode.SUCCESS
-
-/**
- * Check if response code indicates error
- */
-export const isErrorResponse = (code: number): boolean => code === ResponseCode.ERROR
-
-/**
- * Check if response code indicates invalid parameters
- */
-export const hasInvalidParams = (code: number): boolean => code === ResponseCode.INVALID_PARAMS
-
-/**
- * Check if response code indicates duplicate key
- */
-export const isDuplicated = (code: number): boolean => code === ResponseCode.DUPLICATE_KEY
-
-/**
- * Check if response code indicates duplicate unique field value
- */
-export const isUniqueDuplicated = (code: number): boolean => code === ResponseCode.DUPLICATE_UNIQUE
-
-/**
- * Check if response code indicates entity is referenced
- */
-export const isBeenReferred = (code: number): boolean => code === ResponseCode.HAS_REF
-
-/**
- * Check if response code indicates no session
- */
-export const isNoSession = (code: number): boolean => code === ResponseCode.NO_SESSION
 
 /**
  * Perform cached GET request
@@ -399,7 +365,7 @@ export const deleteEntity = async (entity: string, ids: string[]): Promise<ApiRe
   }
   // Return the last result (or first error if any)
   const error = results.find((r) => !isSuccessResponse(r.code))
-  return error ?? results[results.length - 1] ?? { code: ResponseCode.SUCCESS }
+  return error ?? results[results.length - 1] ?? { code: SUCCESS }
 }
 
 /**
