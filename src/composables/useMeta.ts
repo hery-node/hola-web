@@ -156,10 +156,13 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
   const fieldInView = (field: EntityField, view: string): boolean => {
     if (view === '*') return true
     if (field.view) {
-      return Array.isArray(field.view) ? field.view.includes(view) : field.view === view
+      if (Array.isArray(field.view)) {
+        return field.view.includes(view) || field.view.includes('*')
+      }
+      return field.view === view || field.view === '*'
     }
-    // Fields without view restriction should show in all views
-    return true
+    // Fields without view restriction should NOT appear when a specific view is requested
+    return false
   }
 
   /**
