@@ -8,13 +8,13 @@ Eden Treaty provides compile-time type safety for API calls by inferring types d
 
 ## When to Use Eden vs Axios
 
-| Use Case | Recommended Client |
-|----------|-------------------|
+| Use Case                                                | Recommended Client                 |
+| ------------------------------------------------------- | ---------------------------------- |
 | **Library components** (DataTable, EditForm, CrudTable) | Axios (`listEntity`, `saveEntity`) |
-| **Consumer app with known entities** | Eden Treaty |
-| **Custom components for specific entities** | Eden Treaty |
-| **Dynamic entity name from props** | Axios |
-| **Type-safe direct API calls** | Eden Treaty |
+| **Consumer app with known entities**                    | Eden Treaty                        |
+| **Custom components for specific entities**             | Eden Treaty                        |
+| **Dynamic entity name from props**                      | Axios                              |
+| **Type-safe direct API calls**                          | Eden Treaty                        |
 
 ### Why This Distinction?
 
@@ -22,10 +22,10 @@ Library components use **runtime entity strings** (e.g., `props.entity = "user"`
 
 ```typescript
 // ❌ Cannot work with Eden - entity is a runtime variable
-const data = await api[props.entity].get();  // TypeScript doesn't know the type
+const data = await api[props.entity].get(); // TypeScript doesn't know the type
 
 // ✅ Works with Eden - explicit entity at compile time
-const data = await api.user.get();  // Full type inference
+const data = await api.user.get(); // Full type inference
 ```
 
 ## Setup
@@ -35,18 +35,16 @@ const data = await api.user.get();  // Full type inference
 Export the App type from your server's main file:
 
 ```typescript
-import { Elysia } from 'elysia';
-import { init_router } from 'hola-server';
+import { Elysia } from "elysia";
+import { init_router } from "hola-server";
 
 const userRouter = init_router({
-  collection: 'user',
-  fields: [{ name: 'name', required: true }],
+  collection: "user",
+  fields: [{ name: "name", required: true }],
   // ...other config
 });
 
-const app = new Elysia()
-  .use(userRouter)
-  .listen(3000);
+const app = new Elysia().use(userRouter).listen(3000);
 
 // ⭐ Export this type for Eden clients
 export type App = typeof app;
@@ -55,11 +53,11 @@ export type App = typeof app;
 ### Client Side
 
 ```typescript
-import type { App } from 'your-server/main';
-import { initEden, handleEdenResponse } from 'hola-web';
+import type { App } from "your-server/main";
+import { initEden, handleEdenResponse } from "hola-web";
 
 // Initialize once at app startup
-const api = initEden<App>({ baseUrl: 'http://localhost:3000' });
+const api = initEden<App>({ baseUrl: "http://localhost:3000" });
 
 // Make type-safe calls
 const result = await api.user.meta.get();
@@ -72,10 +70,10 @@ const data = handleEdenResponse(result);
 
 Initialize the Eden Treaty client.
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `config.baseUrl` | `string` | Server base URL |
-| `handler` | `ResponseHandler` | Optional response handler |
+| Parameter        | Type              | Description               |
+| ---------------- | ----------------- | ------------------------- |
+| `config.baseUrl` | `string`          | Server base URL           |
+| `handler`        | `ResponseHandler` | Optional response handler |
 
 Returns: Type-safe Eden client
 
@@ -93,21 +91,25 @@ Handle Eden response with type narrowing:
 
 ```typescript
 const result = await api.user.get();
-const data = handleEdenResponse(result);  // Throws on error, returns data on success
+const data = handleEdenResponse(result); // Throws on error, returns data on success
 ```
 
 ## Usage Patterns
 
+### List Entities (POST)
+
+```typescript
+// List entities - uses POST /list
+const users = await api.user.list.post({
+  _query: { page: 1, limit: 10 },
+});
+```
+
 ### GET Request
 
 ```typescript
-// List entities
-const users = await api.user.get({
-  query: { _query: JSON.stringify({ page: 1, limit: 10 }) }
-});
-
 // Get entity by ID
-const user = await api.user({ id: '123' }).get();
+const user = await api.user({ id: "123" }).get();
 
 // Get metadata
 const meta = await api.user.meta.get();
@@ -118,8 +120,8 @@ const meta = await api.user.meta.get();
 ```typescript
 // Create entity
 const result = await api.user.post({
-  name: 'John',
-  email: 'john@example.com'
+  name: "John",
+  email: "john@example.com",
 });
 ```
 
@@ -127,8 +129,8 @@ const result = await api.user.post({
 
 ```typescript
 // Update entity
-const result = await api.user({ id: '123' }).put({
-  name: 'Updated Name'
+const result = await api.user({ id: "123" }).put({
+  name: "Updated Name",
 });
 ```
 
@@ -136,7 +138,7 @@ const result = await api.user({ id: '123' }).put({
 
 ```typescript
 // Delete entity
-const result = await api.user({ id: '123' }).delete();
+const result = await api.user({ id: "123" }).delete();
 ```
 
 ## Comparison: Axios vs Eden
@@ -144,34 +146,31 @@ const result = await api.user({ id: '123' }).delete();
 ### Before (Axios)
 
 ```typescript
-import { listEntity, isSuccessResponse } from 'hola-web';
+import { listEntity, isSuccessResponse } from "hola-web";
 
 // Manual type assertion, string URL construction
-const result = await listEntity<User>(
-  'user',
-  {},
-  { page: 1, limit: 10 }
-);
+const result = await listEntity<User>("user", {}, { page: 1, limit: 10 });
 
 if (isSuccessResponse(result.code)) {
-  const users = result.data;  // Type is User[] but not validated
+  const users = result.data; // Type is User[] but not validated
 }
 ```
 
 ### After (Eden)
 
 ```typescript
-import type { App } from 'your-server/main';
-import { initEden, handleEdenResponse } from 'hola-web';
+import type { App } from "your-server/main";
+import { initEden, handleEdenResponse } from "hola-web";
 
-const api = initEden<App>({ baseUrl: '...' });
+const api = initEden<App>({ baseUrl: "..." });
 
 // Full auto-complete, types flow from server
-const result = await api.user.get({
-  query: { _query: JSON.stringify({ page: 1, limit: 10 }) }
+// List uses POST /list endpoint
+const result = await api.user.list.post({
+  _query: { page: 1, limit: 10 },
 });
 
-const data = handleEdenResponse(result);  // Type inferred automatically
+const data = handleEdenResponse(result); // Type inferred automatically
 ```
 
 ## Best Practices

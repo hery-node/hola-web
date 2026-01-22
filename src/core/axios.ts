@@ -263,9 +263,12 @@ export interface ListParams {
   attrNames?: string
 }
 
+// API endpoint path for list
+const LIST = '/list'
+
 /**
  * List entities with query parameters
- * GET /{entity}
+ * POST /{entity}/list
  */
 export const listEntity = async <T = Record<string, unknown>>(
   entity: string,
@@ -273,23 +276,23 @@ export const listEntity = async <T = Record<string, unknown>>(
   params: ListParams,
   listAction?: string
 ): Promise<ApiResponse<T[]>> => {
-  const url = '/' + entity + (listAction?.trim() ? listAction : '')
-  const queryParams = {
+  const url = '/' + entity + (listAction?.trim() ? listAction : LIST)
+  const body = {
     ...form,
-    _query: JSON.stringify({
+    _query: {
       page: params.page,
       limit: params.limit,
       sort_by: params.sortBy,
       desc: params.desc,
       attr_names: params.attrNames,
-    }),
+    },
   }
-  return axiosGet<ApiResponse<T[]>>(url, queryParams)
+  return axiosPost<ApiResponse<T[]>>(url, body)
 }
 
 /**
  * Query entities with attributes and conditions
- * GET /{entity}
+ * POST /{entity}/list
  */
 export const queryEntity = async <T = Record<string, unknown>>(
   entity: string,
@@ -297,18 +300,18 @@ export const queryEntity = async <T = Record<string, unknown>>(
   query?: Record<string, unknown>,
   listAction?: string
 ): Promise<ApiResponse<T[]>> => {
-  const url = '/' + entity + (listAction?.trim() ? listAction : '')
-  const queryParams = {
+  const url = '/' + entity + (listAction?.trim() ? listAction : LIST)
+  const body = {
     ...query,
-    _query: JSON.stringify({
+    _query: {
       attr_names: attrs.join(','),
       sort_by: '_id',
       desc: false,
       page: 1,
       limit: 10000,
-    }),
+    },
   }
-  return axiosGet<ApiResponse<T[]>>(url, queryParams)
+  return axiosPost<ApiResponse<T[]>>(url, body)
 }
 
 /**
