@@ -1,0 +1,26 @@
+$ vue-tsc --noEmit && vite build
+vite v6.4.1 building for production...
+transforming...
+✓ 1181 modules transformed.
+rendering chunks...
+[96msrc/components/CrudTable.vue[0m:[93m1200[0m:[93m1[0m - [91merror[0m[90m TS4082: [0mDefault export of the module has or is using private name 'Props'.
+
+[7m1200[0m export default (await import('vue')).defineComponent({
+[7m    [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m1201[0m setup() {
+[7m    [0m [91m~~~~~~~~~[0m
+[7m ...[0m 
+[7m1209[0m __typeEl: {} as __VLS_TemplateResult['rootEl'],
+[7m    [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m1210[0m });
+[7m    [0m [91m~~~[0m
+[96msrc/components/DataList.vue[0m:[93m626[0m:[93m10[0m - [91merror[0m[90m TS4058: [0mReturn type of exported function has or is using name 'Props' from external module "/home/dev/projects/hola/hola-web/src/components/ConfirmDialog.vue" but cannot be named.
+
+[7m626[0m function __VLS_template() {
+[7m   [0m [91m         ~~~~~~~~~~~~~~[0m
+[96msrc/components/DataList.vue[0m:[93m893[0m:[93m7[0m - [91merror[0m[90m TS4023: [0mExported variable '__VLS_component' has or is using name 'Props' from external module "/home/dev/projects/hola/hola-web/src/components/ConfirmDialog.vue" but cannot be named.
+
+[7m893[0m const __VLS_component = (await import('vue')).defineComponent({
+[7m   [0m [91m      ~~~~~~~~~~~~~~~[0m
+
+computing gzip size...

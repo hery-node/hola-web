@@ -7,8 +7,19 @@ import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios'
 import { type ApiResponse, type EntityMeta, type SelectItem, type AxiosConfig, type ResponseHandler } from '@/types'
 import { SUCCESS, isSuccessResponse } from './code'
 
+// Re-export code check utilities
+export {
+  isSuccessResponse,
+  isErrorResponse,
+  isBeenReferred,
+  isDuplicated,
+  isUniqueDuplicated,
+  hasInvalidParams,
+  isNoSession,
+} from './code'
+
 // Configure axios defaults
-axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
+axios.defaults.headers.post['Content-Type'] = 'application/json'
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*'
 
 // API endpoint paths (RESTful)
@@ -279,13 +290,11 @@ export const listEntity = async <T = Record<string, unknown>>(
   const url = '/' + entity + (listAction?.trim() ? listAction : LIST)
   const body = {
     ...form,
-    _query: {
-      page: params.page,
-      limit: params.limit,
-      sort_by: params.sortBy,
-      desc: params.desc,
-      attr_names: params.attrNames,
-    },
+    page: params.page,
+    limit: params.limit,
+    sort_by: params.sortBy,
+    desc: params.desc,
+    attr_names: params.attrNames,
   }
   return axiosPost<ApiResponse<T[]>>(url, body)
 }
@@ -303,13 +312,11 @@ export const queryEntity = async <T = Record<string, unknown>>(
   const url = '/' + entity + (listAction?.trim() ? listAction : LIST)
   const body = {
     ...query,
-    _query: {
-      attr_names: attrs.join(','),
-      sort_by: '_id',
-      desc: false,
-      page: 1,
-      limit: 10000,
-    },
+    attr_names: attrs.join(','),
+    sort_by: '_id',
+    desc: false,
+    page: 1,
+    limit: 10000,
   }
   return axiosPost<ApiResponse<T[]>>(url, body)
 }
