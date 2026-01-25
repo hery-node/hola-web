@@ -34,6 +34,7 @@ export interface FormField extends Omit<EntityField, 'inputType'> {
 
 export interface HeaderField extends EntityField {
   text: string
+  title: string
   value: string
   format?: (value: unknown, t?: (key: string) => string) => string
 }
@@ -243,20 +244,20 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
 
     const editFields = updateMode
       ? meta.value.fields.filter(
-          (field) =>
-            field.create !== false &&
-            field.update !== false &&
-            field.sys !== true &&
-            field.name !== meta.value?.userField &&
-            fieldInView(field, view)
-        )
+        (field) =>
+          field.create !== false &&
+          field.update !== false &&
+          field.sys !== true &&
+          field.name !== meta.value?.userField &&
+          fieldInView(field, view)
+      )
       : meta.value.fields.filter(
-          (field) =>
-            field.create !== false &&
-            field.sys !== true &&
-            field.name !== meta.value?.userField &&
-            fieldInView(field, view)
-        )
+        (field) =>
+          field.create !== false &&
+          field.sys !== true &&
+          field.name !== meta.value?.userField &&
+          fieldInView(field, view)
+      )
 
     return getFormFields(editFields)
   }
@@ -350,6 +351,7 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
     for (const header of metaFields) {
       const headerField = header as HeaderField
       headerField.text = getFieldLabel(header)
+      headerField.title = getFieldLabel(header)
       headerField.value = header.name
 
       const type = getFieldType(header)
