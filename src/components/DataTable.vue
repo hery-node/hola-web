@@ -611,10 +611,8 @@ defineExpose({
 </script>
 
 <style>
-/* Vuetify 3 data table header styling */
-.v-data-table thead th {
-  background-color: #b2ebf2 !important;
-}
+/* Table header styling is controlled via the headerClass prop */
+/* Default: bg-cyan-lighten-4 text-subtitle-2 */
 
 tr td {
   white-space: pre-wrap;
