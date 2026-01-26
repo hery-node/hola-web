@@ -33,6 +33,7 @@
 import { ref, computed, useTemplateRef, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
+import { useRouter } from "vue-router";
 import DataTable from "./DataTable.vue";
 import EditForm from "./EditForm.vue";
 import ConfirmDialog from "./ConfirmDialog.vue";
@@ -57,6 +58,7 @@ export interface CrudTableProps {
   sortKey: string[];
   itemLabelKey: string;
   mode?: string;
+  createRoute?: string;
   createView?: string;
   updateView?: string;
   chipView?: string;
@@ -115,6 +117,7 @@ const editFieldsProp = computed(() => props.editFields);
 // Composables
 const { t } = useI18n();
 const { mobile } = useDisplay();
+const router = useRouter();
 
 // Template refs
 const tableRef = ref<InstanceType<typeof DataTable> | null>(null);
@@ -376,7 +379,11 @@ function setData(items: TableItem[]): void {
 }
 
 function showCreateDialog(): void {
-  editEntityId.value = undefined;
+  if (props.createRoute) {
+    router.push(props.createRoute);
+  } else {
+    editEntityId.value = undefined;
+  }
 }
 
 function updateEntity(item: TableItem): void {
