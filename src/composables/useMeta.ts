@@ -297,7 +297,14 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
       formField.rules = rules
 
       if (field.required === true) {
-        rules.push((value) => !!value || value === false || t('form.required', { field: formField.label }))
+        rules.push((value) => {
+          // Handle various valid value types
+          if (value === false) return true // boolean false is valid
+          if (value === 0) return true // number 0 is valid
+          if (Array.isArray(value)) return value.length > 0 || t('form.required', { field: formField.label })
+          if (value !== null && value !== undefined && value !== '') return true
+          return t('form.required', { field: formField.label })
+        })
       }
 
       if (type.rule) {

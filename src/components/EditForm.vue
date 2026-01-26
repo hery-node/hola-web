@@ -238,11 +238,23 @@ async function initFormData(): Promise<void> {
   if (updateMode.value && props.entityId) {
     const attrNames = fields.map((h) => h.name).join(",");
     form.value = await readProperty(props.entity, props.entityId, attrNames);
+  } else {
+    // For create mode, initialize form with default values from fields
+    const defaultData: FormData = {};
+    for (const field of fields) {
+      if (field.default !== undefined) {
+        defaultData[field.name] = field.default;
+      }
+    }
+    form.value = defaultData;
   }
 
   if (props.dialog) {
     winRef.value?.show();
   }
+
+  // Reset validation after form data is initialized to clear any stale validation errors
+  await formRef.value?.resetValidation();
 }
 
 async function submitForm(formData: FormData): Promise<void> {
