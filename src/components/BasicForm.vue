@@ -29,12 +29,12 @@
 
             <!-- Autocomplete (when items provided with multiple or autocomplete type) -->
             <template v-else-if="field.items && (field.multiple || field.inputType === 'autocomplete')">
-              <v-autocomplete :items="field.items" :autofocus="index === 0" v-model="formData[field.name]" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ?? []" :multiple="field.multiple" chips closable-chips :disabled="!!field.disabled" density="compact" variant="outlined" :clearable="!field.disabled" :menu-props="{ zIndex: 9999 }" />
+              <v-autocomplete v-model="formData[field.name]" :items="field.items" :autofocus="index === 0" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ?? []" :multiple="field.multiple" chips closable-chips :disabled="!!field.disabled" density="compact" variant="outlined" :clearable="!field.disabled" :menu-props="{ zIndex: 9999 }" />
             </template>
 
             <!-- Select (when items provided for single selection) -->
             <template v-else-if="field.items">
-              <v-select :items="field.items" :autofocus="index === 0" v-model="formData[field.name]" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ?? []" :disabled="!!field.disabled" density="compact" variant="outlined" :clearable="!field.disabled" eager />
+              <v-select v-model="formData[field.name]" :items="field.items" :autofocus="index === 0" :label="field.label" :hint="field.hint" :suffix="field.suffix" :prefix="field.prefix" :prepend-icon="field.icon" :rules="field.rules ?? []" :disabled="!!field.disabled" density="compact" variant="outlined" :clearable="!field.disabled" />
             </template>
 
             <!-- Switch -->
@@ -131,7 +131,7 @@ watch(
       formData.value = applyDefaults(newValue);
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 // Sync internal changes back to parent
@@ -145,12 +145,12 @@ watch(
       isInternalUpdate.value = false;
     }, 0);
   },
-  { deep: true }
+  { deep: true },
 );
 
 // Computed
 const formTitle = computed(() => {
-  return props.hideTitle ? "" : props.title ?? "";
+  return props.hideTitle ? "" : (props.title ?? "");
 });
 
 // Methods

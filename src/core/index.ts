@@ -59,6 +59,8 @@ export {
   getUrl,
   axiosGet,
   axiosPost,
+  axiosDelete,
+  axiosPut,
   axiosCachedGet,
   axiosDownload,
   axiosUpload,
