@@ -73,7 +73,7 @@
       <template #[`item._action`]="{ item }">
         <v-tooltip v-for="(action, index) in itemActions" :key="index" location="bottom">
           <template #activator="{ props: tooltipProps }">
-            <v-btn v-show="!action.shown || action.shown(item)" v-bind="tooltipProps" icon variant="text" :loading="iconLoading[item._id + action.icon]" :disabled="iconLoading[item._id + action.icon]" @click.stop="clickAction(action, item)">
+            <v-btn v-show="!action.shown || action.shown(item)" v-bind="tooltipProps" icon variant="text" density="comfortable" :loading="iconLoading[item._id + action.icon]" :disabled="iconLoading[item._id + action.icon]" @click.stop="clickAction(action, item)">
               <v-icon :color="action.color">{{ action.icon }}</v-icon>
             </v-btn>
           </template>

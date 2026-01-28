@@ -214,7 +214,7 @@ const itemActionsComputed = computed<ItemAction[] | undefined>(() => {
 // Computed - Action column width based on number of actions (approx 40px per action button)
 const actionWidthComputed = computed(() => {
   const count = itemActionsComputed.value?.length || 0;
-  const width = Math.max(count * 44, 50); // 44px per button, minimum 50px
+  const width = Math.max(count * 44, 100); // 44px per button, minimum 100px
   return `${width}px`;
 });
 
