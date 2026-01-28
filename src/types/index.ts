@@ -7,18 +7,18 @@
 // ============================================================================
 
 /** Response codes - re-export from core/code */
-export * from '@/core/code'
+export * from "@/core/code";
 
-export type ResponseCodeType = number
+export type ResponseCodeType = number;
 
 /** API response structure */
 export interface ApiResponse<T = unknown> {
-  code: ResponseCodeType
-  data?: T
-  msg?: string
-  mode?: string
-  total?: number
-  err?: unknown
+  code: ResponseCodeType;
+  data?: T;
+  msg?: string;
+  mode?: string;
+  total?: number;
+  err?: unknown;
 }
 
 // ============================================================================
@@ -26,59 +26,48 @@ export interface ApiResponse<T = unknown> {
 // ============================================================================
 
 /** Field input types */
-export type InputType =
-  | 'text'
-  | 'textarea'
-  | 'editor'
-  | 'password'
-  | 'number'
-  | 'autocomplete'
-  | 'switch'
-  | 'date'
-  | 'datetime'
-  | 'time'
-  | 'file'
-  | 'color'
+export type InputType = "text" | "textarea" | "editor" | "password" | "number" | "autocomplete" | "switch" | "date" | "datetime" | "time" | "file" | "color";
 
 /** Entity field definition */
 export interface EntityField {
-  name: string
-  type?: string
-  label?: string
-  required?: boolean
-  searchable?: boolean
-  editable?: boolean
-  hidden?: boolean
-  list?: boolean
-  create?: boolean
-  update?: boolean
-  sys?: boolean
-  auto?: boolean
-  ref?: string
-  view?: string | string[]
-  search?: boolean
-  query?: string
-  multiple?: boolean
-  items?: SelectItem[]
-  prefix?: string | ((ctx: unknown) => string)
-  suffix?: string | ((ctx: unknown) => string)
-  icon?: string
-  inputType?: InputType
-  rules?: ValidationRule[]
+  name: string;
+  type?: string;
+  label?: string;
+  required?: boolean;
+  searchable?: boolean;
+  editable?: boolean;
+  hidden?: boolean;
+  list?: boolean;
+  create?: boolean;
+  update?: boolean;
+  clone?: boolean;
+  sys?: boolean;
+  auto?: boolean;
+  ref?: string;
+  view?: string | string[];
+  search?: boolean;
+  query?: string;
+  multiple?: boolean;
+  items?: SelectItem[];
+  prefix?: string | ((ctx: unknown) => string);
+  suffix?: string | ((ctx: unknown) => string);
+  icon?: string;
+  inputType?: InputType;
+  rules?: ValidationRule[];
 }
 
 /** Entity metadata from server */
 export interface EntityMeta {
-  collection: string
-  fields: EntityField[]
-  primaryKeys?: string[]
-  refLabel?: string
-  userField?: string
-  creatable?: boolean
-  readable?: boolean
-  updatable?: boolean
-  deleteable?: boolean
-  cloneable?: boolean
+  collection: string;
+  fields: EntityField[];
+  primaryKeys?: string[];
+  refLabel?: string;
+  userField?: string;
+  creatable?: boolean;
+  readable?: boolean;
+  updatable?: boolean;
+  deleteable?: boolean;
+  cloneable?: boolean;
 }
 
 // ============================================================================
@@ -87,44 +76,44 @@ export interface EntityMeta {
 
 /** Select/autocomplete item */
 export interface SelectItem {
-  value: string | number | boolean
-  title: string
+  value: string | number | boolean;
+  title: string;
 }
 
 /** Validation rule function */
-export type ValidationRule = (value: unknown) => boolean | string
+export type ValidationRule = (value: unknown) => boolean | string;
 
 /** Alert state */
 export interface AlertState {
-  shown: boolean
-  type: 'success' | 'info' | 'warning' | 'error'
-  msg: string
+  shown: boolean;
+  type: "success" | "info" | "warning" | "error";
+  msg: string;
 }
 
 /** Table header definition */
 export interface TableHeader {
-  key: string
-  title: string
-  sortable?: boolean
-  align?: 'start' | 'center' | 'end'
-  width?: string | number
+  key: string;
+  title: string;
+  sortable?: boolean;
+  align?: "start" | "center" | "end";
+  width?: string | number;
 }
 
 /** Toolbar item */
 export interface ToolbarItem {
-  icon: string
-  tooltip: string
-  color?: string
-  click: () => void
+  icon: string;
+  tooltip: string;
+  color?: string;
+  click: () => void;
 }
 
 /** Item action */
 export interface ItemAction {
-  icon: string
-  tooltip: string
-  color?: string
-  click: (item: Record<string, unknown>) => void
-  show?: (item: Record<string, unknown>) => boolean
+  icon: string;
+  tooltip: string;
+  color?: string;
+  click: (item: Record<string, unknown>) => void;
+  show?: (item: Record<string, unknown>) => boolean;
 }
 
 // ============================================================================
@@ -133,16 +122,16 @@ export interface ItemAction {
 
 /** Type definition for the type system */
 export interface TypeDefinition {
-  name: string
-  inputType: InputType
-  searchInputType?: InputType
-  multiple?: boolean
-  items?: (ctx: unknown) => SelectItem[]
-  prefix?: string | ((ctx: unknown) => string)
-  suffix?: string | ((ctx: unknown) => string)
-  icon?: string
-  rule?: (t: (key: string, params?: Record<string, unknown>) => string, fieldName: string) => ValidationRule
-  format?: (value: unknown, t?: (key: string) => string) => string
+  name: string;
+  inputType: InputType;
+  searchInputType?: InputType;
+  multiple?: boolean;
+  items?: (ctx: unknown) => SelectItem[];
+  prefix?: string | ((ctx: unknown) => string);
+  suffix?: string | ((ctx: unknown) => string);
+  icon?: string;
+  rule?: (t: (key: string, params?: Record<string, unknown>) => string, fieldName: string) => ValidationRule;
+  format?: (value: unknown, t?: (key: string) => string) => string;
 }
 
 // ============================================================================
@@ -150,19 +139,19 @@ export interface TypeDefinition {
 // ============================================================================
 
 /** Chart data row (first row is header) */
-export type ChartDataRow = (string | number)[]
+export type ChartDataRow = (string | number)[];
 
 /** Chart data array */
-export type ChartData = ChartDataRow[]
+export type ChartData = ChartDataRow[];
 
 /** Chart style overrides */
 export interface ChartStyle {
-  title?: Record<string, unknown>
-  legend?: Record<string, unknown>
-  tooltip?: Record<string, unknown>
-  xAxis?: Record<string, unknown>
-  yAxis?: Record<string, unknown>
-  series?: Record<string, unknown>[]
+  title?: Record<string, unknown>;
+  legend?: Record<string, unknown>;
+  tooltip?: Record<string, unknown>;
+  xAxis?: Record<string, unknown>;
+  yAxis?: Record<string, unknown>;
+  series?: Record<string, unknown>[];
 }
 
 // ============================================================================
@@ -171,54 +160,51 @@ export interface ChartStyle {
 
 /** Axios initialization config */
 export interface AxiosConfig {
-  baseURL: string
-  timeout?: number
-  withCredentials?: boolean
+  baseURL: string;
+  timeout?: number;
+  withCredentials?: boolean;
 }
 
 /** Response handler */
 export interface ResponseHandler {
-  handleResponse?: (code: ResponseCodeType, data: unknown) => void
+  handleResponse?: (code: ResponseCodeType, data: unknown) => void;
 }
 
 /** Vuetify theme colors */
 export interface ThemeColors {
-  primary?: string
-  secondary?: string
-  accent?: string
-  error?: string
-  info?: string
-  success?: string
-  warning?: string
-  progress?: string
-  tag?: string
-  tertiary?: string
-  create?: string
-  edit?: string
-  clone?: string
-  delete?: string
-  refresh?: string
-  chart?: string
-  chartTitle?: string
-  appBar?: string
-  systemBar?: string
-  tableHeader?: string
-  toolbarIcon?: string
-  chip?: string
-  bgcolor?: string
-  card?: string
-  back?: string
-  titleButton?: string
+  primary?: string;
+  secondary?: string;
+  accent?: string;
+  error?: string;
+  info?: string;
+  success?: string;
+  warning?: string;
+  progress?: string;
+  tag?: string;
+  tertiary?: string;
+  create?: string;
+  edit?: string;
+  clone?: string;
+  delete?: string;
+  refresh?: string;
+  chart?: string;
+  chartTitle?: string;
+  appBar?: string;
+  systemBar?: string;
+  tableHeader?: string;
+  toolbarIcon?: string;
+  chip?: string;
+  bgcolor?: string;
+  card?: string;
+  back?: string;
+  titleButton?: string;
 }
 
 /** Plugin options */
 export interface HolaWebOptions {
-  theme?: {
-    light?: ThemeColors
-    dark?: ThemeColors
-  }
+  theme?: { light?: ThemeColors; dark?: ThemeColors };
 }
 
 /** Locale messages type */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type LocaleMessages = Record<string, any>
+export type LocaleMessages = Record<string, any>;
