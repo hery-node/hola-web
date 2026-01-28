@@ -221,8 +221,17 @@ export const axiosDownload = async (url: string, fileName: string, params?: Reco
  */
 export const getEntityMeta = async (entity: string): Promise<EntityMeta | null> => {
   const url = '/' + entity + META
-  const result = await axiosCachedGet<ApiResponse<EntityMeta>>(url)
-  return isSuccessResponse(result.code) ? (result.data ?? null) : null
+  const result = await axiosCachedGet<ApiResponse<EntityMeta & { user_field?: string }>>(url)
+  if (isSuccessResponse(result.code) && result.data) {
+    // Map snake_case from server to camelCase for client
+    const data = result.data
+    if (data.user_field !== undefined) {
+      data.userField = data.user_field
+      delete data.user_field
+    }
+    return data
+  }
+  return null
 }
 
 /**
