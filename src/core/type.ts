@@ -114,6 +114,7 @@ const SIMPLE_TYPES: Array<{
   { name: 'text', inputType: 'editor', searchInputType: 'text' },
   { name: 'enum', inputType: 'autocomplete' },
   { name: 'password', inputType: 'password', format: () => '***' },
+  { name: 'secure', inputType: 'password', format: () => '***' },
   { name: 'file', inputType: 'file' },
   { name: 'array', inputType: 'autocomplete', multiple: true },
   { name: 'log_category', inputType: 'text' },
