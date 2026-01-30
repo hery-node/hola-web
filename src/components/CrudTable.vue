@@ -10,13 +10,14 @@
         <span>{{ toolbar.tooltip }}</span>
       </v-tooltip>
 
-      <ConfirmDialog ref="confirmRef" />
-
       <EditForm ref="formRef" v-bind="$attrs" dialog :clone="cloneMode" hide-hint :entity="entity" :fields="editFieldsProp" :entity-id="editEntityId" :create-title="createTitleText" :update-title="updateTitleText" :clone-title="cloneTitleText" :create-form-view="createView" :update-form-view="updateView" @cancel="afterCancel" @success="afterClose" />
 
       <EditForm ref="formChipRef" v-bind="$attrs" dialog hide-hint :entity="chipEntity" :entity-id="chipEntityId" :fields="chipEditFields" merge-with-server :update-form-view="chipView" @cancel="afterCancelChip" @success="afterCloseChip" />
     </template>
   </DataTable>
+
+  <!-- ConfirmDialog outside conditional slot to ensure it's always available -->
+  <ConfirmDialog ref="confirmRef" />
 </template>
 
 <script setup lang="ts">

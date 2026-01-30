@@ -80,10 +80,14 @@ const getAxios = (): AxiosInstance => {
 
 /**
  * Perform POST request
+ * @param url - API endpoint
+ * @param data - Request body
+ * @param timeout - Optional custom timeout in ms (default: 60000)
  */
-export const axiosPost = <T = ApiResponse>(url: string, data?: Record<string, unknown>): Promise<T> => {
+export const axiosPost = <T = ApiResponse>(url: string, data?: Record<string, unknown>, timeout?: number): Promise<T> => {
   const instance = getAxios();
-  return instance.post(url, data) as Promise<T>;
+  const config = timeout ? { timeout } : {};
+  return instance.post(url, data, config) as Promise<T>;
 };
 
 /**
