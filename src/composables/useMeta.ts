@@ -196,7 +196,7 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
     if (!meta.value) return [];
 
     const formFields: FormField[] = [];
-    const serverFields = meta.value.fields.filter((field) => field.search !== false && field.sys !== true && field.name !== meta.value?.userField);
+    const serverFields = meta.value.fields.filter((field) => field.search !== false);
     const metaFields = getMetaFields(getFields(), serverFields);
 
     // Numeric types that support comparison operators
@@ -230,7 +230,7 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
   const getEditFields = async (updateMode: boolean, view: string): Promise<FormField[]> => {
     if (!meta.value) return [];
 
-    const editFields = updateMode ? meta.value.fields.filter((field) => field.create !== false && field.update !== false && field.sys !== true && field.name !== meta.value?.userField && fieldInView(field, view)) : meta.value.fields.filter((field) => field.create !== false && field.sys !== true && field.name !== meta.value?.userField && fieldInView(field, view));
+    const editFields = updateMode ? meta.value.fields.filter((field) => field.create !== false && field.update !== false && fieldInView(field, view)) : meta.value.fields.filter((field) => field.create !== false && fieldInView(field, view));
 
     return getFormFields(editFields);
   };
@@ -241,8 +241,8 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
   const getCloneFields = async (): Promise<FormField[]> => {
     if (!meta.value) return [];
 
-    // Match original logic: create != false && clone != false && sys != true && name != user_field
-    return getFormFields(meta.value.fields.filter((field) => field.create !== false && field.clone !== false && field.sys !== true && field.name !== meta.value?.userField));
+    // Match original logic: create != false && clone != false
+    return getFormFields(meta.value.fields.filter((field) => field.create !== false && field.clone !== false));
   };
 
   /**
@@ -293,7 +293,7 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
     if (!meta.value) return [];
 
     const propertyFields: FormField[] = [];
-    const serverFields = meta.value.fields.filter((field) => field.sys !== true && field.name !== meta.value?.userField);
+    const serverFields = meta.value.fields;
     const metaFields = getMetaFields(getFields(), serverFields);
 
     for (const field of metaFields) {
@@ -313,7 +313,7 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
     if (!meta.value) return [];
 
     const tableHeaders: HeaderField[] = [];
-    const serverFields = meta.value.fields.filter((field) => field.list !== false && field.hidden !== true && field.sys !== true && field.name !== meta.value?.userField && !expandFields.includes(field.name));
+    const serverFields = meta.value.fields.filter((field) => field.list !== false && field.hidden !== true && !expandFields.includes(field.name));
     const metaFields = getMetaFields(getHeaders(), serverFields);
 
     for (const header of metaFields) {

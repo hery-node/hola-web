@@ -58,16 +58,8 @@ export interface EntityField {
 
 /** Entity metadata from server */
 export interface EntityMeta {
-  collection: string;
+  mode?: string;
   fields: EntityField[];
-  primaryKeys?: string[];
-  refLabel?: string;
-  userField?: string;
-  creatable?: boolean;
-  readable?: boolean;
-  updatable?: boolean;
-  deleteable?: boolean;
-  cloneable?: boolean;
 }
 
 // ============================================================================

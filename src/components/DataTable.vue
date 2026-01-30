@@ -198,6 +198,7 @@ const props = withDefaults(
     expandFields?: string[];
     hiddenFields?: string[];
     headers?: TableHeader[];
+    hideColumns?: string[];
     mergeWithServer?: boolean;
   }>(),
   {
@@ -228,6 +229,7 @@ const props = withDefaults(
     expandFields: () => [],
     hiddenFields: () => [],
     headers: () => [],
+    hideColumns: () => [],
     mergeWithServer: false,
   },
 );
@@ -439,6 +441,10 @@ async function loadData(): Promise<void> {
     attrs.push(...expandFieldsProp.value);
   }
   attrs = attrs.concat(props.hiddenFields);
+  // Filter out hidden columns from attr_names
+  if (props.hideColumns && props.hideColumns.length > 0) {
+    attrs = attrs.filter((a) => !props.hideColumns?.includes(a));
+  }
   const attrNames = attrs.join(",");
 
   const params: ListParams = {
@@ -507,7 +513,9 @@ async function initTable(skipLoad = false): Promise<void> {
   styles.value = [];
 
   await loadMeta();
-  const headers = (await getTableHeaders(expandFieldsProp.value)) as unknown as TableHeader[];
+  const allHeaders = (await getTableHeaders(expandFieldsProp.value)) as unknown as TableHeader[];
+  // Filter out hidden columns
+  const headers = props.hideColumns && props.hideColumns.length > 0 ? allHeaders.filter((h) => !props.hideColumns?.includes(h.name || "")) : allHeaders;
 
   // Store expand field headers from props.headers (they have the expand functions)
   if (props.headers && props.headers.length > 0) {

@@ -116,7 +116,6 @@ const SIMPLE_TYPES: Array<{
   { name: 'password', inputType: 'password', format: () => '***' },
   { name: 'file', inputType: 'file' },
   { name: 'array', inputType: 'autocomplete', multiple: true },
-  { name: 'date', inputType: 'date' },
   { name: 'log_category', inputType: 'text' },
 ]
 
@@ -186,13 +185,27 @@ NUMERIC_TYPES.forEach(({ name, validator, format, suffix, prefix }) => {
 // ============================================================================
 
 registerType({
+  name: 'date',
+  inputType: 'date',
+  format: (value) => {
+    if (noValue(value)) return ''
+    const d = new Date(String(value))
+    if (isNaN(d.getTime())) return String(value)
+    const pad = (n: number) => n.toString().padStart(2, '0')
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+  },
+})
+
+registerType({
   name: 'datetime',
   inputType: 'datetime',
   rule: numericRule('type.datetime', (v) => !isNaN(new Date(String(v)).getTime())),
   format: (value) => {
     if (noValue(value)) return ''
-    const date = new Date(String(value))
-    return isNaN(date.getTime()) ? String(value) : date.toLocaleString()
+    const d = new Date(String(value))
+    if (isNaN(d.getTime())) return String(value)
+    const pad = (n: number) => n.toString().padStart(2, '0')
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
   },
 })
 
