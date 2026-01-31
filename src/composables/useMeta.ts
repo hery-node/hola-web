@@ -7,7 +7,7 @@ import { ref, computed, type Ref, type ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { getRefLabels, getEntityMeta } from "@/core/axios";
 import { getType } from "@/core/type";
-import type { EntityMeta, EntityField, TypeDefinition, SelectItem, ValidationRule } from "@/types";
+import type { EntityMeta, EntityField, TypeDefinition, SelectItem, ValidationRule, FieldValue } from "@/types";
 
 export interface UseMetaOptions {
   entity: Ref<string> | string;
@@ -23,14 +23,14 @@ export interface FormField extends Omit<EntityField, "inputType"> {
   inputType: string;
   rules: ValidationRule[];
   items?: SelectItem[];
-  default?: unknown;
+  default?: FieldValue;
 }
 
 export interface HeaderField extends EntityField {
   text: string;
   title: string;
   value: string;
-  format?: (value: unknown, t?: (key: string) => string) => string;
+  format?: (value: FieldValue, t?: (key: string) => string) => string;
 }
 
 export interface UseMetaReturn {
@@ -45,7 +45,7 @@ export interface UseMetaReturn {
   getPropertyFields: () => Promise<FormField[]>;
   getTableHeaders: (expandFields?: string[]) => Promise<HeaderField[]>;
   getFieldType: (field: EntityField) => TypeDefinition;
-  formatFieldValue: (field: FormField | HeaderField, value: unknown) => string;
+  formatFieldValue: (field: FormField | HeaderField, value: FieldValue) => string;
   getFieldLabel: (field: EntityField) => string;
   getFieldLabelByName: (name: string) => string;
 }
@@ -334,7 +334,7 @@ export function useMeta(options: UseMetaOptions): UseMetaReturn {
   /**
    * Format field value with prefix/suffix
    */
-  const formatFieldValue = (field: FormField | HeaderField, value: unknown): string => {
+  const formatFieldValue = (field: FormField | HeaderField, value: FieldValue): string => {
     const format = (field as HeaderField).format;
     const formatValue = format ? format(value, t) : value;
 

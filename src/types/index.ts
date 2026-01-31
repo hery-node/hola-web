@@ -3,6 +3,24 @@
  */
 
 // ============================================================================
+// Base Types
+// ============================================================================
+
+/** Field value type - matches server-side FieldValue */
+export type FieldValue =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | Date
+  | FieldValue[]
+  | { [key: string]: FieldValue };
+
+/** Entity data record */
+export type EntityData = Record<string, FieldValue>;
+
+// ============================================================================
 // API Response Types
 // ============================================================================
 
@@ -18,12 +36,18 @@ export interface ApiResponse<T = unknown> {
   msg?: string;
   mode?: string;
   total?: number;
-  err?: unknown;
+  err?: string | string[];
 }
 
 // ============================================================================
 // Entity & Field Types
 // ============================================================================
+
+/** Form context for callbacks (items, prefix, suffix functions) */
+export interface FormContext {
+  t: (key: string, params?: Record<string, string | number>) => string;
+  [key: string]: FieldValue | ((key: string, params?: Record<string, string | number>) => string);
+}
 
 /** Field input types */
 export type InputType = "text" | "textarea" | "editor" | "password" | "number" | "autocomplete" | "switch" | "date" | "datetime" | "time" | "file" | "color";
@@ -49,8 +73,8 @@ export interface EntityField {
   query?: string;
   multiple?: boolean;
   items?: SelectItem[];
-  prefix?: string | ((ctx: unknown) => string);
-  suffix?: string | ((ctx: unknown) => string);
+  prefix?: string | ((ctx: FormContext) => string);
+  suffix?: string | ((ctx: FormContext) => string);
   icon?: string;
   inputType?: InputType;
   rules?: ValidationRule[];
@@ -104,8 +128,8 @@ export interface ItemAction {
   icon: string;
   tooltip: string;
   color?: string;
-  click: (item: Record<string, unknown>) => void;
-  show?: (item: Record<string, unknown>) => boolean;
+  click: (item: EntityData & { _id: string }) => void;
+  show?: (item: EntityData & { _id: string }) => boolean;
 }
 
 // ============================================================================
@@ -118,12 +142,12 @@ export interface TypeDefinition {
   inputType: InputType;
   searchInputType?: InputType;
   multiple?: boolean;
-  items?: (ctx: unknown) => SelectItem[];
-  prefix?: string | ((ctx: unknown) => string);
-  suffix?: string | ((ctx: unknown) => string);
+  items?: (ctx: FormContext) => SelectItem[];
+  prefix?: string | ((ctx: FormContext) => string);
+  suffix?: string | ((ctx: FormContext) => string);
   icon?: string;
-  rule?: (t: (key: string, params?: Record<string, unknown>) => string, fieldName: string) => ValidationRule;
-  format?: (value: unknown, t?: (key: string) => string) => string;
+  rule?: (t: (key: string, params?: Record<string, string | number>) => string, fieldName: string) => ValidationRule;
+  format?: (value: FieldValue, t?: (key: string) => string) => string;
 }
 
 // ============================================================================
@@ -136,14 +160,17 @@ export type ChartDataRow = (string | number)[];
 /** Chart data array */
 export type ChartData = ChartDataRow[];
 
+/** ECharts style value - can be primitives or objects */
+type EChartsValue = string | number | boolean | null | EChartsValue[] | { [key: string]: EChartsValue };
+
 /** Chart style overrides */
 export interface ChartStyle {
-  title?: Record<string, unknown>;
-  legend?: Record<string, unknown>;
-  tooltip?: Record<string, unknown>;
-  xAxis?: Record<string, unknown>;
-  yAxis?: Record<string, unknown>;
-  series?: Record<string, unknown>[];
+  title?: Record<string, EChartsValue>;
+  legend?: Record<string, EChartsValue>;
+  tooltip?: Record<string, EChartsValue>;
+  xAxis?: Record<string, EChartsValue>;
+  yAxis?: Record<string, EChartsValue>;
+  series?: Record<string, EChartsValue>[];
 }
 
 // ============================================================================
@@ -159,7 +186,8 @@ export interface AxiosConfig {
 
 /** Response handler */
 export interface ResponseHandler {
-  handleResponse?: (code: ResponseCodeType, data: unknown) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handleResponse?: (code: ResponseCodeType, response: ApiResponse<any>) => void;
 }
 
 /** Vuetify theme colors */
