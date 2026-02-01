@@ -2,6 +2,22 @@
  * Core utilities barrel export
  */
 
+/** Configuration interface for core module */
+export interface CoreConfig {
+  defaultListLimit: number;
+}
+
+/** Default core configuration */
+let coreConfig: CoreConfig = { defaultListLimit: 1000 };
+
+/** Initialize core configuration with user-provided values */
+export const initCoreConfig = (config: Partial<CoreConfig>): void => {
+  coreConfig = { ...coreConfig, ...config };
+};
+
+/** Get default list limit from core configuration */
+export const getDefaultListLimit = (): number => coreConfig.defaultListLimit;
+
 export {
   ERROR,
   SUCCESS,

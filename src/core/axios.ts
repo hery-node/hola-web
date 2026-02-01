@@ -6,6 +6,7 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig } from "axios";
 import { type ApiResponse, type EntityMeta, type SelectItem, type AxiosConfig, type ResponseHandler } from "@/types";
 import { SUCCESS, isSuccessResponse } from "./code";
+import { getDefaultListLimit } from "./index";
 
 // Re-export code check utilities
 export { isSuccessResponse, isErrorResponse, isBeenReferred, isDuplicated, isUniqueDuplicated, hasInvalidParams, isNoSession } from "./code";
@@ -276,7 +277,7 @@ export const listEntity = async <T = Record<string, unknown>>(entity: string, fo
  */
 export const queryEntity = async <T = Record<string, unknown>>(entity: string, attrs: string[], query?: Record<string, unknown>, listAction?: string): Promise<ApiResponse<T[]>> => {
   const url = "/" + entity + (listAction?.trim() ? listAction : LIST);
-  const body = { ...query, attr_names: attrs.join(","), sort_by: "_id", desc: "false", page: 1, limit: 10000 };
+  const body = { ...query, attr_names: attrs.join(","), sort_by: "_id", desc: "false", page: 1, limit: getDefaultListLimit() };
   return axiosPost<ApiResponse<T[]>>(url, body);
 };
 
