@@ -448,18 +448,12 @@ async function loadData(): Promise<void> {
   const attrNames = attrs.join(",");
 
   const params: ListParams = {
+    page: pagination.value ? currentPage.value : nextPage.value,
+    limit: pagination.value ? 10 : props.itemPerPage,
     attrNames: attrNames,
     sortBy: sortByStr,
-    desc: descStr === "true",
+    desc: descStr,
   };
-
-  if (pagination.value) {
-    params.page = currentPage.value;
-    params.limit = 10; // Default items per page
-  } else {
-    params.page = nextPage.value;
-    params.limit = props.itemPerPage;
-  }
 
   const queryObj = props.filter ? { ...searchForm.value, ...props.filter } : searchForm.value;
 

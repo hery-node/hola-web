@@ -37,7 +37,7 @@ import { ref, computed, watch, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useAlert } from "@/composables/useAlert";
 import { useKeymap } from "@/composables/useKeymap";
-import { isSuccessResponse, listEntity, deleteEntity, isBeenReferred } from "@/core/axios";
+import { isSuccessResponse, listEntity, deleteEntity, isBeenReferred, type ListParams } from "@/core/axios";
 import ConfirmDialog from "./ConfirmDialog.vue";
 import EditForm from "./EditForm.vue";
 import type { EntityField } from "@/types";
@@ -261,9 +261,7 @@ async function loadData() {
   const sortBy = props.sortKey.join(",");
   const desc = props.sortDesc.join(",");
   const attrNames = props.attrs.join(",");
-  const params: Record<string, unknown> = { attr_names: attrNames, sort_by: sortBy, desc };
-  params.page = nextPage.value;
-  params.limit = props.itemPerPage;
+  const params: ListParams = { page: nextPage.value, limit: props.itemPerPage, attrNames, sortBy, desc };
 
   const queryObj = props.filter ?? {};
   const { code, total: resTotal, data } = await listEntity(props.entity, queryObj, params, props.listAction);

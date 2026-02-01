@@ -250,11 +250,11 @@ export const readProperty = async <T = Record<string, unknown>>(entity: string, 
 
 /** Query parameters for list operations */
 export interface ListParams {
-  page?: number;
-  limit?: number;
-  sortBy?: string;
-  desc?: boolean;
-  attrNames?: string;
+  page: number;
+  limit: number;
+  sortBy: string;
+  desc: string;
+  attrNames: string;
 }
 
 // API endpoint path for list
@@ -276,7 +276,7 @@ export const listEntity = async <T = Record<string, unknown>>(entity: string, fo
  */
 export const queryEntity = async <T = Record<string, unknown>>(entity: string, attrs: string[], query?: Record<string, unknown>, listAction?: string): Promise<ApiResponse<T[]>> => {
   const url = "/" + entity + (listAction?.trim() ? listAction : LIST);
-  const body = { ...query, attr_names: attrs.join(","), sort_by: "_id", desc: false, page: 1, limit: 10000 };
+  const body = { ...query, attr_names: attrs.join(","), sort_by: "_id", desc: "false", page: 1, limit: 10000 };
   return axiosPost<ApiResponse<T[]>>(url, body);
 };
 
