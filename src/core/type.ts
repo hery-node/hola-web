@@ -108,17 +108,18 @@ const SIMPLE_TYPES: Array<{
   multiple?: boolean
   format?: (value: unknown) => string
 }> = [
-  { name: 'obj', inputType: 'text' },
-  { name: 'string', inputType: 'text' },
-  { name: 'lstr', inputType: 'textarea', searchInputType: 'text' },
-  { name: 'text', inputType: 'editor', searchInputType: 'text' },
-  { name: 'enum', inputType: 'autocomplete' },
-  { name: 'password', inputType: 'password', format: () => '***' },
-  { name: 'secure', inputType: 'password', format: () => '***' },
-  { name: 'file', inputType: 'file' },
-  { name: 'array', inputType: 'autocomplete', multiple: true },
-  { name: 'log_category', inputType: 'text' },
-]
+    { name: 'obj', inputType: 'text' },
+    { name: 'string', inputType: 'text' },
+    { name: 'lstr', inputType: 'textarea', searchInputType: 'text' },
+    { name: 'text', inputType: 'editor', searchInputType: 'text' },
+    { name: 'enum', inputType: 'autocomplete' },
+    { name: 'password', inputType: 'password', format: () => '***' },
+    { name: 'secret', inputType: 'password', format: () => '***' },
+    { name: 'secure', inputType: 'password', format: () => '***' },
+    { name: 'file', inputType: 'file' },
+    { name: 'array', inputType: 'autocomplete', multiple: true },
+    { name: 'log_category', inputType: 'text' },
+  ]
 
 SIMPLE_TYPES.forEach(({ name, inputType, searchInputType, multiple, format }) => {
   registerType({
@@ -158,15 +159,15 @@ const NUMERIC_TYPES: Array<{
   suffix?: string
   prefix?: string
 }> = [
-  { name: 'number', validator: (v) => !isNaN(Number(v)), format: true },
-  { name: 'int', validator: isInt },
-  { name: 'uint', validator: (v) => isInt(v) && parseInt(String(v)) >= 0 },
-  { name: 'float', validator: isFloat, format: true },
-  { name: 'ufloat', validator: (v) => isFloat(v) && parseFloat(String(v)) >= 0, format: true },
-  { name: 'decimal', validator: isFloat, format: true },
-  { name: 'percentage', validator: isFloat, suffix: '%', format: (v) => formatFloat(v, 2, '%') },
-  { name: 'currency', validator: (v) => !isNaN(Number(v)), prefix: '$', format: true },
-]
+    { name: 'number', validator: (v) => !isNaN(Number(v)), format: true },
+    { name: 'int', validator: isInt },
+    { name: 'uint', validator: (v) => isInt(v) && parseInt(String(v)) >= 0 },
+    { name: 'float', validator: isFloat, format: true },
+    { name: 'ufloat', validator: (v) => isFloat(v) && parseFloat(String(v)) >= 0, format: true },
+    { name: 'decimal', validator: isFloat, format: true },
+    { name: 'percentage', validator: isFloat, suffix: '%', format: (v) => formatFloat(v, 2, '%') },
+    { name: 'currency', validator: (v) => !isNaN(Number(v)), prefix: '$', format: true },
+  ]
 
 NUMERIC_TYPES.forEach(({ name, validator, format, suffix, prefix }) => {
   registerType({
