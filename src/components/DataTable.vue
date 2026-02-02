@@ -354,7 +354,7 @@ function getExpanded(item: TableItem): string {
   for (let i = 0; i < fieldNames.length; i++) {
     const fieldName = fieldNames[i];
     const value = item[fieldName] ?? "";
-    if (value) {
+    if (value !== undefined && value !== null && value !== "") {
       // Look up expand function from expandHeaders (since expand fields are excluded from tableHeaders)
       const field = expandHeaders.value.find((f) => f.name === fieldName);
       if (field?.expand) {
