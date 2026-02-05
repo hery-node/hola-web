@@ -1,5 +1,5 @@
 <template>
-  <DataTable v-bind="$attrs" ref="tableRef" :entity="entity" :headers="headers" :searchable="isSearchable" :infinite="!isPaginable" :search-fields="searchFieldsProp" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="batchMode" :has-action-header="hasActionHeader" :item-actions="itemActionsComputed" :action-width="actionWidthComputed" :expand-fields="expandFields" :hide-columns="hideColumns" :merge-with-server="mergeWithServer" @chip="clickChip">
+  <DataTable v-bind="$attrs" ref="tableRef" :entity="entity" :headers="headers" :searchable="isSearchable" :infinite="!isPaginable" :search-fields="searchFieldsProp" :sort-desc="sortDesc" :sort-key="sortKey" :show-select="batchMode" :has-action-header="hasActionHeader" :item-actions="itemActionsComputed" :action-width="actionWidthComputed" :expand-fields="expandFields" :hide-columns="hideColumns" :hide-search="hideSearch" :merge-with-server="mergeWithServer" @chip="clickChip">
     <template v-if="!mobile" #toolbar>
       <v-tooltip v-for="(toolbar, index) in headerToolbars" :key="index" location="bottom">
         <template #activator="{ props: tooltipProps }">
@@ -71,6 +71,7 @@ export interface CrudTableProps {
   headers?: TableHeader[];
   expandFields?: string[];
   hideColumns?: string[];
+  hideSearch?: string[];
   mergeWithServer?: boolean;
   chipFieldsMap?: Record<string, FormField[]>;
   noSelectLabel?: string;
@@ -103,6 +104,7 @@ const props = withDefaults(defineProps<CrudTableProps>(), {
   headers: () => [],
   expandFields: () => [],
   hideColumns: () => [],
+  hideSearch: () => [],
   mergeWithServer: true,
   createIcon: "mdi-plus-circle",
   refreshIcon: "mdi-refresh",

@@ -2,7 +2,7 @@
   <div>
     <!-- Search form -->
     <div v-if="searchable">
-      <SearchForm v-bind="$attrs" :entity="entity" :fields="searchFieldsProp" :title="searchTitle" :cols="searchCols" @clear="clearSearch" @search="doSearch" />
+      <SearchForm v-bind="$attrs" :entity="entity" :fields="searchFieldsProp" :title="searchTitle" :cols="searchCols" :hide-search="hideSearch" @clear="clearSearch" @search="doSearch" />
       <v-divider class="mt-5" />
     </div>
 
@@ -199,6 +199,7 @@ const props = withDefaults(
     hiddenFields?: string[];
     headers?: TableHeader[];
     hideColumns?: string[];
+    hideSearch?: string[];
     mergeWithServer?: boolean;
   }>(),
   {
@@ -230,6 +231,7 @@ const props = withDefaults(
     hiddenFields: () => [],
     headers: () => [],
     hideColumns: () => [],
+    hideSearch: () => [],
     mergeWithServer: false,
   },
 );

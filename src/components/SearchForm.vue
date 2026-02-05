@@ -52,10 +52,12 @@ const props = withDefaults(
     clearLabel?: string;
     searchLabel?: string;
     searchToolbarClass?: string;
+    hideSearch?: string[];
   }>(),
   {
     cols: 0,
     searchToolbarClass: "bg-primary text-subtitle-2 text-white",
+    hideSearch: () => [],
   }
 );
 
@@ -106,7 +108,11 @@ function submitForm(): void {
 // Lifecycle
 onMounted(async () => {
   await loadMeta();
-  const fields = (await getSearchFields()) as unknown as FormField[];
+  let fields = (await getSearchFields()) as unknown as FormField[];
+  // Filter out hidden search fields
+  if (props.hideSearch && props.hideSearch.length > 0) {
+    fields = fields.filter((f) => !props.hideSearch?.includes(f.name || ""));
+  }
   fields.forEach((field) => {
     if (!field.cols) {
       field.cols = props.cols || undefined;
