@@ -25,7 +25,7 @@ function copyLocales() {
 export default defineConfig({
   plugins: [
     vue(),
-    vuetify({ autoImport: true }),
+    vuetify({ autoImport: false }),
     dts({
       insertTypesEntry: true,
       include: ['src/**/*.ts', 'src/components/**/*.vue'],

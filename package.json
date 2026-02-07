@@ -9,7 +9,13 @@
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
-    "type-check": "vue-tsc --noEmit"
+    "type-check": "vue-tsc --noEmit",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "bun run clean && bun run build",
+    "publish": "bun publish"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "main": "./dist/hola-web.umd.cjs",
   "module": "./dist/hola-web.js",
@@ -25,7 +31,9 @@
   },
   "files": [
     "dist",
-    "dist/locales"
+    "dist/locales",
+    "README.md",
+    "!dist/**/*.map"
   ],
   "dependencies": {
     "@elysiajs/eden": "^1.2.0",

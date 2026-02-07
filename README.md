@@ -32,7 +32,81 @@ A meta-programming Vue 3 component library that automatically generates CRUD int
 ### Installation
 
 ```bash
-bun install
+# npm
+npm install hola-web
+
+# bun
+bun add hola-web
+```
+
+### Peer Dependencies
+
+hola-web requires the following packages in your project:
+
+```bash
+# npm
+npm install vue vuetify @mdi/font pinia vue-router vue-i18n axios
+
+# bun
+bun add vue vuetify @mdi/font pinia vue-router vue-i18n axios
+```
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `vue` | ^3.5.0 | Core framework |
+| `vuetify` | ^3.7.0 | UI component library |
+| `@mdi/font` | ^7.4.0 | Material Design Icons |
+| `pinia` | ^2.2.0 | State management |
+| `vue-router` | ^4.4.0 | Client-side routing |
+| `vue-i18n` | ^11.2.8 | Internationalization |
+| `axios` | ^1.7.0 | HTTP client |
+
+Optional packages (only if you use charts):
+
+```bash
+npm install echarts vue-echarts
+```
+
+### Style Setup
+
+hola-web does **not** bundle Vuetify styles. You need to import them separately in your `main.ts`:
+
+```typescript
+import 'vuetify/styles'                         // Vuetify styles (required)
+import '@mdi/font/css/materialdesignicons.css'   // Material Design Icons (required)
+import 'hola-web/style.css'                      // hola-web component styles
+```
+
+### Application Setup
+
+```typescript
+import { createApp } from "vue";
+import { createPinia } from "pinia";
+import App from "./App.vue";
+import { initApp, initAxios, loadLocaleMessagesEager } from "hola-web";
+
+// Styles
+import 'vuetify/styles'
+import '@mdi/font/css/materialdesignicons.css'
+import 'hola-web/style.css'
+
+// Load locale files
+const localeModules = import.meta.glob("./locales/*.json", { eager: true });
+const messages = loadLocaleMessagesEager(localeModules);
+
+// Configure API client
+initAxios({ baseURL: "http://localhost:8089" });
+
+// Create and initialize app
+const app = createApp(App);
+app.use(createPinia());
+
+initApp(app, {
+  localeMessages: messages,
+  locale: "en",
+});
+
+app.mount("#app");
 ```
 
 ### Basic Usage
@@ -58,33 +132,6 @@ The `h-crud` component automatically:
 - Renders data table with sorting and pagination
 - Provides create, edit, clone, and delete dialogs
 - Handles all API calls internally
-
-### Application Setup
-
-```typescript
-import { createApp } from "vue";
-import { createPinia } from "pinia";
-import App from "./App.vue";
-import { initApp, initAxios, loadLocaleMessagesEager } from "hola-web";
-
-// Load locale files
-const localeModules = import.meta.glob("./locales/*.json", { eager: true });
-const messages = loadLocaleMessagesEager(localeModules);
-
-// Configure API client
-initAxios({ baseURL: "http://localhost:8089" });
-
-// Create and initialize app
-const app = createApp(App);
-app.use(createPinia());
-
-initApp(app, {
-  localeMessages: messages,
-  locale: "en",
-});
-
-app.mount("#app");
-```
 
 ## 🧩 Components
 

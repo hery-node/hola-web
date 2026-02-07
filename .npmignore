@@ -1,0 +1,15 @@
+src/
+test/
+docs/
+node_modules/
+bun.lock
+tsconfig.json
+vite.config.ts
+eslint.config.js
+index.html
+build.log
+.gitignore
+.DS_Store
+coverage/
+*.log
+.env*

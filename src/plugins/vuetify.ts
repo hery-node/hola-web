@@ -1,13 +1,15 @@
 /**
  * Vuetify 3 configuration
+ *
+ * NOTE: Users must import Vuetify and icon styles in their own app:
+ *   import 'vuetify/styles'
+ *   import '@mdi/font/css/materialdesignicons.css'
  */
 
-import 'vuetify/styles'
 import { createVuetify, type ThemeDefinition } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
-import '@mdi/font/css/materialdesignicons.css'
 import type { ThemeColors } from '@/types'
 
 /**
