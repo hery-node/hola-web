@@ -12,7 +12,7 @@
     "type-check": "vue-tsc --noEmit",
     "clean": "rm -rf dist",
     "prepublishOnly": "bun run clean && bun run build",
-    "publish": "bun publish"
+    "release": "bun publish"
   },
   "engines": {
     "node": ">=18"
