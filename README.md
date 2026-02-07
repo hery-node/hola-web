@@ -1,5 +1,7 @@
 # Hola Web
 
+[中文文档](./README_CN.md)
+
 A meta-programming Vue 3 component library that automatically generates CRUD interfaces from entity metadata. Built with **Vue 3 + Vuetify 3 + ECharts**, designed to work seamlessly with [hola-server](https://github.com/hery-node/hola-server).
 
 ## ✨ Features
