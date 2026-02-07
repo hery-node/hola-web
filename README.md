@@ -34,10 +34,6 @@ A meta-programming Vue 3 component library that automatically generates CRUD int
 ### Installation
 
 ```bash
-# npm
-npm install hola-web
-
-# bun
 bun add hola-web
 ```
 

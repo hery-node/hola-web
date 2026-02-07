@@ -34,10 +34,6 @@
 ### 安装
 
 ```bash
-# npm
-npm install hola-web
-
-# bun
 bun add hola-web
 ```
 
