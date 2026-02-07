@@ -1,271 +1,308 @@
-# Hola-Web
+# Hola Web
 
-**Meta-Programming Framework for Vue.js Applications**
-
-A powerful Vue.js framework that automatically generates CRUD interfaces from entity metadata, built with Vue 3 and Vuetify 3.
-
-[![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)](https://github.com/hery-node/hola-web) [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-
----
+A meta-programming Vue 3 component library that automatically generates CRUD interfaces from entity metadata. Built with **Vue 3 + Vuetify 3 + ECharts**, designed to work seamlessly with [hola-server](https://github.com/hery-node/hola-server).
 
 ## ✨ Features
 
-- **42 Production-Ready Components** - Tables, forms, charts, calendars, kanban boards, and more
-- **Meta-Programming** - Automatic UI generation from entity metadata
-- **8 Powerful Composables** - Reusable logic for metadata, alerts, charts, search, and validation
-- **Vuetify 3** - Material Design components with full theming support
-- **TypeScript Support** - Comprehensive type definitions
-- **Responsive Design** - Mobile-first approach with adaptive layouts
-- **Dark Mode** - Complete light/dark theme switching
-- **Internationalization** - Built-in i18n support
-- **Bun & Elysia** - Optimized for modern stack
+- **26 Production-Ready Components** — Tables, forms, charts, navigation, comparisons, and more
+- **Meta-Driven UI** — Automatic CRUD interfaces generated from server entity metadata
+- **8 Composables** — Reusable logic for metadata, alerts, charts, search, validation, and keyboard shortcuts
+- **Dual API Clients** — Axios wrapper + Eden Treaty for end-to-end type-safe API calls
+- **Extensible Type System** — Client-side type registry with validation rules, formatting, and input types
+- **Vuetify 3** — Material Design with 25+ custom theme colors and movable dialogs
+- **ECharts Integration** — Line, bar, pie, combo, and dashboard chart components
+- **Internationalization** — Built-in i18n with English and Chinese locales
+- **Library Build** — Ships as ESM + UMD with TypeScript declarations and CSS
 
----
+## 📦 Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | [Vue 3](https://vuejs.org) (Composition API) |
+| UI Library | [Vuetify 3](https://vuetifyjs.com) 3.7+ |
+| Charts | [ECharts](https://echarts.apache.org) 5.5+ / [Chartist](https://gionkunz.github.io/chartist-js/) |
+| HTTP Client | [Axios](https://axios-http.com) / [Eden Treaty](https://elysiajs.com/eden/treaty) |
+| State | [Pinia](https://pinia.vuejs.org) |
+| i18n | [vue-i18n](https://vue-i18n.intlify.dev) 11+ |
+| Build | [Vite](https://vitejs.dev) 6+ |
+| Runtime | [Bun](https://bun.sh) |
 
 ## 🚀 Quick Start
 
 ### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/hery-node/hola-web.git
-cd hola-web
-
-# Install dependencies
 bun install
-
-# Start development server
-bun run dev
 ```
-
-The application will be available at `http://localhost:5173`
 
 ### Basic Usage
 
-Create a simple CRUD page - the `h-crud` component handles all operations automatically:
+Create a full CRUD page with a single component:
 
 ```vue
 <template>
-  <h-crud :entity="entity" :item-label-key="item_label_key" :sort-key="sort_key" :sort-desc="sort_desc"></h-crud>
+  <h-crud :entity="entity" :item-label-key="itemLabelKey"
+    :sort-key="sortKey" :sort-desc="sortDesc" />
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-
-const entity = ref("user");
-const item_label_key = ref("name");
-const sort_key = ref(["name"]);
-const sort_desc = ref([false]);
+const entity = "user";
+const itemLabelKey = "name";
+const sortKey = ["name"];
+const sortDesc = [false];
 </script>
 ```
 
-That's it! The `h-crud` component automatically:
+The `h-crud` component automatically:
 - Loads entity metadata from the server
-- Fetches and displays data with pagination
-- Provides create, update, and delete dialogs
+- Renders data table with sorting and pagination
+- Provides create, edit, clone, and delete dialogs
 - Handles all API calls internally
 
----
+### Application Setup
 
-## 📦 Component Library
+```typescript
+import { createApp } from "vue";
+import { createPinia } from "pinia";
+import App from "./App.vue";
+import { initApp, initAxios, loadLocaleMessagesEager } from "hola-web";
+
+// Load locale files
+const localeModules = import.meta.glob("./locales/*.json", { eager: true });
+const messages = loadLocaleMessagesEager(localeModules);
+
+// Configure API client
+initAxios({ baseURL: "http://localhost:8089" });
+
+// Create and initialize app
+const app = createApp(App);
+app.use(createPinia());
+
+initApp(app, {
+  localeMessages: messages,
+  locale: "en",
+});
+
+app.mount("#app");
+```
+
+## 🧩 Components
 
 ### Core Components
 
-| Component     | Name      | Purpose                                  |
-| ------------- | --------- | ---------------------------------------- |
-| `h-crud`      | CrudTable | Full CRUD operations with inline editing |
-| `h-table`     | DataTable | Data table with sorting and pagination   |
-| `h-form`      | BasicForm | Simple form component                    |
-| `h-edit-form` | EditForm  | Meta-aware entity form                   |
-| `h-list`      | DataList  | Mobile-friendly list view                |
+| Tag | Component | Description |
+|-----|-----------|-------------|
+| `h-crud` | CrudTable | Full CRUD operations with inline editing |
+| `h-table` | DataTable | Data table with sorting, pagination, search |
+| `h-form` | BasicForm | Simple form with validation |
+| `h-edit-form` | EditForm | Meta-aware entity edit form |
+| `h-search` | SearchForm | Search form for entity filtering |
+| `h-list` | DataList | Mobile-friendly list view |
 
-### Meta-Integrated Components
+### Table Components
 
-| Component          | Purpose                               |
-| ------------------ | ------------------------------------- |
-| `h-calendar`       | Calendar view for date-based entities |
-| `h-timeline`       | Chronological timeline display        |
-| `h-tree`           | Hierarchical tree view with drag-drop |
-| `h-kanban`         | Kanban board with status columns      |
-| `h-file`           | File upload with GridFS integration   |
-| `h-relationship`   | Advanced entity relationship picker   |
-| `h-gallery`        | Image gallery with lightbox           |
-| `h-compare-view`   | Side-by-side entity comparison        |
-| `h-filter-builder` | Visual MongoDB query builder          |
-| `h-search`         | Unified multi-entity search           |
-| `h-bulk-actions`   | Batch operations toolbar              |
-| `h-import`         | CSV/Excel import with mapping         |
-| `h-export`         | Multi-format export (CSV/Excel/JSON)  |
-| `h-wizard`         | Multi-step form wizard                |
-| `h-audit`          | Entity change history                 |
-| `h-notifications`  | Notification center                   |
+| Tag | Component | Description |
+|-----|-----------|-------------|
+| `h-array` | ArrayTable | Inline editable array table |
+| `h-property` | PropertyTable | Key-value property display |
+| `h-compare` | CompareTable | Side-by-side entity comparison |
+| `h-dashboard-table` | DashboardTable | Dashboard summary table |
 
 ### Chart Components
 
-| Component       | Type                    |
-| --------------- | ----------------------- |
-| `h-line-chart`  | Line charts for trends  |
-| `h-bar-chart`   | Bar/column charts       |
-| `h-pie-chart`   | Pie/donut charts        |
-| `h-combo-chart` | Combination charts      |
-| `h-chart`       | Generic ECharts wrapper |
+| Tag | Component | Description |
+|-----|-----------|-------------|
+| `h-chart` | ChartView | Generic ECharts wrapper |
+| `h-line-chart` | ChartLineView | Line charts for trends |
+| `h-bar-chart` | ChartBarView | Bar/column charts |
+| `h-pie-chart` | ChartPieView | Pie/donut charts |
+| `h-combo-chart` | ChartComboView | Multi-type combination charts |
+| `h-simple-chart` | ChartSimpleView | Simple Chartist charts |
+| `h-dashboard-chart` | ChartDashboardView | Dashboard chart panels |
 
-See [Component Documentation](docs/COMPONENTS.md) for complete reference.
+### Layout & Navigation
 
----
+| Tag | Component | Description |
+|-----|-----------|-------------|
+| `h-window` | BasicWindow | Modal dialog window |
+| `h-confirm` | ConfirmDialog | Confirmation dialog |
+| `h-navbar` | NavBar | Top navigation bar |
+| `h-mobile-menu` | MobileMenu | Mobile navigation menu |
+| `h-card` | CardView | Content card with actions |
+| `h-stats` | StatisticsView | Statistics display card |
+| `h-offset` | OffsetView | Offset content layout |
+
+### Entity Components
+
+| Tag | Component | Description |
+|-----|-----------|-------------|
+| `h-array-entity` | ArrayEntity | Entity with array sub-items |
+| `h-compare-entity` | CompareEntity | Entity comparison wrapper |
+
+## 🔧 Composables
+
+| Composable | Purpose | Key Functions |
+|------------|---------|---------------|
+| `useMeta` | Entity metadata management | `loadMeta()`, `getTableHeaders()`, `getEditFields()`, `getSearchFields()` |
+| `useAlert` | Notifications & confirmations | `showSuccess()`, `showError()`, `confirm()` |
+| `useChart` | ECharts integration | `createChart()`, chart option builders |
+| `useFuzzy` | Fuzzy text search/filtering | `search()`, configurable matching |
+| `useKeymap` | Keyboard shortcuts | `bindKey()`, key combinations |
+| `useRegex` | Regex validation helpers | Pattern matching utilities |
+| `useSimpleValue` | Simple reactive values | Getter/setter helpers |
+| `useWrap` | Value wrapping/formatting | Text truncation, formatting |
+
+## 🌐 API Clients
+
+### Axios Client
+
+```typescript
+import { initAxios, listEntity, saveEntity, deleteEntity } from "hola-web";
+
+// Initialize
+initAxios({ baseURL: "http://localhost:8089" });
+
+// CRUD operations
+const { data, total } = await listEntity("user", searchForm, {
+  page: 1, limit: 20, sortBy: "name", desc: "false", attrNames: "*"
+});
+await saveEntity("user", formData, false); // create
+await saveEntity("user", formData, true);  // update
+await deleteEntity("user", ["id1", "id2"]);
+```
+
+### Eden Treaty Client (Type-Safe)
+
+```typescript
+import { initEden, getEden, handleEdenResponse } from "hola-web";
+import type { App } from "your-server/main";
+
+// Initialize with server type
+const api = initEden<App>({ baseUrl: "http://localhost:3000" });
+
+// Type-safe API calls
+const result = handleEdenResponse(await api.user.meta.get());
+```
 
 ## 🎨 Theming
 
-Customize your application with Vuetify themes:
+Customize with 25+ semantic color tokens:
 
 ```typescript
-// src/plugins/vuetify.ts
-import { createVuetify } from 'vuetify'
+import { initApp } from "hola-web";
 
-export default createVuetify({
+initApp(app, {
+  locale: "en",
+  localeMessages: messages,
   theme: {
-    themes: {
-      light: {
-        colors: {
-          primary: "#1976D2",
-          secondary: "#424242",
-          accent: "#82B1FF",
-        }
-      },
-      dark: {
-        colors: {
-          primary: "#2196F3",
-          secondary: "#616161",
-          accent: "#FF4081",
-        }
-      },
+    light: {
+      primary: "#1976D2",
+      secondary: "#424242",
+      accent: "#82B1FF",
+      create: "#4CAF50",
+      edit: "#2196F3",
+      delete: "#F44336",
+      appBar: "#1976D2",
+      tableHeader: "#E3F2FD",
+      // ...and more
     },
   },
-})
+});
 ```
 
-See [Theming Guide](docs/THEMING.md) for advanced customization.
+## 🌍 Internationalization
 
----
+Built-in locale support with deep merge for app-specific translations:
 
-## 🧩 Composables
+```typescript
+import { setupI18n, loadLocaleMessagesEager, deepMerge } from "hola-web";
 
-Reusable functionality through Vue Composables:
+// Load hola-web built-in locales + app locales
+const holaMessages = loadLocaleMessagesEager(holaLocaleModules);
+const appMessages = loadLocaleMessagesEager(appLocaleModules);
 
-| Composable  | Purpose                       | Key Functions                                                     |
-| ----------- | ----------------------------- | ----------------------------------------------------------------- |
-| **Meta**    | Entity metadata integration   | `useMeta()`, `getHeaders()`, `getFormFields()`                    |
-| **Alert**   | Notifications & confirmations | `useAlert()`, `showError()`, `confirm()`                          |
-| **Crud**    | Basic CRUD operations         | `useCrud()`, `createItem()`, `updateItem()`, `deleteItem()`       |
-| **Chart**   | ECharts integration           | `useChart()`, `createLineChart()`                                 |
-| **Keymap**  | Keyboard shortcuts            | `useKeymap()`                                                     |
+// Deep merge preserves nested keys
+const merged = { en: deepMerge(holaMessages.en, appMessages.en) };
+const i18n = setupI18n({ locale: "en", messages: merged });
+```
 
-See [Composables Documentation](docs/COMPOSABLES.md) for detailed API reference.
+## 📁 Type System
 
----
+Client-side type registry for form validation, input types, and formatting:
 
-## 📚 Documentation
+```typescript
+import { registerType, getType, createEnumType } from "hola-web";
 
-- [Component Library](docs/COMPONENTS.md) - Complete component reference
-- [Mixins & Composables](docs/COMPOSABLES.md) - Reusable functionality
-- [Theming Guide](docs/THEMING.md) - Customization and styling
-- [Usage Examples](docs/EXAMPLES.md) - Real-world code examples
+// Register custom enum type
+registerType(createEnumType("status", [
+  { value: 0, label: "Active" },
+  { value: 1, label: "Inactive" },
+]));
 
----
+// Built-in types: string, text, int, uint, float, decimal, percentage,
+// currency, boolean, date, datetime, email, password, url, ip, file, array, enum
+```
 
-## 🏗️ Project Structure
+## 📂 Project Structure
 
 ```
 hola-web/
-├── public/
 ├── src/
-│   ├── assets/              # Static assets
-│   ├── components/          # 42 Vue components
-│   ├── core/                # Core utilities
-│   │   ├── api.ts           # Eden/Axios client
-│   │   ├── chart.ts         # Chart utilities
-│   ├── composables/         # Vue Composables
-│   │   ├── useMeta.ts
-│   │   ├── useAlert.ts
-│   ├── plugins/             # Vue plugins
-│   │   ├── vuetify.ts
-│   │   ├── i18n.ts
-│   ├── locales/             # Translations
-│   ├── App.vue              # Root component
-│   ├── main.ts              # Entry point
-├── docs/                    # Documentation
+│   ├── index.ts              # Public API & plugin entry
+│   ├── main.ts               # Dev app entry point
+│   ├── App.vue               # Dev app root component
+│   ├── components/           # 26 Vue components
+│   │   ├── CrudTable.vue     # Full CRUD operations
+│   │   ├── DataTable.vue     # Data table with pagination
+│   │   ├── EditForm.vue      # Meta-aware edit form
+│   │   ├── BasicForm.vue     # Simple form component
+│   │   ├── ChartView.vue     # ECharts wrapper
+│   │   └── ...
+│   ├── composables/          # 8 Vue composables
+│   │   ├── useMeta.ts        # Entity metadata management
+│   │   ├── useAlert.ts       # Notifications
+│   │   ├── useChart.ts       # Chart utilities
+│   │   └── ...
+│   ├── core/                 # Core utilities
+│   │   ├── axios.ts          # Axios HTTP client wrapper
+│   │   ├── eden.ts           # Eden Treaty client
+│   │   ├── type.ts           # Type system & validation
+│   │   ├── chart.ts          # Chart data utilities
+│   │   ├── code.ts           # Response code constants
+│   │   └── storage.ts        # Local storage helpers
+│   ├── plugins/              # Vue plugins
+│   │   ├── vuetify.ts        # Vuetify 3 configuration
+│   │   ├── i18n.ts           # Vue I18n setup
+│   │   └── echarts.ts        # ECharts setup
+│   ├── types/                # TypeScript definitions
+│   ├── locales/              # i18n translations (en, zh)
+│   └── views/                # Dev demo views
+├── docs/                     # Documentation
+│   ├── COMPONENTS.md         # Component reference
+│   └── THEMING.md            # Theming guide
+├── vite.config.ts            # Vite build config (ESM + UMD)
 ├── package.json
-└── vite.config.ts
+└── tsconfig.json
 ```
 
----
-
 ## 🛠️ Development
-
-### Prerequisites
-
-- Bun 1.0+
-
-### Setup
 
 ```bash
 # Install dependencies
 bun install
 
-# Start development server
+# Start dev server
 bun run dev
 
-# Build for production
+# Build library (ESM + UMD + types + CSS)
 bun run build
 
-# Lint and fix files
+# Type check
+bun run type-check
+
+# Lint
 bun run lint
 ```
-
----
-
-## 🔧 Configuration
-
-### API Integration
-
-Configure Eden/Axios in `src/core/api.ts`.
-
----
-
-## 🌐 Backend Integration
-
-Hola-web works seamlessly with [hola-server](https://github.com/hery-node/hola-server), a Bun + Elysia + MongoDB backend. Define your entity metadata using `init_router()`:
-
-```typescript
-// router/user.ts
-import { init_router } from "hola-server";
-
-export const router = init_router({
-  collection: "user",
-  primary_keys: ["email"],
-  ref_label: "name",
-
-  readable: true,
-  creatable: true,
-  updatable: true,
-  deleteable: true,
-
-  roles: [
-    "admin:*",
-    "user:rs"
-  ],
-
-  fields: [
-    { name: "email", type: "email", required: true },
-    { name: "name", type: "string", required: true },
-    { name: "age", type: "int" },
-    { name: "role", type: "user_role", default: "user" },
-    { name: "created_at", type: "datetime", sys: true, create: false, update: false }
-  ]
-});
-```
-
----
 
 ## 📋 Requirements
 
@@ -274,41 +311,6 @@ export const router = init_router({
 - **Vuetify:** 3.7.0+
 - **Browsers:** Modern browsers (Chrome, Firefox, Safari, Edge)
 
----
-
-## 🤝 Contributing
-
-Contributions are welcome!
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
-
----
-
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- Built with [Vue.js](https://vuejs.org/)
-- UI components by [Vuetify](https://vuetifyjs.com/)
-- Optimized for [Bun](https://bun.sh/) & [Elysia](https://elysiajs.com/)
-
----
-
-## 📞 Support
-
-- **GitHub Issues:** [Report bugs or request features](https://github.com/hery-node/hola-web/issues)
-- **Documentation:** See `docs/` folder
-- **Examples:** See `docs/EXAMPLES.md`
-
----
-
-**Version:** 3.0.0
-**Last Updated:** January 18, 2026
+MIT
